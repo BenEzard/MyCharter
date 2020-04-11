@@ -19,6 +19,8 @@ namespace MyCharter
 
         /// <summary>
         /// List of entries on the axis.
+        /// SortedList provides sorting that we might not want on Data Series'
+        /// List provides no sorting/easy access
         /// </summary>
         public SortedList Entries = new SortedList();
 
@@ -37,8 +39,6 @@ namespace MyCharter
         /// </summary>
         public int AxisPadding { get; set; } = 5;
 
-        public int PixelsPerIncrement { get; set; } = 10;
-
         public AxisLabelPosition LabelPosition { get; set; }
 
         /// <summary>
@@ -56,6 +56,7 @@ namespace MyCharter
         /// <param name="entry"></param>
         protected void AddEntry(AxisEntry entry)
         {
+
             Entries.Add(entry.KeyValue, entry);
         }
 

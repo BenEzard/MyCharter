@@ -19,6 +19,8 @@ namespace MyCharter
 
         public int MinorIncrement { get; set; }
 
+        public int PixelsPerIncrement { get; set; } = 10;
+
         /// <summary>
         /// Instantiate an Axis.
         /// </summary>
