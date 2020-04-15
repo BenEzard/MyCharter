@@ -1,7 +1,8 @@
 ﻿using MyCharter.ChartElements.Axis;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace MyCharter
 {
@@ -22,7 +23,7 @@ namespace MyCharter
         /// SortedList provides sorting that we might not want on Data Series'
         /// List provides no sorting/easy access
         /// </summary>
-        public SortedList Entries = new SortedList();
+        public List<AxisEntry> Entries = new List<AxisEntry>();
 
         /// <summary>
         /// The font that is used to label the axis.
@@ -42,22 +43,61 @@ namespace MyCharter
         public AxisLabelPosition LabelPosition { get; set; }
 
         /// <summary>
+        /// This is the maximum label width on the Axis. 
+        /// This is calculated in MeasureLabels()
+        /// </summary>
+        protected int _maxLabelWidth = -1;
+
+        /// <summary>
+        /// This is the maximum label height on the Axis. 
+        /// This is calculated in MeasureLabels()
+        /// </summary>
+        protected int _maxLabelHeight = -1;
+
+        /// <summary>
+        /// The Pen used to draw the major ticks.
+        /// </summary>
+        public Pen MajorTickPen = new Pen(Brushes.Black, 1);
+
+        /// <summary>
+        /// The length of the major tick.
+        /// </summary>
+        public int MajorTickLength = 5;
+
+        public Pen MajorGridLinePen = new Pen(Brushes.Gray, 1);
+
+
+        /// <summary>
         /// Instantiate an Axis.
         /// </summary>
         /// <param name="format">The AxisFormat of this axis.</param>
         public AbstractChartAxis(AxisFormat format)
         {
             Format = format;
+
+            // Configure MajorGridLinePen
+            MajorGridLinePen.DashStyle = DashStyle.Dash;
+            MajorGridLinePen.DashPattern = new float[] { 3, 3 };
         }
 
         /// <summary>
-        /// Add an AxisEntry to the (sorted) Axis.
+        /// Get the total Axis Label dimensions.
+        /// </summary>
+        /// <returns></returns>
+        public abstract SizeF GetAxisLabelDimensions();
+
+        public SizeF GetMaxLabelDimensions()
+        {
+            return new SizeF(_maxLabelWidth, _maxLabelHeight);
+        }
+
+        /// <summary>
+        /// Add an AxisEntry to the Axis.
         /// </summary>
         /// <param name="entry"></param>
         protected void AddEntry(AxisEntry entry)
         {
-
-            Entries.Add(entry.KeyValue, entry);
+            Entries.Add(entry);
         }
 
         /// <summary>
@@ -66,22 +106,43 @@ namespace MyCharter
         /// </summary>
         internal abstract void GenerateAxisValues();
 
+        /*        public Point GetAxisEntry(object key)
+                {
+                    Point rValue = new Point(-1,-1);
+                    foreach (AxisEntry e in Entries)
+                    {
+                        if (e.KeyValue == key)
+                        {
+                            rValue = e.Label.ChartPosition;
+                        }
+                    }
+                    return rValue;
+                }*/
+
+        public abstract void DrawMajorGridLines(Graphics g);
+
         /// <summary>
-        /// Calculate the dimensions that the label will take on the image (based on the font being used).
+        /// Prepare the Axis. Must be called before it can be displayed.
+        /// This method does the following:
+        /// - calculate the dimensions the label will take on the image (based on the font being used), updating MaxLabelSize;
         /// </summary>
-        public void CalculateLabelDimensions()
+        public void MeasureLabels()
         {
             // Create a temporary BMP for 'sketching'
             Bitmap tempBMP = new Bitmap(400, 400);
             Graphics tempGraphics = Graphics.FromImage(tempBMP);
 
-            foreach (object o in Entries.Values)
+            for (int i = 0; i < Entries.Count; i++)
             {
-                if (o is AxisEntry element)
+                ImageElement label = (ImageElement)Entries[i].Label;
+                if (label != null)
                 {
-                    var label = (ImageElement)element.Label;
-                    if (label != null)
-                        label.LabelDimensions = tempGraphics.MeasureString(label.Label, AxisFont);
+                    SizeF stringMeasurement = tempGraphics.MeasureString(label.Label, AxisFont);
+                    label.LabelDimensions = stringMeasurement;
+
+                    // Update the max values.
+                    _maxLabelWidth = (_maxLabelWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : _maxLabelWidth;
+                    _maxLabelHeight = (_maxLabelHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : _maxLabelHeight;
                 }
             }
 
@@ -93,7 +154,7 @@ namespace MyCharter
         /// </summary>
         public void DebugOutput_ListScale()
         {
-            foreach (object o in Entries.Values)
+            foreach (object o in Entries)
             {
                 if (o is AxisEntry element)
                 {
@@ -107,35 +168,7 @@ namespace MyCharter
             }
         }
 
-        /// <summary>
-        /// Return the maximum label dimensions on the axis.
-        /// </summary>
-        /// <returns></returns>
-        public SizeF GetMaxLabelDimensions()
-        {
-            SizeF rValue = new SizeF(0, 0);
-            foreach (object o in Entries.Values)
-            {
-                if ((o is AxisEntry element) && (element.Label != null))
-                {
-                    var label = (ImageElement)element.Label;
-                    if (label.LabelDimensions.HasValue)
-                    {
-                        if (rValue.Width < label.LabelDimensions.Value.Width)
-                            rValue.Width = label.LabelDimensions.Value.Width;
-                        if (rValue.Height < label.LabelDimensions.Value.Height)
-                            rValue.Height = label.LabelDimensions.Value.Height;
-                    }
-                }
-            }
-            return rValue;
-        }
-
-        /// <summary>
-        /// Return the amount of space (in pixels) required for all of the labels on this axis.
-        /// </summary>
-        /// <returns></returns>        
-        internal abstract SizeF GetLabelDimensions();
+        public abstract void DrawAxisLabels(Graphics g, Point offset);
 
         /// <summary>
         /// Returns the total number of increments on the scale.
@@ -145,7 +178,8 @@ namespace MyCharter
             return Entries.Count;
         }
 
-        public abstract void DrawAxis(Graphics g, ref Point offset);
+        public abstract void DrawAxis(Graphics g, Point offset);
 
+        public abstract void DrawTicks(Graphics g, Point offset);
     }
 }

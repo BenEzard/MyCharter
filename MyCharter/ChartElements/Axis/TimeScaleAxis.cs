@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 namespace MyCharter
 {
@@ -27,6 +28,9 @@ namespace MyCharter
             return rValue;            
         }
 
+        /// <summary>
+        /// Generate all of the timescale axis values, using TimeSpan as the key.
+        /// </summary>
         internal override void GenerateAxisValues()
         {
             DateTime maxTime = (DateTime)MaximumValue;
@@ -44,13 +48,11 @@ namespace MyCharter
                 while (current.Hour != 0 && current.Minute < 59)
                 {
 
+                    tick = new Tick(key:current.TimeOfDay, content:null, label:current.ToShortTimeString());
                     if ((LastTick == null) || (current.Subtract(minTime).TotalMinutes % MajorIncrement == 0))
                     {
-                        tick = new Tick(current, null, current.ToShortTimeString());
                         tick.IsMajorTick = true;
                     }
-                    else
-                        tick = new Tick(current, null);
 
                     AddTick(tick);
                     LastTick = tick;
@@ -60,18 +62,47 @@ namespace MyCharter
 
             while (current <= maxTime)
             {
-                
+
+                tick = new Tick(current.TimeOfDay, null, current.ToShortTimeString());
                 if ((LastTick != null) && (current.Subtract(minTime).TotalMinutes % MajorIncrement == 0))
                 {
-                    tick = new Tick(current, null, current.ToShortTimeString());
                     tick.IsMajorTick = true;
                 }
-                else
-                    tick = new Tick(current, null);
 
                 AddTick(tick);
                 current = current.AddMinutes(MinorIncrement);
             }
         }
+
+        /// <summary>
+        /// Return the AxisEntry co-ordinates.
+        /// This is the top-left of the associated label.
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public int GetAxisEntry(TimeSpan timeSpan)
+        {
+            int rValue = -1;
+            Point point = new Point(-1, -1);
+            foreach (AxisEntry e in Entries)
+            {
+                if (e.KeyValue.Equals(timeSpan))
+                {
+                    point = e.Label.ChartPosition;
+                }
+            }
+
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    rValue = point.X;
+                    break;
+                case Axis.Y:
+                    rValue = point.Y;
+                    break;
+            }
+            return rValue;
+        }
+
     }
 }

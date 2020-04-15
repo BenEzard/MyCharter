@@ -27,11 +27,17 @@
             EntryContent = content;
         }
 
+        /// <summary>
+        /// Create an AxisEntry with the specified key, content and label.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="label"></param>
         public AxisEntry(object key, object content, string label)
         {
-            Label = new ImageElement(label);
             KeyValue = key;
             EntryContent = content;
+            Label = new ImageElement(label);
         }
 
     }

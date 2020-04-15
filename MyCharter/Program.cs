@@ -1,5 +1,6 @@
 ﻿using MyCharter.ChartElements.Axis;
 using System;
+using System.Drawing;
 
 namespace MyCharter
 {
@@ -7,31 +8,38 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            BarChart bc = new BarChart();
-            bc.Title = "This is a demo";
-            bc.SubTitle = "And this is the subtitle";
-            bc.OutputFile = @"C:\New Folder\image2.png";
+            BarChart barChart = new BarChart();
+            barChart.Title = "This is a demo";
+            barChart.SubTitle = "And this is the subtitle";
+            barChart.OutputFile = @"C:\New Folder\image2.png";
+            barChart.ImageBackgroundColor = Color.AliceBlue;
+            var xAxis = new TimeScaleAxis(new DateTime(1900, 1, 1, 18, 0, 0), new DateTime(1900, 1, 2, 7, 0, 0), 60, 10, 15);
+            xAxis.AxisFont = new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
+            xAxis.MinorTickPen = new Pen(Brushes.LightGray, 1);
+            barChart.SetAxis(Axis.X, AxisLabelPosition.TOP, xAxis);
+            //xAxis.DebugOutput_ListScale();
 
-            bc.SetAxis(Axis.X, AxisLabelPosition.TOP, new TimeScaleAxis(new DateTime(1900, 1, 1, 18, 0, 0), new DateTime(1900, 1, 2, 7, 0, 0), 60, 10, 10));
+            var yAxis = new DataSeriesAxis();
+            yAxis.LabelPadding = 10;
+            yAxis.AxisPadding = 10;
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 23, 22, 0, 0), new DateTime(2020, 3, 24, 0, 40, 0), "H2H_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 1, 30, 0), new DateTime(2020, 3, 24, 3, 10, 0), "QMaster_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 2, 0, 0), new DateTime(2020, 3, 24, 3, 0, 0), "CorporateDataServices_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 3, 0, 0), new DateTime(2020, 3, 24, 4, 0, 0), "CHCR_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 4, 0, 0), new DateTime(2020, 3, 24, 4, 20, 0), "SACHA_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 4, 20, 0), new DateTime(2020, 3, 24, 5, 0, 0), "UnconsentedBonds_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 5, 0, 0), new DateTime(2020, 3, 24, 5, 20, 0), "AHATS_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 3, 30, 0), new DateTime(2020, 3, 24, 5, 20, 0), "ECIS_BusinessIntelligence"));
+            yAxis.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 5, 0, 0), new DateTime(2020, 3, 24, 5, 50, 0), "PAWS_BusinessIntelligence"));
+            barChart.SetAxis(Axis.Y, AxisLabelPosition.LEFT, yAxis);
+            barChart.GenerateChart();
 
-            var ds = new DataSeriesAxis();
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 23, 22, 0, 0), new DateTime(2020, 3, 24, 0, 40, 0), "H2H_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 1, 30, 0), new DateTime(2020, 3, 24, 3, 10, 0), "QMaster_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 2, 0, 0), new DateTime(2020, 3, 24, 3, 0, 0), "CorporateDataServices_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 3, 0, 0), new DateTime(2020, 3, 24, 4, 0, 0), "CHCR_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 4, 0, 0), new DateTime(2020, 3, 24, 4, 20, 0), "SACHA_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 4, 20, 0), new DateTime(2020, 3, 24, 5, 0, 0), "UnconsentedBonds_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 5, 0, 0), new DateTime(2020, 3, 24, 5, 20, 0), "AHATS_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 3, 30, 0), new DateTime(2020, 3, 24, 5, 20, 0), "ECIS_BusinessIntelligence"));
-            ds.AddDataSeries(new DurationDataSeries(new DateTime(2020, 3, 24, 5, 0, 0), new DateTime(2020, 3, 24, 5, 50, 0), "PAWS_BusinessIntelligence"));
-            bc.SetAxis(Axis.Y, AxisLabelPosition.LEFT, ds);
-            bc.GenerateChart();
+/*            Console.WriteLine($"Seeking axis entry for 20:00 = { xAxis.GetAxisEntry(new DateTime(1900, 1, 1, 20, 0, 0).TimeOfDay)}");
 
-
-            var x = bc.GetAxis(Axis.X);
-            var y = (DataSeriesAxis)bc.GetAxis(Axis.Y);
-            Console.WriteLine($"The number of items on the X axis are {x.TotalIncrementCount()}");
-            Console.WriteLine($"The number of items on the Y axis are {y.TotalIncrementCount()}");
+            Console.WriteLine($"Seeking axis entry for UnconsentedBonds_BusinessIntelligence = { yAxis.GetAxisEntry("UnconsentedBonds_BusinessIntelligence")}");
+            Console.WriteLine($"label padding is { yAxis.LabelPadding}");
+            Console.WriteLine($"The number of items on the X axis are {xAxis.TotalIncrementCount()}");
+            Console.WriteLine($"The number of items on the Y axis are {yAxis.TotalIncrementCount()}");*/
 
         }
     }

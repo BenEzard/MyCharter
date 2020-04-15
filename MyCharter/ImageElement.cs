@@ -17,7 +17,7 @@ namespace MyCharter
         /// <summary>
         /// The position that this ImageElement has on the image.
         /// </summary>
-        public Point ChartPosition { get; set; }
+        public Point ChartPosition { get; set; } = new Point();
 
         /// <summary>
         /// Create a new ImageElement.

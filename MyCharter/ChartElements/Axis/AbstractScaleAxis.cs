@@ -22,6 +22,16 @@ namespace MyCharter
         public int PixelsPerIncrement { get; set; } = 10;
 
         /// <summary>
+        /// The Pen used to draw the major ticks.
+        /// </summary>
+        public Pen MinorTickPen = new Pen(Brushes.Black, 1);
+
+        /// <summary>
+        /// The length of the minor tick.
+        /// </summary>
+        public int MinorTickLength = 3;
+
+        /// <summary>
         /// Instantiate an Axis.
         /// </summary>
         /// <param name="format">The AxisFormat of this axis.</param>
@@ -48,6 +58,26 @@ namespace MyCharter
 
         }
 
+        public override SizeF GetAxisLabelDimensions()
+        {
+            int width = 0;
+            int height = 0;
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    int widthOfLastLabel = (int)Entries[Entries.Count - 1].Label.LabelDimensions.Value.Width;
+                    width = (TotalIncrementCount() * PixelsPerIncrement) + widthOfLastLabel;
+                    height = _maxLabelHeight + AxisPadding;
+                    break;
+                case Axis.Y:
+                    width = _maxLabelWidth + AxisPadding;
+                    height = (LabelPadding * Entries.Count) + LabelPadding + (Entries.Count * _maxLabelHeight);
+                    break;
+            }
+
+            return new SizeF(width, height);
+        }
+
         /// <summary>
         /// Add a Tick to the scale axis.
         /// </summary>
@@ -71,7 +101,7 @@ namespace MyCharter
         public int MajorTickCount()
         {
             int rValue = 0;
-            foreach (object o in Entries.Values)
+            foreach (object o in Entries)
             {
                 if (o is Tick element)
                 {
@@ -90,7 +120,7 @@ namespace MyCharter
         public int MinorTickCount()
         {
             int rValue = 0;
-            foreach (object o in Entries.Values)
+            foreach (object o in Entries)
             {
                 if (o is Tick element)
                 {
@@ -103,35 +133,14 @@ namespace MyCharter
             return rValue;
         }
 
-        internal override SizeF GetLabelDimensions()
-        {
-            var maxDimensions = GetMaxLabelDimensions();
-            int width = 0;
-            int height = 0;
-
-            if (AxisXY == Axis.Y) // If the data series are displayed on the Y axis
-            {
-                width += (int)maxDimensions.Width + AxisPadding;
-                height = ((int)maxDimensions.Height * (Entries.Count + 1)) + (2 * LabelPadding * (Entries.Count + 1));
-            }
-            else if (AxisXY == Axis.X)
-            {
-                height = (int)maxDimensions.Height + AxisPadding;
-                width += PixelsPerIncrement * (TotalIncrementCount() + 1);
-            }
-            Console.WriteLine($"Returning height of {height}");
-            return new SizeF(width, height);
-        }
-
-        public override void DrawAxis(Graphics g, ref Point offset)
+        public override void DrawAxis(Graphics g, Point offset)
         {
             if (AxisXY == Axis.X)
             {
-                foreach (var e in Entries.Values)
+                foreach (var e in Entries)
                 {
                     if (e is Tick entry2)
                     {
-                        Console.WriteLine("is a tick");
                         if (entry2.IsMajorTick)
                         {
                             g.DrawString(entry2.Label.Label, AxisFont, Brushes.Black, offset.X, offset.Y);
@@ -147,6 +156,76 @@ namespace MyCharter
             }
 
         }
+
+        /// <summary>
+        /// Draw the scale ticks on the axis.
+        /// At the same time, the labels' ChartPosition are set.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="offset"></param>
+        public override void DrawTicks(Graphics g, Point offset)
+        {
+            if (AxisXY == Axis.X)
+            {
+                foreach (var e in Entries)
+                {
+                    if (e is Tick entry)
+                    {
+                        e.Label.ChartPosition = new Point(offset.X, offset.Y - _maxLabelHeight);
+                        if (entry.IsMajorTick)
+                        {
+                            g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
+                        } 
+                        else
+                        {
+                            g.DrawLine(MinorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MinorTickLength));
+                        }
+                        offset.X += PixelsPerIncrement;
+                    }
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                throw new NotImplementedException("Coding not done for AbstractScaleAxis.DrawTicks() y-axis implementation");
+            }
+
+        }
+
+        public override void DrawMajorGridLines(Graphics g)
+        {
+            if (AxisXY == Axis.X)
+            {
+                foreach (var e in Entries)
+                {
+                    if (e is Tick entry)
+                    {
+                        Point p = e.Label.ChartPosition;
+                        if (entry.IsMajorTick)
+                        {
+                            g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + _maxLabelHeight + MajorTickLength), new Point(p.X, p.Y + 500));
+                        }
+                    }
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                throw new NotImplementedException("Coding not done for AbstractScaleAxis.DrawMajorGridLines() y-axis implementation");
+            }
+
+        }
+
+        public override void DrawAxisLabels(Graphics g, Point offset)
+        {
+            foreach (AxisEntry entry in Entries)
+            {
+                if (entry is Tick entryTick)
+                    if (entryTick.IsMajorTick)
+                    {
+                        g.DrawString(entry.Label.Label, AxisFont, Brushes.Black, entry.Label.ChartPosition);
+                    }
+            }
+        }
+
 
     }
 }

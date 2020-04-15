@@ -19,34 +19,14 @@ namespace MyCharter
             AddEntry(dataSeries);
         }
 
-        internal override SizeF GetLabelDimensions()
-        {
-            var maxDimensions = GetMaxLabelDimensions();
-            int width = 0;
-            int height = 0; 
-
-            if (AxisXY == Axis.Y) // If the data series are displayed on the Y axis
-            {
-                width += (int)maxDimensions.Width + AxisPadding;
-                height = ((int)maxDimensions.Height * (Entries.Count + 1)) + (2 * LabelPadding * (Entries.Count + 1));
-            }
-            else if (AxisXY == Axis.X)
-            {
-                height = (int)maxDimensions.Height + AxisPadding;
-                throw new NotImplementedException("Code not yet written");
-            }
-            return new SizeF(width, height);
-        }
-
-        public override void DrawAxis(Graphics g, ref Point offset)
+        public override void DrawAxis(Graphics g, Point offset)
         {
             switch (AxisXY)
             {
                 case Axis.X:
-                    Console.WriteLine("here");
-                    break;
+                    throw new ArgumentException("Not implemented for DataSeriesAxis.DrawAxis x-axis.");
                 case Axis.Y:
-                    foreach (var e in Entries.Values)
+                    foreach (var e in Entries)
                     {
                         if (e is AxisEntry entry)
                         {
@@ -57,27 +37,96 @@ namespace MyCharter
                     }
                     break;
             }
-/*            if (AxisXY == Axis.X)
+        }
+
+        public override void DrawTicks(Graphics g, Point offset)
+        {
+            switch (AxisXY)
             {
-                foreach (var e in Entries.Values)
-                {
-                    if (e is Tick entry2)
+                case Axis.X:
+                    throw new NotImplementedException("DataSeriesAxis.DrawTicks not implemented for X axis.");
+                case Axis.Y:
+                    int halfOfLabelHeight = _maxLabelHeight % 2 == 0 ? _maxLabelHeight / 2 : (_maxLabelHeight - 1) / 2;
+                    int x = offset.X - _maxLabelWidth - AxisPadding;
+                    for (int index = 0; index < Entries.Count; index++)
                     {
-                        Console.WriteLine("--is a tick");
-                        if (entry2.IsMajorTick)
+                        var e = Entries[index];
+                        if (e is AxisEntry entry)
                         {
-                            g.DrawString(entry2.Label.Label, AxisFont, Brushes.Black, offset.X, offset.Y);
+                            offset.Y += LabelPadding + halfOfLabelHeight;
+                            e.Label.ChartPosition = new Point(x, offset.Y - halfOfLabelHeight);
+                            g.DrawLine(new Pen(Brushes.Purple, 1), new Point(offset.X - 3, offset.Y), new Point(offset.X, offset.Y));
+                            offset.Y += LabelPadding + halfOfLabelHeight;
                         }
-                        offset.X += PixelsPerIncrement;
+                    }
+                    break;
+            }
+        }
 
-                    }
-                    else if (e is AxisEntry entry)
-                    {
-                        Console.WriteLine("--need to do something here");
-                    }
+        public override void DrawAxisLabels(Graphics g, Point offset)
+        {
+            foreach (AxisEntry entry in Entries)
+            {
+                g.DrawString(entry.Label.Label, AxisFont, Brushes.Black, entry.Label.ChartPosition);
+            }
+        }
+
+        /// <summary>
+        /// Return the AxisEntry co-ordinates.
+        /// This is the top-left of the associated label.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public int GetAxisEntry(string key)
+        {
+            int rValue = -1;
+            Point point = new Point(-1, -1);
+            foreach (AxisEntry e in Entries)
+            {
+                DurationDataSeries dds = (DurationDataSeries)e;
+                if (dds.KeyValue.Equals(key))
+                {
+                    point = dds.Label.ChartPosition;
                 }
-            }*/
+            }
 
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    rValue = point.X;
+                    break;
+                case Axis.Y:
+                    rValue = point.Y;
+                    break;
+            }
+            return rValue;
+        }
+
+
+        public override SizeF GetAxisLabelDimensions()
+        {
+            int width = 0;
+            int height = 0;
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    throw new NotImplementedException("DataSeriesAxis.GetAxisLabelDimensions not implemented for X axis.");
+                case Axis.Y:
+                    width = _maxLabelWidth + AxisPadding;
+                    Console.WriteLine($"(LabelPadding * Entries.Count) + LabelPadding + (Entries.Count * _maxLabelHeight)");
+                    Console.WriteLine($"({LabelPadding} * {(Entries.Count + 1)}) + {LabelPadding} + ({(Entries.Count + 1)} * {_maxLabelHeight})");
+                    Console.WriteLine($"({LabelPadding * (Entries.Count + 1)}) + {LabelPadding} + ({Entries.Count + 1 * _maxLabelHeight})");
+                    height = (LabelPadding * (Entries.Count + 1)) + LabelPadding + ((Entries.Count + 1) * _maxLabelHeight);
+                    Console.WriteLine($"height = {height}");
+                    break;
+            }
+
+            return new SizeF(width, height);
+        }
+
+        public override void DrawMajorGridLines(Graphics g)
+        {
+            throw new NotImplementedException();
         }
     }
 }

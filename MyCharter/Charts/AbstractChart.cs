@@ -137,7 +137,6 @@ namespace MyCharter
                 axis.LabelPosition = labelPosition;
 
                 axes[index] = axis;
-                Console.WriteLine($"{type} set to index {index} {axis} : {axes[index].AxisXY}");
 
                 if (axis is AbstractScaleAxis)
                     axes[index].GenerateAxisValues();
@@ -172,7 +171,6 @@ namespace MyCharter
 
         public void GenerateChart()
         {
-            CalculateElementSizes();
             SizeF chartDimension = GetChartDimensions();
             Bitmap bmp = new Bitmap((int)chartDimension.Width+1, (int)chartDimension.Height+1);
 
@@ -194,15 +192,34 @@ namespace MyCharter
                 var xAxis = GetAxis(Axis.X);
                 var yAxis = GetAxis(Axis.Y);
 
-                yAxis.DrawAxis(g, ref offset);
-
-                // If the yAxis labels are on the left, then we want to leave a gap for them.
-                if (yAxis.LabelPosition == AxisLabelPosition.LEFT)
+                Point xAxisTicksOffset = offset;
+                if (xAxis.LabelPosition == AxisLabelPosition.TOP)
                 {
-                    offset.X += (int)yAxis.GetMaxLabelDimensions().Width;
+                    // ---- Draw Ticks -------------------------------------------------------------------------------------
+                    // if the y-axis labels are on the left, then offset the x-axis.
+                    int lhsOfTicks = (int)yAxis.GetAxisLabelDimensions().Width;
+                    offset.Y += xAxis.LabelPadding + (int)xAxis.GetMaxLabelDimensions().Height;
+                    if (yAxis.LabelPosition == AxisLabelPosition.LEFT)
+                    {
+                        offset.X += lhsOfTicks;
+                    }
+
+                    xAxis.DrawTicks(g, offset);
+                    xAxisTicksOffset = offset;
+
+                    // ---- Draw Axis Label --------------------------------------------------------------------------------
+                    offset.Y -= (int)xAxis.GetMaxLabelDimensions().Height;
+                    xAxis.DrawAxisLabels(g, offset);
                 }
 
-                xAxis.DrawAxis(g, ref offset);
+                // ---- Draw Y-Axis ------------------------------------------------------------------------------------
+                int y = xAxisTicksOffset.Y + xAxis.MajorTickLength + yAxis.LabelPadding;
+                yAxis.DrawTicks(g, new Point(offset.X, y));
+                yAxis.DrawAxisLabels(g, offset);
+
+                PlotData(g);
+
+                xAxis.DrawMajorGridLines(g);
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
@@ -234,7 +251,7 @@ namespace MyCharter
 
             foreach (AbstractChartAxis axis in axes)
             {
-                axis.CalculateLabelDimensions();
+                axis.MeasureLabels();
             }
         }
 
@@ -267,35 +284,49 @@ namespace MyCharter
         /// <returns></returns>
         public SizeF GetChartDimensions()
         {
+            CalculateElementSizes();
+
             int height = 0;
 
             var xAxis = GetAxis(Axis.X);
             var yAxis = GetAxis(Axis.Y);
 
-            var xAxisLabels = xAxis.GetLabelDimensions();
-            var yAxisLabels = yAxis.GetLabelDimensions();
+            var xAxisLabels = xAxis.GetAxisLabelDimensions();
+            var yAxisLabels = yAxis.GetAxisLabelDimensions();
 
             // ---- Overall Chart Dimensions --------------------------------
             // ---- Calculate width of the chart
             int width = MarginWidth + (int)xAxisLabels.Width + (int)yAxisLabels.Width + MarginWidth;
+            int titleHeight = 0;
             
             // Make sure the width is at least big enough for Title and SubTitle
             if (_title != null)
             {
+                titleHeight += (int)_title.LabelDimensions.Value.Height;
                 if (width < _title.LabelDimensions.Value.Width)
                     width = (int)_title.LabelDimensions.Value.Width;
             }
             if (_subTitle != null)
             {
+                titleHeight += (int)_subTitle.LabelDimensions.Value.Height;
                 if (width < _subTitle.LabelDimensions.Value.Width)
                     width = (int)_subTitle.LabelDimensions.Value.Width;
             }
 
             // ---- Calculate height of the chart
-            height += MarginWidth + (int)xAxisLabels.Height + (int)yAxisLabels.Height + MarginWidth;
+            height += MarginWidth 
+                + titleHeight
+                + (int)xAxisLabels.Height 
+                + (int)yAxisLabels.Height 
+                + MarginWidth;
+            Console.WriteLine("\n---Calculate height");
+            Console.WriteLine("height += MarginWidth + titleHeight + (int)xAxisLabels.Height + (int)yAxisLabels.Height + MarginWidth");
+            Console.WriteLine($"{height} += {MarginWidth} + {titleHeight} + {(int)xAxisLabels.Height} + {(int)yAxisLabels.Height} + {MarginWidth}");
 
-            return new SizeF(width+20, height+20); // TODO : the calculations aren't quite right
+            return new SizeF(width, height+100);  // TODO fix
         }
+
+        public abstract void PlotData(Graphics g);
 
     }
 }
