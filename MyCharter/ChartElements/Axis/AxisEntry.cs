@@ -2,20 +2,22 @@
 {
     public class AxisEntry
     {
-        private ImageElement _label;
-        public ImageElement Label 
+        private ImageText _label;
+        public ImageText Label 
         {
             get => _label;
             set
             {
                 _label = value;
-                _label.LabelDimensions = null;
+                _label.Dimensions = null;
             } 
         }
 
         public object EntryContent { get; set; }
 
         public object KeyValue { get; set; }
+
+        public bool IsMajorTick { get; set; } = false;
 
         public AxisEntry()
         {
@@ -37,7 +39,7 @@
         {
             KeyValue = key;
             EntryContent = content;
-            Label = new ImageElement(label);
+            Label = new ImageText(label);
         }
 
     }

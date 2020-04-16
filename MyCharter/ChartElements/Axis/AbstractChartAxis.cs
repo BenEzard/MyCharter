@@ -28,7 +28,7 @@ namespace MyCharter
         /// <summary>
         /// The font that is used to label the axis.
         /// </summary>
-        public Font AxisFont { get; set; } = new Font("Arial", 9 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
+        public Font AxisFont { get; set; } = new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
 
         /// <summary>
         /// The amount of padding (in pixels) which is placed above and below axis items.
@@ -134,11 +134,11 @@ namespace MyCharter
 
             for (int i = 0; i < Entries.Count; i++)
             {
-                ImageElement label = (ImageElement)Entries[i].Label;
+                ImageText label = (ImageText)Entries[i].Label;
                 if (label != null)
                 {
-                    SizeF stringMeasurement = tempGraphics.MeasureString(label.Label, AxisFont);
-                    label.LabelDimensions = stringMeasurement;
+                    SizeF stringMeasurement = tempGraphics.MeasureString(label.Text, AxisFont);
+                    label.Dimensions = stringMeasurement;
 
                     // Update the max values.
                     _maxLabelWidth = (_maxLabelWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : _maxLabelWidth;
@@ -158,11 +158,11 @@ namespace MyCharter
             {
                 if (o is AxisEntry element)
                 {
-                    var label = (ImageElement)element.Label;
+                    var label = (ImageText)element.Label;
                     if (label != null)
                     {
                         Console.Write($"Key = {element.KeyValue} ");
-                        Console.WriteLine($"; Label = '{label.Label}' with dimensions = '{label.LabelDimensions}' and position = '{label.ChartPosition}'");
+                        Console.WriteLine($"; Label = '{label.Text}' with dimensions = '{label.Dimensions}' and position = '{label.Position}'");
                     }
                 }
             }

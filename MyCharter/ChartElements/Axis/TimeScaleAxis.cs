@@ -41,20 +41,20 @@ namespace MyCharter
 
             // Create an entry for each XItem, which will be the number of minorIncrementsMinutes between minTime and maxTime.
             DateTime current = minTime;
-            Tick tick;
-            Tick LastTick = null;
+            AxisEntry tick;
+            AxisEntry LastTick = null;
             if (spansMidnight)
             {
                 while (current.Hour != 0 && current.Minute < 59)
                 {
 
-                    tick = new Tick(key:current.TimeOfDay, content:null, label:current.ToShortTimeString());
+                    tick = new AxisEntry(key:current.TimeOfDay, content:null, label:current.ToShortTimeString());
                     if ((LastTick == null) || (current.Subtract(minTime).TotalMinutes % MajorIncrement == 0))
                     {
                         tick.IsMajorTick = true;
                     }
 
-                    AddTick(tick);
+                    AddEntry(tick);
                     LastTick = tick;
                     current = current.AddMinutes(MinorIncrement);
                 }
@@ -63,13 +63,13 @@ namespace MyCharter
             while (current <= maxTime)
             {
 
-                tick = new Tick(current.TimeOfDay, null, current.ToShortTimeString());
+                tick = new AxisEntry(current.TimeOfDay, null, current.ToShortTimeString());
                 if ((LastTick != null) && (current.Subtract(minTime).TotalMinutes % MajorIncrement == 0))
                 {
                     tick.IsMajorTick = true;
                 }
 
-                AddTick(tick);
+                AddEntry(tick);
                 current = current.AddMinutes(MinorIncrement);
             }
         }
@@ -88,7 +88,7 @@ namespace MyCharter
             {
                 if (e.KeyValue.Equals(timeSpan))
                 {
-                    point = e.Label.ChartPosition;
+                    point = e.Label.Position;
                 }
             }
 

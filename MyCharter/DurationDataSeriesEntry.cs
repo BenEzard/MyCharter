@@ -3,11 +3,11 @@ using System.Drawing;
 
 namespace MyCharter
 {
-    public class DurationDataSeries : AxisEntry
+    public class DurationDataSeriesEntry : AxisEntry
     {
-        public DurationDataSeries(DateTime startTime, DateTime endTime, string label) : base ()
+        public DurationDataSeriesEntry(DateTime startTime, DateTime endTime, string label) : base ()
         {
-            Label = new ImageElement(label);
+            Label = new ImageText(label);
             EntryContent = new Duration(startTime, endTime, Color.Blue);
             KeyValue = label;
         }

@@ -20,7 +20,7 @@ namespace MyCharter
         /// <summary>
         /// The ImageElement representation of the ChartTitle.
         /// </summary>
-        private ImageElement _title = null;
+        private ImageText _title = null;
 
         /// <summary>
         /// The title that is displayed at the top of the chart.
@@ -31,12 +31,12 @@ namespace MyCharter
                 if (_title == null)
                     return null;
                 else 
-                    return _title.Label;
+                    return _title.Text;
             }
             set
             {
-                _title = new ImageElement(value);
-                _title.LabelDimensions = null;
+                _title = new ImageText(value);
+                _title.Dimensions = null;
             }
         }
 
@@ -48,7 +48,7 @@ namespace MyCharter
         /// <summary>
         /// The ImageElement representation of the ChartSubTitle.
         /// </summary>
-        private ImageElement _subTitle = null;
+        private ImageText _subTitle = null;
 
         /// <summary>
         /// The sub title that is displayed at the top of the chart.
@@ -60,12 +60,12 @@ namespace MyCharter
                 if (_subTitle == null)
                     return null;
                 else
-                    return _subTitle.Label;
+                    return _subTitle.Text;
             }
             set
             {
-                _subTitle = new ImageElement(value);
-                _subTitle.LabelDimensions = null;
+                _subTitle = new ImageText(value);
+                _subTitle.Dimensions = null;
             }
        }
 
@@ -184,7 +184,7 @@ namespace MyCharter
                     g.DrawRectangle(BorderPen, new Rectangle(0, 0, (int)chartDimension.Width, (int)chartDimension.Height));
 
                 // Local variable to keep track of starting position when drawing certain items. Variable reused.
-                Point offset = new Point(0, 0);
+                Point offset = new Point(MarginWidth, MarginWidth);
 
                 // Draw Title
                 DrawTitles(g, ref offset);
@@ -235,12 +235,12 @@ namespace MyCharter
             if (_title != null)
             {
                 g.DrawString(Title, TitleFont, Brushes.Black, offset.X, offset.Y);
-                offset.Y += (int)_title.LabelDimensions.Value.Height;
+                offset.Y += (int)_title.Dimensions.Value.Height;
             }
             if (_subTitle != null)
             {
                 g.DrawString(SubTitle, SubTitleFont, Brushes.Black, offset.X, offset.Y);
-                offset.Y += (int)_subTitle.LabelDimensions.Value.Height;
+                offset.Y += (int)_subTitle.Dimensions.Value.Height;
             }
 
         }
@@ -266,12 +266,12 @@ namespace MyCharter
 
             if (String.IsNullOrEmpty(Title) == false)
             {
-                _title.LabelDimensions = tempGraphics.MeasureString(_title.Label, TitleFont);
+                _title.Dimensions = tempGraphics.MeasureString(_title.Text, TitleFont);
             }
 
             if (String.IsNullOrEmpty(SubTitle) == false)
             {
-                _subTitle.LabelDimensions = tempGraphics.MeasureString(_subTitle.Label, TitleFont);
+                _subTitle.Dimensions = tempGraphics.MeasureString(_subTitle.Text, TitleFont);
             }
 
             tempBMP.Dispose();
@@ -302,15 +302,15 @@ namespace MyCharter
             // Make sure the width is at least big enough for Title and SubTitle
             if (_title != null)
             {
-                titleHeight += (int)_title.LabelDimensions.Value.Height;
-                if (width < _title.LabelDimensions.Value.Width)
-                    width = (int)_title.LabelDimensions.Value.Width;
+                titleHeight += (int)_title.Dimensions.Value.Height;
+                if (width < _title.Dimensions.Value.Width)
+                    width = (int)_title.Dimensions.Value.Width;
             }
             if (_subTitle != null)
             {
-                titleHeight += (int)_subTitle.LabelDimensions.Value.Height;
-                if (width < _subTitle.LabelDimensions.Value.Width)
-                    width = (int)_subTitle.LabelDimensions.Value.Width;
+                titleHeight += (int)_subTitle.Dimensions.Value.Height;
+                if (width < _subTitle.Dimensions.Value.Width)
+                    width = (int)_subTitle.Dimensions.Value.Width;
             }
 
             // ---- Calculate height of the chart

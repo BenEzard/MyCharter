@@ -14,7 +14,7 @@ namespace MyCharter
             if (Entries.Count == 0) throw new ArgumentException("There are no values on the Data Series Axis.");
         }
 
-        public void AddDataSeries(DurationDataSeries dataSeries)
+        public void AddDataSeries(DurationDataSeriesEntry dataSeries)
         {
             AddEntry(dataSeries);
         }
@@ -31,8 +31,8 @@ namespace MyCharter
                         if (e is AxisEntry entry)
                         {
                             offset.Y += LabelPadding;
-                            g.DrawString(entry.Label.Label, AxisFont, Brushes.Black, offset);
-                            offset.Y += (int)entry.Label.LabelDimensions.Value.Height + LabelPadding;
+                            g.DrawString(entry.Label.Text, AxisFont, Brushes.Black, offset);
+                            offset.Y += (int)entry.Label.Dimensions.Value.Height + LabelPadding;
                         }
                     }
                     break;
@@ -54,7 +54,7 @@ namespace MyCharter
                         if (e is AxisEntry entry)
                         {
                             offset.Y += LabelPadding + halfOfLabelHeight;
-                            e.Label.ChartPosition = new Point(x, offset.Y - halfOfLabelHeight);
+                            e.Label.Position = new Point(x, offset.Y - halfOfLabelHeight);
                             g.DrawLine(new Pen(Brushes.Purple, 1), new Point(offset.X - 3, offset.Y), new Point(offset.X, offset.Y));
                             offset.Y += LabelPadding + halfOfLabelHeight;
                         }
@@ -67,7 +67,7 @@ namespace MyCharter
         {
             foreach (AxisEntry entry in Entries)
             {
-                g.DrawString(entry.Label.Label, AxisFont, Brushes.Black, entry.Label.ChartPosition);
+                g.DrawString(entry.Label.Text, AxisFont, Brushes.Black, entry.Label.Position);
             }
         }
 
@@ -83,10 +83,10 @@ namespace MyCharter
             Point point = new Point(-1, -1);
             foreach (AxisEntry e in Entries)
             {
-                DurationDataSeries dds = (DurationDataSeries)e;
+                DurationDataSeriesEntry dds = (DurationDataSeriesEntry)e;
                 if (dds.KeyValue.Equals(key))
                 {
-                    point = dds.Label.ChartPosition;
+                    point = dds.Label.Position;
                 }
             }
 

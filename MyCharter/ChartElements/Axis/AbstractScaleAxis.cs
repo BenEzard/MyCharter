@@ -65,7 +65,7 @@ namespace MyCharter
             switch (AxisXY)
             {
                 case Axis.X:
-                    int widthOfLastLabel = (int)Entries[Entries.Count - 1].Label.LabelDimensions.Value.Width;
+                    int widthOfLastLabel = (int)Entries[Entries.Count - 1].Label.Dimensions.Value.Width;
                     width = (TotalIncrementCount() * PixelsPerIncrement) + widthOfLastLabel;
                     height = _maxLabelHeight + AxisPadding;
                     break;
@@ -76,15 +76,6 @@ namespace MyCharter
             }
 
             return new SizeF(width, height);
-        }
-
-        /// <summary>
-        /// Add a Tick to the scale axis.
-        /// </summary>
-        /// <param name="tick"></param>
-        public void AddTick(Tick tick)
-        {
-            AddEntry(tick);
         }
 
         /// <summary>
@@ -101,14 +92,11 @@ namespace MyCharter
         public int MajorTickCount()
         {
             int rValue = 0;
-            foreach (object o in Entries)
+            foreach (AxisEntry o in Entries)
             {
-                if (o is Tick element)
+                if (o.IsMajorTick)
                 {
-                    if (element.IsMajorTick)
-                    {
-                        ++rValue;
-                    }
+                    ++rValue;
                 }
             }
             return rValue;
@@ -120,14 +108,11 @@ namespace MyCharter
         public int MinorTickCount()
         {
             int rValue = 0;
-            foreach (object o in Entries)
+            foreach (AxisEntry o in Entries)
             {
-                if (o is Tick element)
+                if (o.IsMajorTick == false)
                 {
-                    if (element.IsMajorTick == false)
-                    {
-                        ++rValue;
-                    }
+                    ++rValue;
                 }
             }
             return rValue;
@@ -139,19 +124,11 @@ namespace MyCharter
             {
                 foreach (var e in Entries)
                 {
-                    if (e is Tick entry2)
+                    if (e.IsMajorTick)
                     {
-                        if (entry2.IsMajorTick)
-                        {
-                            g.DrawString(entry2.Label.Label, AxisFont, Brushes.Black, offset.X, offset.Y);
-                        }
-                        offset.X += PixelsPerIncrement;
-
+                        g.DrawString(e.Label.Text, AxisFont, Brushes.Black, offset.X, offset.Y);
                     }
-                    else if (e is AxisEntry entry)
-                    {
-                        Console.WriteLine("need to do something here");
-                    }
+                    offset.X += PixelsPerIncrement;
                 }
             }
 
@@ -169,19 +146,16 @@ namespace MyCharter
             {
                 foreach (var e in Entries)
                 {
-                    if (e is Tick entry)
+                    e.Label.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
+                    if (e.IsMajorTick)
                     {
-                        e.Label.ChartPosition = new Point(offset.X, offset.Y - _maxLabelHeight);
-                        if (entry.IsMajorTick)
-                        {
-                            g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
-                        } 
-                        else
-                        {
-                            g.DrawLine(MinorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MinorTickLength));
-                        }
-                        offset.X += PixelsPerIncrement;
+                        g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
+                    } 
+                    else
+                    {
+                        g.DrawLine(MinorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MinorTickLength));
                     }
+                    offset.X += PixelsPerIncrement;
                 }
             }
             else if (AxisXY == Axis.Y)
@@ -197,13 +171,10 @@ namespace MyCharter
             {
                 foreach (var e in Entries)
                 {
-                    if (e is Tick entry)
+                    Point p = e.Label.Position;
+                    if (e.IsMajorTick)
                     {
-                        Point p = e.Label.ChartPosition;
-                        if (entry.IsMajorTick)
-                        {
-                            g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + _maxLabelHeight + MajorTickLength), new Point(p.X, p.Y + 500));
-                        }
+                        g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + _maxLabelHeight + MajorTickLength), new Point(p.X, p.Y + 500));
                     }
                 }
             }
@@ -218,14 +189,12 @@ namespace MyCharter
         {
             foreach (AxisEntry entry in Entries)
             {
-                if (entry is Tick entryTick)
-                    if (entryTick.IsMajorTick)
-                    {
-                        g.DrawString(entry.Label.Label, AxisFont, Brushes.Black, entry.Label.ChartPosition);
-                    }
+                if (entry.IsMajorTick)
+                {
+                    g.DrawString(entry.Label.Text, AxisFont, Brushes.Black, entry.Label.Position);
+                }
             }
         }
-
 
     }
 }

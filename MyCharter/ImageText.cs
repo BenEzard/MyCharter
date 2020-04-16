@@ -2,30 +2,30 @@
 
 namespace MyCharter
 {
-    public class ImageElement
+    public class ImageText
     {
         /// <summary>
         /// The label (if exists) of the element.
         /// </summary>
-        public string Label { get; set; }
+        public string Text { get; set; }
 
         /// <summary>
         /// Dimensions of the label on the image.
         /// </summary>
-        public SizeF? LabelDimensions { get; set; } = null;
+        public SizeF? Dimensions { get; set; } = null;
 
         /// <summary>
         /// The position that this ImageElement has on the image.
         /// </summary>
-        public Point ChartPosition { get; set; } = new Point();
+        public Point Position { get; set; } = new Point();
 
         /// <summary>
         /// Create a new ImageElement.
         /// </summary>
-        /// <param name="label"></param>
-        public ImageElement(string label)
+        /// <param name="text"></param>
+        public ImageText(string text)
         {
-            Label = label;
+            Text = text;
         }
     }
 }

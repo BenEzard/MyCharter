@@ -104,11 +104,11 @@ namespace MyCharter
             {
                 foreach (AxisEntry entry in yAxis.Entries)
                 {
-                    if (entry is DurationDataSeries dsEntry)
+                    if (entry is DurationDataSeriesEntry dsEntry)
                     {
                         Duration d = (Duration)dsEntry.EntryContent;
                         int startX = xAxis.GetAxisEntry(d.StartTime.TimeOfDay);
-                        int startY = yAxis.GetAxisEntry(dsEntry.Label.Label);
+                        int startY = yAxis.GetAxisEntry(dsEntry.Label.Text);
                         int endX = xAxis.GetAxisEntry(d.EndTime.TimeOfDay);
                         GraphicsPath path = MakeRoundedRect(new RectangleF(startX, startY, (endX - startX), height), 7, 7, true, true, true, true);
                         var color = System.Drawing.ColorTranslator.FromHtml("#04B404");
