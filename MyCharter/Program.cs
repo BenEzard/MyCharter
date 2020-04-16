@@ -14,6 +14,7 @@ namespace MyCharter
             barChart.OutputFile = @"C:\New Folder\image2.png";
             var xAxis = new TimeScaleAxis(new DateTime(1900, 1, 1, 18, 0, 0), new DateTime(1900, 1, 2, 7, 0, 0), 60, 10, 15);
             xAxis.MinorTickPen = new Pen(Brushes.LightGray, 1);
+            xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             barChart.SetAxis(Axis.X, AxisLabelPosition.TOP, xAxis);
             //xAxis.DebugOutput_ListScale();
 

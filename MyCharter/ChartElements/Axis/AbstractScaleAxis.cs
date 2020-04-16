@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyCharter.ChartElements.Axis;
+using System;
 using System.Drawing;
 
 namespace MyCharter
@@ -146,7 +147,16 @@ namespace MyCharter
             {
                 foreach (var e in Entries)
                 {
-                    e.Label.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
+                    switch(LabelHorizontalPosition) { 
+                        case AxisLabelHorizontalPosition.LEFT:
+                            e.Label.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
+                            break;
+                        case AxisLabelHorizontalPosition.CENTER:
+                            e.Label.Position = new Point((offset.X - (int)(e.Label.Dimensions.Value.Width / 2)), offset.Y - _maxLabelHeight);
+                            break;
+                    }
+
+                    e.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
                     if (e.IsMajorTick)
                     {
                         g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
@@ -171,7 +181,7 @@ namespace MyCharter
             {
                 foreach (var e in Entries)
                 {
-                    Point p = e.Label.Position;
+                    Point p = e.Position;
                     if (e.IsMajorTick)
                     {
                         g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + _maxLabelHeight + MajorTickLength), new Point(p.X, p.Y + 500));

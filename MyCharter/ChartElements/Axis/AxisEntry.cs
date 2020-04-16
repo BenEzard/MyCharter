@@ -1,4 +1,6 @@
-﻿namespace MyCharter
+﻿using System.Drawing;
+
+namespace MyCharter
 {
     public class AxisEntry
     {
@@ -18,6 +20,11 @@
         public object KeyValue { get; set; }
 
         public bool IsMajorTick { get; set; } = false;
+
+        /// <summary>
+        /// The position of the AxisEntry. It will be the x or y (depending on what the axis is).
+        /// </summary>
+        public Point Position;
 
         public AxisEntry()
         {

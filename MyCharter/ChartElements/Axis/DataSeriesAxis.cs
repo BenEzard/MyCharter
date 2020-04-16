@@ -55,7 +55,8 @@ namespace MyCharter
                         {
                             offset.Y += LabelPadding + halfOfLabelHeight;
                             e.Label.Position = new Point(x, offset.Y - halfOfLabelHeight);
-                            g.DrawLine(new Pen(Brushes.Purple, 1), new Point(offset.X - 3, offset.Y), new Point(offset.X, offset.Y));
+                            e.Position = new Point(x, offset.Y - halfOfLabelHeight);
+                            g.DrawLine(MajorTickPen, new Point(offset.X - 3, offset.Y), new Point(offset.X, offset.Y));
                             offset.Y += LabelPadding + halfOfLabelHeight;
                         }
                     }
@@ -86,19 +87,13 @@ namespace MyCharter
                 DurationDataSeriesEntry dds = (DurationDataSeriesEntry)e;
                 if (dds.KeyValue.Equals(key))
                 {
-                    point = dds.Label.Position;
+                    point = dds.Position;
+                    break;
                 }
             }
 
-            switch (AxisXY)
-            {
-                case Axis.X:
-                    rValue = point.X;
-                    break;
-                case Axis.Y:
-                    rValue = point.Y;
-                    break;
-            }
+            rValue = (AxisXY == Axis.X) ? point.X : point.Y;
+
             return rValue;
         }
 

@@ -40,7 +40,12 @@ namespace MyCharter
         /// </summary>
         public int AxisPadding { get; set; } = 5;
 
+        /// <summary>
+        /// Defines where the axis appears in relation to the chart.
+        /// </summary>
         public AxisLabelPosition LabelPosition { get; set; }
+
+        public AxisLabelHorizontalPosition LabelHorizontalPosition { get; set; } = AxisLabelHorizontalPosition.LEFT;
 
         /// <summary>
         /// This is the maximum label width on the Axis. 
