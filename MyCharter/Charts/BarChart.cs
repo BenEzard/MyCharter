@@ -89,7 +89,6 @@ namespace MyCharter
 
         public override void PlotData(Graphics g)
         {
-            Console.WriteLine("in PlotData");
             // TODO this needs to be elsewhere
             var xAxis = (TimeScaleAxis)GetAxis(Axis.X);
             var yAxis = (DataSeriesAxis)GetAxis(Axis.Y);
@@ -110,6 +109,7 @@ namespace MyCharter
                         int startX = xAxis.GetAxisEntry(d.StartTime.TimeOfDay);
                         int startY = yAxis.GetAxisEntry(dsEntry.Label.Text);
                         int endX = xAxis.GetAxisEntry(d.EndTime.TimeOfDay);
+                        Console.WriteLine($"Trying to plot: {d.StartTime.TimeOfDay} ({startX}) to {d.EndTime.TimeOfDay} ({endX})");
                         GraphicsPath path = MakeRoundedRect(new RectangleF(startX, startY, (endX - startX), height), 7, 7, true, true, true, true);
                         var color = System.Drawing.ColorTranslator.FromHtml("#04B404");
                         g.FillPath(new SolidBrush(color), path);

@@ -136,7 +136,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Draw the scale ticks on the axis.
+        /// Draw the scale ticks on the axis, coding their position.
         /// At the same time, the labels' ChartPosition are set.
         /// </summary>
         /// <param name="g"></param>
@@ -160,6 +160,7 @@ namespace MyCharter
                     if (e.IsMajorTick)
                     {
                         g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
+                        Console.WriteLine($"Drawing major tick for {(TimeSpan)e.KeyValue} @ {offset.X} [{e.Position.X}]");
                     } 
                     else
                     {

@@ -183,6 +183,11 @@ namespace MyCharter
             return Entries.Count;
         }
 
+        /// <summary>
+        /// Draw the Axis.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="offset"></param>
         public abstract void DrawAxis(Graphics g, Point offset);
 
         public abstract void DrawTicks(Graphics g, Point offset);

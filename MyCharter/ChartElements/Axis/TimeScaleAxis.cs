@@ -11,6 +11,17 @@ namespace MyCharter
             
         }
 
+        /// <summary>
+        /// Checks to see if the axis spans midnight.
+        /// </summary>
+        public bool DoesSpanMidnight
+        {
+            get
+            {
+                return ((TimeSpan)MaximumValue < (TimeSpan)MinimumValue) ? true : false;
+            }
+        }
+
         protected override bool AreAxisValuesValid(out string errorMessage)
         {
             bool rValue = true;
@@ -45,7 +56,7 @@ namespace MyCharter
             AxisEntry LastTick = null;
             if (spansMidnight)
             {
-                while (current.Hour != 0 && current.Minute < 59)
+                while (current.Hour != 0 && current.Minute <= 59) // added =
                 {
 
                     tick = new AxisEntry(key:current.TimeOfDay, content:null, label:current.ToShortTimeString());
@@ -77,30 +88,79 @@ namespace MyCharter
         /// <summary>
         /// Return the AxisEntry co-ordinates.
         /// This is the top-left of the associated label.
+        /// TODO This should be replaced by BinarySearch using IComparer interface
         /// </summary>
-        /// <param name="timeSpan"></param>
+        /// <param name="soughtTimeSpan"></param>
         /// <returns></returns>
-        public int GetAxisEntry(TimeSpan timeSpan)
+        public int GetAxisEntry(TimeSpan soughtTimeSpan)
         {
             int rValue = -1;
-            Point point = new Point(-1, -1);
-            foreach (AxisEntry e in Entries)
+            Point point = new Point(-1,-1);
+            int lastPassedIndex = -1;
+            TimeSpan midnight = new TimeSpan(0, 0, 0);
+
+            for (int i = 0; i < Entries.Count; i++)
             {
-                if (e.KeyValue.Equals(timeSpan))
+                AxisEntry ae = Entries[i];
+                TimeSpan key = (TimeSpan)ae.KeyValue;
+
+                if (key == soughtTimeSpan)
                 {
-                    point = e.Label.Position;
+                    point = ae.Label.Position;
+                    Console.WriteLine($"Found {soughtTimeSpan} at {point.X}");
+                    break;
+                }
+                else if ((key > soughtTimeSpan) && (lastPassedIndex == -1))
+                {
+                    if (i > 0)
+                        lastPassedIndex = i - 1;
+                    else
+                        lastPassedIndex = i;
+                    // We can't break it here - we need to keep searching through the entire array in case the timeset spans midnight.
+                    // (which means you can't stop it when key > soughtTime)
+                    Console.WriteLine($"While looking for {soughtTimeSpan}, went over the limit at index={lastPassedIndex} (which is {(TimeSpan)Entries[lastPassedIndex].KeyValue}, {Entries[lastPassedIndex].Position.X})");
                 }
             }
 
-            switch (AxisXY)
+            // If the exact value wasn't passed (and only for the first time), work out where to display the line.
+            if ((point.X == -1) && (lastPassedIndex != -1))
             {
-                case Axis.X:
-                    rValue = point.X;
-                    break;
-                case Axis.Y:
-                    rValue = point.Y;
-                    break;
+                int lowerIndex = lastPassedIndex;
+                int upperIndex = -1;
+
+                float val = (float)PixelsPerIncrement / (float)MinorIncrement;
+
+                float lowerDiff = (float)((soughtTimeSpan - (TimeSpan)Entries[lowerIndex].KeyValue).TotalMinutes);
+                float pixelMove = lowerDiff * val;
+                point = new Point(Entries[lowerIndex].Position.X + (int)pixelMove, Entries[lowerIndex].Position.Y);
+/*                TimeSpan upperDiff = new TimeSpan();
+                if (Entries.Count > lastPassedIndex+1)
+                {
+                    upperIndex = lastPassedIndex + 1;
+                    upperDiff = ((TimeSpan)Entries[lowerIndex + 1].KeyValue) - soughtTimeSpan;
+                }
+                Console.WriteLine($"Choosing between {Entries[lowerIndex].KeyValue} {lowerDiff.TotalMinutes} and {Entries[upperIndex].KeyValue} {upperDiff.TotalMinutes}");
+                point = Entries[lowerIndex].Position;*/
             }
+            
+            // If the value can't be mapped to the axis, then we need to determine what is the closest value.
+            if (point.X == -1)
+            {
+                Console.WriteLine($"Can't find the desired location on axis {soughtTimeSpan}");
+            }
+            else
+            {
+                switch (AxisXY)
+                {
+                    case Axis.X:
+                        rValue = point.X;
+                        break;
+                    case Axis.Y:
+                        rValue = point.Y;
+                        break;
+                }
+            }
+            Console.WriteLine($"Returning with value {rValue}");
             return rValue;
         }
 

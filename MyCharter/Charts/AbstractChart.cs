@@ -193,6 +193,7 @@ namespace MyCharter
                 var yAxis = GetAxis(Axis.Y);
 
                 Point xAxisTicksOffset = offset;
+                //Point xAxisTicksOffset = new Point(offset.X - (2 * MarginWidth), offset.Y);
                 if (xAxis.LabelPosition == AxisLabelPosition.TOP)
                 {
                     // ---- Draw Ticks -------------------------------------------------------------------------------------
