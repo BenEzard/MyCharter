@@ -320,9 +320,6 @@ namespace MyCharter
                 + (int)xAxisLabels.Height 
                 + (int)yAxisLabels.Height 
                 + MarginWidth;
-            Console.WriteLine("\n---Calculate height");
-            Console.WriteLine("height += MarginWidth + titleHeight + (int)xAxisLabels.Height + (int)yAxisLabels.Height + MarginWidth");
-            Console.WriteLine($"{height} += {MarginWidth} + {titleHeight} + {(int)xAxisLabels.Height} + {(int)yAxisLabels.Height} + {MarginWidth}");
 
             return new SizeF(width, height+100);  // TODO fix
         }

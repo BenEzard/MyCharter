@@ -145,6 +145,7 @@ namespace MyCharter
         {
             if (AxisXY == Axis.X)
             {
+                int index = 0;
                 foreach (var e in Entries)
                 {
                     switch(LabelHorizontalPosition) { 
@@ -160,13 +161,13 @@ namespace MyCharter
                     if (e.IsMajorTick)
                     {
                         g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
-                        Console.WriteLine($"Drawing major tick for {(TimeSpan)e.KeyValue} @ {offset.X} [{e.Position.X}]");
                     } 
                     else
                     {
                         g.DrawLine(MinorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MinorTickLength));
                     }
                     offset.X += PixelsPerIncrement;
+                    ++index;
                 }
             }
             else if (AxisXY == Axis.Y)

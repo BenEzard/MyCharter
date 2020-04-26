@@ -109,11 +109,18 @@ namespace MyCharter
                         int startX = xAxis.GetAxisEntry(d.StartTime.TimeOfDay);
                         int startY = yAxis.GetAxisEntry(dsEntry.Label.Text);
                         int endX = xAxis.GetAxisEntry(d.EndTime.TimeOfDay);
-                        Console.WriteLine($"Trying to plot: {d.StartTime.TimeOfDay} ({startX}) to {d.EndTime.TimeOfDay} ({endX})");
-                        GraphicsPath path = MakeRoundedRect(new RectangleF(startX, startY, (endX - startX), height), 7, 7, true, true, true, true);
+
                         var color = System.Drawing.ColorTranslator.FromHtml("#04B404");
-                        g.FillPath(new SolidBrush(color), path);
-                        g.DrawPath(new Pen(Brushes.Black, 1), path);
+                        if ((endX - startX) < (2 * 7))
+                        {
+                            g.FillRectangle(new SolidBrush(color), startX, startY, (endX - startX), height);
+                        }
+                        else
+                        {
+                            GraphicsPath path = MakeRoundedRect(new RectangleF(startX, startY, (endX - startX), height), 7, 7, true, true, true, true);
+                            g.FillPath(new SolidBrush(color), path);
+                            g.DrawPath(new Pen(Brushes.Black, 1), path);
+                        }
 
                     }
                 }

@@ -108,11 +108,7 @@ namespace MyCharter
                     throw new NotImplementedException("DataSeriesAxis.GetAxisLabelDimensions not implemented for X axis.");
                 case Axis.Y:
                     width = _maxLabelWidth + AxisPadding;
-                    Console.WriteLine($"(LabelPadding * Entries.Count) + LabelPadding + (Entries.Count * _maxLabelHeight)");
-                    Console.WriteLine($"({LabelPadding} * {(Entries.Count + 1)}) + {LabelPadding} + ({(Entries.Count + 1)} * {_maxLabelHeight})");
-                    Console.WriteLine($"({LabelPadding * (Entries.Count + 1)}) + {LabelPadding} + ({Entries.Count + 1 * _maxLabelHeight})");
                     height = (LabelPadding * (Entries.Count + 1)) + LabelPadding + ((Entries.Count + 1) * _maxLabelHeight);
-                    Console.WriteLine($"height = {height}");
                     break;
             }
 
