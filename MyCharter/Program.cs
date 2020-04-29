@@ -11,8 +11,8 @@ namespace MyCharter
             BarChart barChart = new BarChart();
             barChart.Title = "PRODUCTION load (composite of 24/04 to 26/04)";
 //            barChart.SubTitle = "And this is the subtitle";
-            barChart.OutputFile = @"C:\New Folder\image2.png";
-            var xAxis = new TimeScaleAxis(new DateTime(1900, 1, 1, 18, 0, 0), new DateTime(1900, 1, 2, 7, 0, 0), 60, 10, 15);
+            barChart.OutputFile = @"C:\New Folder\bar-chart.png";
+            var xAxis = new TimeScaleAxis(new DateTime(1900, 1, 1, 19, 0, 0), new DateTime(1900, 1, 2, 7, 0, 0), 60, 10, 15);
             xAxis.MinorTickPen = new Pen(Brushes.LightGray, 1);
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             barChart.SetAxis(Axis.X, AxisLabelPosition.TOP, xAxis);

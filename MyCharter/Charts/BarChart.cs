@@ -122,6 +122,14 @@ namespace MyCharter
                             g.DrawPath(new Pen(Brushes.Black, 1), path);
                         }
 
+                        if (ShowDataLabels)
+                        {
+                            TimeSpan length = d.EndTime.TimeOfDay - d.StartTime.TimeOfDay;
+                            string dataLabel = length.Hours.ToString().PadLeft(2, '0') + ":" + length.Minutes.ToString().PadLeft(2, '0');
+                            g.DrawString(dataLabel, DataLabelFont, Brushes.LightGray, new Point(startX, startY));
+                        }
+
+
                     }
                 }
 

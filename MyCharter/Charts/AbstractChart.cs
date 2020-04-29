@@ -75,6 +75,13 @@ namespace MyCharter
         private Font SubTitleFont = new Font("Arial", 12 * 1.33f, FontStyle.Bold, GraphicsUnit.Point);
 
         /// <summary>
+        /// The font used for Data Labels.
+        /// </summary>
+        protected Font DataLabelFont = new Font("Arial", 6 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
+
+        public bool ShowDataLabels { get; set; } = true;
+
+        /// <summary>
         /// The filepath (path + filename + file extension) of the image to output.
         /// </summary>
         public string OutputFile = null;
