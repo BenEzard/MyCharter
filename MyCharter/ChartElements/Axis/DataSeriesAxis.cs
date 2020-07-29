@@ -9,7 +9,7 @@ namespace MyCharter
         {
         }
 
-        internal override void GenerateAxisValues()
+        internal override void GenerateAxisEntries()
         {
             if (Entries.Count == 0) throw new ArgumentException("There are no values on the Data Series Axis.");
         }
@@ -46,8 +46,8 @@ namespace MyCharter
                 case Axis.X:
                     throw new NotImplementedException("DataSeriesAxis.DrawTicks not implemented for X axis.");
                 case Axis.Y:
-                    int halfOfLabelHeight = _maxLabelHeight % 2 == 0 ? _maxLabelHeight / 2 : (_maxLabelHeight - 1) / 2;
-                    int x = offset.X - _maxLabelWidth - AxisPadding;
+                    int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
+                    int x = offset.X - (int)_maxLabelDimensions.Width - AxisPadding;
                     for (int index = 0; index < Entries.Count; index++)
                     {
                         var e = Entries[index];
@@ -63,6 +63,28 @@ namespace MyCharter
                     break;
             }
         }
+
+    /*    public override void CalculateLabelPositions(Graphics g, Point offset)
+        {
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    throw new NotImplementedException("DataSeriesAxis.DrawTicks not implemented for X axis.");
+                case Axis.Y:
+                    int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
+                    int x = offset.X - (int)_maxLabelDimensions.Width - AxisPadding;
+                    for (int index = 0; index < Entries.Count; index++)
+                    {
+                        var e = Entries[index];
+                        offset.Y += LabelPadding + halfOfLabelHeight;
+                        e.Label.Position = new Point(x, offset.Y - halfOfLabelHeight);
+                        e.Position = new Point(x, offset.Y - halfOfLabelHeight);
+                        //g.DrawLine(MajorTickPen, new Point(offset.X - 3, offset.Y), new Point(offset.X, offset.Y));
+                        offset.Y += LabelPadding + halfOfLabelHeight;
+                    }
+                    break;
+            }
+        }*/
 
         public override void DrawAxisLabels(Graphics g, Point offset)
         {
@@ -97,25 +119,12 @@ namespace MyCharter
             return rValue;
         }
 
-
-        public override SizeF GetAxisLabelDimensions()
+        public override void DrawMajorGridLines(Graphics g)
         {
-            int width = 0;
-            int height = 0;
-            switch (AxisXY)
-            {
-                case Axis.X:
-                    throw new NotImplementedException("DataSeriesAxis.GetAxisLabelDimensions not implemented for X axis.");
-                case Axis.Y:
-                    width = _maxLabelWidth + AxisPadding;
-                    height = (LabelPadding * (Entries.Count + 1)) + LabelPadding + ((Entries.Count + 1) * _maxLabelHeight);
-                    break;
-            }
-
-            return new SizeF(width, height);
+            throw new NotImplementedException();
         }
 
-        public override void DrawMajorGridLines(Graphics g)
+        public override void CalculateLabelPositions(Point offset)
         {
             throw new NotImplementedException();
         }

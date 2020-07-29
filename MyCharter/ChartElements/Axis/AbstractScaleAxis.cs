@@ -20,18 +20,6 @@ namespace MyCharter
 
         public int MinorIncrement { get; set; }
 
-        public int PixelsPerIncrement { get; set; } = 10;
-
-        /// <summary>
-        /// The Pen used to draw the major ticks.
-        /// </summary>
-        public Pen MinorTickPen = new Pen(Brushes.Black, 1);
-
-        /// <summary>
-        /// The length of the minor tick.
-        /// </summary>
-        public int MinorTickLength = 3;
-
         /// <summary>
         /// Instantiate an Axis.
         /// </summary>
@@ -56,27 +44,6 @@ namespace MyCharter
             {
                 throw new ArgumentException(errorMessage);
             }
-
-        }
-
-        public override SizeF GetAxisLabelDimensions()
-        {
-            int width = 0;
-            int height = 0;
-            switch (AxisXY)
-            {
-                case Axis.X:
-                    int widthOfLastLabel = (int)Entries[Entries.Count - 1].Label.Dimensions.Value.Width;
-                    width = (TotalIncrementCount() * PixelsPerIncrement) + widthOfLastLabel;
-                    height = _maxLabelHeight + AxisPadding;
-                    break;
-                case Axis.Y:
-                    width = _maxLabelWidth + AxisPadding;
-                    height = (LabelPadding * Entries.Count) + LabelPadding + (Entries.Count * _maxLabelHeight);
-                    break;
-            }
-
-            return new SizeF(width, height);
         }
 
         /// <summary>
@@ -150,14 +117,14 @@ namespace MyCharter
                 {
                     switch(LabelHorizontalPosition) { 
                         case AxisLabelHorizontalPosition.LEFT:
-                            e.Label.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
+                            e.Label.Position = new Point(offset.X, offset.Y - (int)_maxLabelDimensions.Height);
                             break;
                         case AxisLabelHorizontalPosition.CENTER:
-                            e.Label.Position = new Point((offset.X - (int)(e.Label.Dimensions.Value.Width / 2)), offset.Y - _maxLabelHeight);
+                            e.Label.Position = new Point((offset.X - (int)(e.Label.Dimensions.Value.Width / 2)), offset.Y - (int)_maxLabelDimensions.Height);
                             break;
                     }
 
-                    e.Position = new Point(offset.X, offset.Y - _maxLabelHeight);
+                    e.Position = new Point(offset.X, offset.Y - (int)_maxLabelDimensions.Height);
                     if (e.IsMajorTick)
                     {
                         g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
@@ -172,7 +139,76 @@ namespace MyCharter
             }
             else if (AxisXY == Axis.Y)
             {
-                throw new NotImplementedException("Coding not done for AbstractScaleAxis.DrawTicks() y-axis implementation");
+                int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
+                int y = offset.Y + (int)_maxLabelDimensions.Width + AxisPadding;
+                for (int index = 0; index < Entries.Count; index++)
+                {
+                    var e = Entries[index];
+                    if (e is AxisEntry entry)
+                    {
+                        offset.Y += LabelPadding + halfOfLabelHeight;
+                        e.Label.Position = new Point(offset.X, offset.Y - halfOfLabelHeight);
+                        e.Position = new Point(offset.X + (int)_maxLabelDimensions.Width, offset.Y - halfOfLabelHeight);
+                        g.DrawLine(MajorTickPen, new Point(offset.X + (int)_maxLabelDimensions.Width - 3, offset.Y), new Point(offset.X + (int)_maxLabelDimensions.Width, offset.Y));
+                        offset.Y += LabelPadding + halfOfLabelHeight;
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="offset"></param>
+        public override void CalculateLabelPositions(Point offset)
+        {
+//            Console.WriteLine($"starting at {offset}");
+            if (AxisXY == Axis.X)
+            {
+                int index = 0;
+                foreach (var e in Entries)
+                {
+                    switch (LabelHorizontalPosition)
+                    {
+                        case AxisLabelHorizontalPosition.LEFT:
+                            // When the label horizontal position is LEFT, then the start of the label will be on the tick mark.
+                            e.Label.Position = new Point(offset.X, offset.Y - (int)_maxLabelDimensions.Height);
+//                            Console.WriteLine($"starting at {e.Label.Position}");
+                            break;
+                        case AxisLabelHorizontalPosition.CENTER:
+                            // When the label horizontal position is CENTER, then the tick mark will be at the halfway point of the label.
+                            e.Label.Position = new Point((offset.X - (int)(e.Label.Dimensions.Value.Width / 2)), offset.Y - (int)_maxLabelDimensions.Height);
+//                            Console.WriteLine($"starting at {e.Label.Position}");
+                            break;
+                    }
+
+                    e.Position = new Point(offset.X, offset.Y - (int)_maxLabelDimensions.Height);
+                    //if (e.IsMajorTick)
+                    //{
+                    //    g.DrawLine(MajorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MajorTickLength));
+                    //}
+                    //else
+                    //{
+                    //    g.DrawLine(MinorTickPen, new Point(offset.X, offset.Y), new Point(offset.X, offset.Y + MinorTickLength));
+                    //}
+                    offset.X += PixelsPerIncrement;
+                    ++index;
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
+                int y = offset.Y + (int)_maxLabelDimensions.Width + AxisPadding;
+                for (int index = 0; index < Entries.Count; index++)
+                {
+                    var e = Entries[index];
+                    offset.Y += LabelPadding + halfOfLabelHeight;
+                    e.Label.Position = new Point(offset.X, offset.Y - halfOfLabelHeight);
+                    e.Position = new Point(offset.X + (int)_maxLabelDimensions.Width, offset.Y - halfOfLabelHeight);
+                    //g.DrawLine(MajorTickPen, new Point(offset.X + (int)_maxLabelDimensions.Width - 3, offset.Y), new Point(offset.X + (int)_maxLabelDimensions.Width, offset.Y));
+                    offset.Y += LabelPadding + halfOfLabelHeight;
+                }
             }
 
         }
@@ -186,7 +222,7 @@ namespace MyCharter
                     Point p = e.Position;
                     if (e.IsMajorTick)
                     {
-                        g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + _maxLabelHeight + MajorTickLength), new Point(p.X, p.Y + 500));
+                        g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + (int)_maxLabelDimensions.Height + MajorTickLength), new Point(p.X, p.Y + 500));
                     }
                 }
             }

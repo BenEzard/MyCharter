@@ -42,7 +42,7 @@ namespace MyCharter
         /// <summary>
         /// Generate all of the timescale axis values, using TimeSpan as the key.
         /// </summary>
-        internal override void GenerateAxisValues()
+        internal override void GenerateAxisEntries()
         {
             DateTime maxTime = (DateTime)MaximumValue;
             DateTime minTime = (DateTime)MinimumValue;

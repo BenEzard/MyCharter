@@ -1,6 +1,9 @@
-﻿using MyCharter.ChartElements.Axis;
+﻿using MyCharter.ChartElements;
+using MyCharter.ChartElements.Axis;
+using MyCharter.Util;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -17,6 +20,11 @@ namespace MyCharter
         /// The format (number/time etc) of this axis.
         /// </summary>
         public AxisFormat Format { get; set; }
+
+        /// <summary>
+        /// Is the Axis visible?
+        /// </summary>
+        public bool IsVisible { get; set; } = true;
 
         /// <summary>
         /// List of entries on the axis.
@@ -43,21 +51,30 @@ namespace MyCharter
         /// <summary>
         /// Defines where the axis appears in relation to the chart.
         /// </summary>
-        public AxisLabelPosition LabelPosition { get; set; }
+        public ElementPosition AxisPosition { get; set; }
 
-        public AxisLabelHorizontalPosition LabelHorizontalPosition { get; set; } = AxisLabelHorizontalPosition.LEFT;
+        private AxisLabelHorizontalPosition _labelHorizontalPosition = AxisLabelHorizontalPosition.LEFT;
+        public AxisLabelHorizontalPosition LabelHorizontalPosition
+        {
+            get => _labelHorizontalPosition;
+            set {
+                if ((AxisXY == Axis.X) && ((value == AxisLabelHorizontalPosition.LEFT) || (value == AxisLabelHorizontalPosition.CENTER)))
+                    _labelHorizontalPosition = value;
+                else
+                    throw new ArgumentException("X-Axis can only have a Label Horizontal position of LEFT or CENTER");
+            }
+        }
 
         /// <summary>
-        /// This is the maximum label width on the Axis. 
-        /// This is calculated in MeasureLabels()
+        /// This is the largest label dimensions for the Axis.
+        /// Note: Calculated in MeasureLabels()
         /// </summary>
-        protected int _maxLabelWidth = -1;
+        protected SizeF _maxLabelDimensions = new SizeF(-1, -1);
 
         /// <summary>
-        /// This is the maximum label height on the Axis. 
-        /// This is calculated in MeasureLabels()
+        /// The dimension of the Axis.
         /// </summary>
-        protected int _maxLabelHeight = -1;
+        protected Size _axisDimensions = new Size(-1, -1);
 
         /// <summary>
         /// The Pen used to draw the major ticks.
@@ -69,8 +86,49 @@ namespace MyCharter
         /// </summary>
         public int MajorTickLength = 5;
 
+
         public Pen MajorGridLinePen = new Pen(Brushes.Gray, 1);
 
+        /// <summary>
+        /// The Pen used to draw the major ticks.
+        /// </summary>
+        public Pen MinorTickPen = new Pen(Brushes.Black, 1);
+
+        /// <summary>
+        /// The length of the minor tick.
+        /// </summary>
+        public int MinorTickLength = 3;
+
+        public AbstractChart ParentChart = null;
+
+        public int PixelsPerIncrement { get; set; } = 10;
+
+        #region LabelAngle
+        private float _labelAngle = 0;
+
+        /// <summary>
+        /// Set the angle of the Labels.
+        /// </summary>
+        /// <param name="angle"></param>
+        public void SetLabelAngle(float angle)
+        {
+            if ((angle < 0) || (angle > 90))
+                throw new ArgumentException("Label angle must be between 0 and 90.");
+
+            _labelAngle = angle;
+        }
+
+        /// <summary>
+        /// Get the angle of the Axis label.
+        /// </summary>
+        /// <returns></returns>
+        public float GetLabelAngle()
+        {
+            return _labelAngle;
+        }
+        #endregion
+
+        public AxisWidth AxisWidth = AxisWidth.FIT_TO_LABELS; // Default value
 
         /// <summary>
         /// Instantiate an Axis.
@@ -86,14 +144,90 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Get the total Axis Label dimensions.
+        /// Calculate the dimensions of the Axis.
+        /// This includes: 
+        /// a) the length of the labels, 
+        /// b) axis-padding (space between the labels and the tick marks).
+        /// c) the length of the tick marks
         /// </summary>
         /// <returns></returns>
-        public abstract SizeF GetAxisLabelDimensions();
+        public Size CalculateDimensions(bool includeLabelPadding, bool includeAxisPadding, bool includeTick)
+        {
+            int width = 0;
+            int height = 0;
 
+            if (IsVisible)
+            {
+                switch (AxisXY)
+                {
+                    case Axis.X:
+                        if (AxisWidth == AxisWidth.FIT_TO_LABELS)
+                        {
+                            width = TotalIncrementCount() * (int)_maxLabelDimensions.Width;
+                            if (includeLabelPadding)
+                                width += TotalIncrementCount() * LabelPadding;
+                        }
+                        else if (AxisWidth == AxisWidth.FIT_TO_INCREMENT)
+                        {
+                            width = TotalIncrementCount() * PixelsPerIncrement;
+                        }
+                        height = (int)_maxLabelDimensions.Height;
+                        if (includeAxisPadding)
+                            height += AxisPadding;
+                        if (includeTick)
+                            height += MajorTickLength;
+                        break;
+                    
+                    case Axis.Y:
+                        width = (int)_maxLabelDimensions.Width;
+                        if (includeAxisPadding)
+                            width += AxisPadding;
+                        if (includeTick)
+                            width += MajorTickLength;
+                        height = (Entries.Count * (int)_maxLabelDimensions.Height);
+                        if (includeLabelPadding)
+                            height += (LabelPadding * Entries.Count) + LabelPadding;
+                        break;
+                }
+            }
+            else Console.WriteLine("axis is not visible");
+
+            /*Console.WriteLine($"in CalculateDimensions for {AxisXY} {AxisWidth}\n" +
+                $"   total increment count = {TotalIncrementCount()}\n" +
+                $"   max width = {_maxLabelDimensions.Width}\n" +
+                $"   pxs per inc = {PixelsPerIncrement}\n" +
+                $"   = width ={width}, height={height}\n");*/
+
+            return new Size(width, height);
+        }
+
+        /// <summary>
+        /// Returns the size the axis will consume.
+        /// This includes: 
+        /// a) the length of the labels, 
+        /// b) axis-padding (space between the labels and the tick marks).
+        /// c) the length of the tick marks
+        /// </summary>
+        /// <returns></returns>
+        public Size GetDimensions()
+        {
+            if (_axisDimensions.Width == -1)
+                _axisDimensions = CalculateDimensions(true, true, true);
+
+            return _axisDimensions;
+        }
+
+        /// <summary>
+        /// Return the dimensions of the largest label on the Axis.
+        /// </summary>
+        /// <returns></returns>
         public SizeF GetMaxLabelDimensions()
         {
-            return new SizeF(_maxLabelWidth, _maxLabelHeight);
+            // if the label dimensions have not been calculated, then do so.
+            if (_maxLabelDimensions.Width == -1)
+                MeasureAxisEntryLabels();
+
+            return _maxLabelDimensions;
         }
 
         /// <summary>
@@ -109,33 +243,24 @@ namespace MyCharter
         /// Generate the axis values, between the minimum and maximum values (if applicable).
         /// This method is populated in implementation classes.
         /// </summary>
-        internal abstract void GenerateAxisValues();
-
-        /*        public Point GetAxisEntry(object key)
-                {
-                    Point rValue = new Point(-1,-1);
-                    foreach (AxisEntry e in Entries)
-                    {
-                        if (e.KeyValue == key)
-                        {
-                            rValue = e.Label.ChartPosition;
-                        }
-                    }
-                    return rValue;
-                }*/
+        internal abstract void GenerateAxisEntries();
 
         public abstract void DrawMajorGridLines(Graphics g);
 
         /// <summary>
-        /// Prepare the Axis. Must be called before it can be displayed.
-        /// This method does the following:
-        /// - calculate the dimensions the label will take on the image (based on the font being used), updating MaxLabelSize;
+        /// Calculates the dimensions of the axis labels (based on the font being used). 
+        /// Also populates _maxLabelDimensions.
         /// </summary>
-        public void MeasureLabels()
+        public void MeasureAxisEntryLabels()
         {
+            if (_maxLabelDimensions.Width > -1)
+                return; // If already calculated, don't do it again
+
             // Create a temporary BMP for 'sketching'
-            Bitmap tempBMP = new Bitmap(400, 400);
+            Bitmap tempBMP = new Bitmap(300, 300);
             Graphics tempGraphics = Graphics.FromImage(tempBMP);
+            float maxWidth = 0;
+            float maxHeight = 0;
 
             for (int i = 0; i < Entries.Count; i++)
             {
@@ -146,10 +271,12 @@ namespace MyCharter
                     label.Dimensions = stringMeasurement;
 
                     // Update the max values.
-                    _maxLabelWidth = (_maxLabelWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : _maxLabelWidth;
-                    _maxLabelHeight = (_maxLabelHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : _maxLabelHeight;
+                    maxWidth = (maxWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : maxWidth;
+                    maxHeight = (maxHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : maxHeight;
                 }
             }
+
+            _maxLabelDimensions = new SizeF(maxWidth, maxHeight);
 
             tempBMP.Dispose();
         }
@@ -159,6 +286,7 @@ namespace MyCharter
         /// </summary>
         public void DebugOutput_ListScale()
         {
+            int counter = 0;
             foreach (object o in Entries)
             {
                 if (o is AxisEntry element)
@@ -166,9 +294,261 @@ namespace MyCharter
                     var label = (ImageText)element.Label;
                     if (label != null)
                     {
-                        Console.Write($"Key = {element.KeyValue} ");
-                        Console.WriteLine($"; Label = '{label.Text}' with dimensions = '{label.Dimensions}' and position = '{label.Position}'");
+                        Console.WriteLine($"{counter}: Key = {element.KeyValue} | Label = '{label.Text}' | Dim = '{label.Dimensions}'" +
+                            $" | Axis Pos = '{element.Position}'" +
+                            $" | Label Pos = '{label.Position}' | Major = {element.IsMajorTick}");
                     }
+                }
+                ++counter;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the intial axis positions; these will need later adjustment.
+        /// This will be positions based on the position and size of the label (and NOT be relative to other items).
+        /// </summary>
+        protected void CalculateInitialAxisValuePositions()
+        {
+            /// LabelPadding - The amount of padding (in pixels) which is placed above and below axis items.
+            /// AxisPadding - The amount of padding (in pixels) which is placed between the label and the axis.
+            if (AxisWidth == AxisWidth.FIT_TO_LABELS)
+            {
+                switch (AxisXY)
+                {
+                    case Axis.X:
+                        int x = 0;
+                        // Determine the WIDTH of the label
+                        int width = (int)_maxLabelDimensions.Width + LabelPadding;
+                        foreach (AxisEntry e in Entries)
+                        {
+                            e.Position = new Point(x, 0);
+                            x += width;
+                        }
+                        break;
+                    case Axis.Y:
+                        int y = ((int)_maxLabelDimensions.Height / 2);
+                        // Determine the WIDTH of the label
+                        int height = (int)_maxLabelDimensions.Height + LabelPadding;
+                        foreach (AxisEntry e in Entries)
+                        {
+                            e.Position = new Point(0, y);
+                            y += height;
+                        }
+                        break;
+                }
+            }
+
+            else if (AxisWidth == AxisWidth.FIT_TO_INCREMENT)
+            {
+                switch (AxisXY)
+                {
+                    case Axis.X:
+                        int x = 0;
+                        foreach (AxisEntry e in Entries)
+                        {
+                            e.Position = new Point(x, 0);
+                            x += PixelsPerIncrement;
+                        }
+                        break;
+                    case Axis.Y:
+                        int y = 0;
+                        foreach (AxisEntry e in Entries)
+                        {
+                            e.Position = new Point(0, y);
+                            y += PixelsPerIncrement;
+                        }
+                        break;
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// The initial Axis preparation.
+        /// Note that this method a) generates axis values, b) measures axis labels and c) calculates the initial axis value positions.
+        /// This initial axis positions is relative to ITSELF, and requires FinaliseAxisLayout() to be called in order to position relative to other items.
+        /// </summary>
+        public void InitialAxisPreparation()
+        {
+            GenerateAxisEntries();
+
+            MeasureAxisEntryLabels();
+
+            CalculateInitialAxisValuePositions();
+        }
+
+        /// <summary>
+        /// Finalise the Axis layout. This:
+        /// 1) Calculates the final Axis positions (relative to everything else) 
+        /// 2) Calculates the label positions.
+        /// </summary>
+        public void FinaliseAxisLayout()
+        {
+            CalculateFinalAxisValuePositions();
+            CalculateFinalLabelPosition();
+        }
+
+        /// <summary>
+        /// Calculate the Label positions relative to the Axis ticks.
+        /// </summary>
+        private void CalculateFinalLabelPosition()
+        {
+            if (AxisXY == Axis.X)
+            {
+                foreach (AxisEntry e in Entries)
+                {
+                    int x = 0;
+                    int y = 0;
+
+                    // The position of the Axis (AxisPosition) changes the y-value.
+                    // The horizontal position of the label (LabelHorizontalPosition) changes the x-value.
+                    switch (AxisPosition)
+                    {
+                        case ElementPosition.TOP:
+                            y = e.Position.Y - (int)_maxLabelDimensions.Height;
+                            break;
+                        case ElementPosition.BOTTOM:
+                            y = e.Position.Y + MajorTickLength + 1;
+                            break;
+                    }
+
+                    switch (LabelHorizontalPosition)
+                    {
+                        case AxisLabelHorizontalPosition.LEFT:
+                            x = e.Position.X;
+                            break;
+                        case AxisLabelHorizontalPosition.CENTER:
+                            x = e.Position.X - ((int)e.Label.Dimensions.Value.Width / 2);
+                            break;
+                    }
+                    e.Label.Position = new Point(x, y);
+                } // end foreach
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                foreach (AxisEntry e in Entries)
+                {
+                    switch (AxisPosition)
+                    {
+                        case ElementPosition.LEFT:
+                            /*// The text will be to the LEFT of the tick
+                            int xPos = e.Position.X - ((int)e.Label.Dimensions.Value.Width + AxisPadding);
+                            int yPos = e.Position.Y - (int)_maxLabelDimensions.Height / 2;
+                            if (xPos < 0)
+                            {
+                                xPos = 0;
+                            }
+                            e.Label.Position = new Point(xPos, yPos);*/
+                            int xPos = ParentChart._layout.yAxisLabels.X + ((int)GetMaxLabelDimensions().Width - (int)e.Label.Dimensions.Value.Width);
+                            int yPos = e.Position.Y - (int)_maxLabelDimensions.Height / 2;
+                            if (xPos < 0)
+                            {
+                                xPos = 0;
+                            }
+                            e.Label.Position = new Point(xPos, yPos);
+                            break;
+                        case ElementPosition.RIGHT:
+                            // The text will be on the RIGHT of the tick
+                            e.Label.Position = new Point(e.Position.X + AxisPadding,
+                                e.Position.Y - (int)_maxLabelDimensions.Height / 2);
+                            break;
+                    }
+
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculate the final positions of Axis entries.
+        /// This adds the layout values to the exiswting positions of Axis entries and other Axis dimensions.
+        /// This uses CalculateFinalLabelPosition() for the Y-axis (and so should be used AFTER it).
+        /// </summary>
+        private void CalculateFinalAxisValuePositions()
+        {
+            GraphicsLayout layout = ParentChart._layout;
+
+            if (AxisXY == Axis.X)
+            {
+                AbstractChartAxis yAxis = ParentChart.GetAxis(Axis.Y);
+                Point refPoint = layout.xAxisTicks;
+                int xOffset = refPoint.X;
+                if (yAxis.AxisPosition == ElementPosition.LEFT)
+                    xOffset += yAxis.CalculateDimensions(false, true, false).Width;
+                
+                foreach (AxisEntry e in Entries)
+                {
+                    e.Position.X += xOffset;
+                    e.Position.Y += refPoint.Y;
+                    Console.WriteLine($"Final axis position for {e.Label.Text} is {e.Position}");
+                }
+            }
+
+            else if (AxisXY == Axis.Y)
+            {
+                AbstractChartAxis xAxis = ParentChart.GetAxis(Axis.Y);
+                Point refPoint = layout.yAxisTicks;
+                int yOffset = refPoint.Y;
+                if (xAxis.AxisPosition == ElementPosition.TOP)
+                    yOffset += xAxis.CalculateDimensions(false, true, false).Height;
+                
+                foreach (AxisEntry e in Entries)
+                {
+                    if (AxisPosition == ElementPosition.LEFT)
+                        e.Position.X = refPoint.X; //+ (int)GetMaxLabelDimensions().Width;
+                    else
+                        e.Position.X = refPoint.X; // + (int)GetMaxLabelDimensions().Width);
+                    e.Position.Y += yOffset;
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Return the Axis coordinates of a given label.
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public Point? GetAxisPositionOfLabel(string label)
+        {
+            Point? rValue = null;
+            foreach (AxisEntry e in Entries)
+            {
+                if (e.Label.Text.Equals(label))
+                {
+                    rValue = e.Position;
+                    break;
+                }
+            }
+            return rValue;
+        }
+
+        /// <summary>
+        /// Draw the Axis label.
+        /// Only draws for major ticks, where there is space free.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="bmp"></param>
+        public void DrawAxisLabels(Graphics g, Bitmap bmp)
+        {           
+            foreach (AxisEntry e in Entries)
+            {
+                if (e.IsMajorTick)
+                {
+                    // Check to see if space is free for the label.
+                    Console.WriteLine($"w={bmp.Width}, h={bmp.Height}");
+                    List<int> ignoreColors = new List<int> { ParentChart.ImageBackgroundColor.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
+
+                    if (ImageMethods.IsSpaceEmpty(g, bmp, 
+                            new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height), 
+                            ignoreColors, null/*@"C:\New Folder\" + e.Label.Text + ".png"*/)) 
+                    {
+                        g.DrawString(e.Label.Text, AxisFont, Brushes.Black, e.Label.Position);
+                    }
+                    else {
+                        Console.WriteLine($"Can't draw {e.Label.Text} due to space restrictions");
+                    }
+                        
                 }
             }
         }
@@ -179,8 +559,9 @@ namespace MyCharter
         /// Returns the total number of increments on the scale.
         /// </summary>
         /// <returns></returns>
-        public int TotalIncrementCount() {
-            return Entries.Count;
+        public int TotalIncrementCount()
+        {
+            return Entries.Count + 1;
         }
 
         /// <summary>
@@ -191,5 +572,97 @@ namespace MyCharter
         public abstract void DrawAxis(Graphics g, Point offset);
 
         public abstract void DrawTicks(Graphics g, Point offset);
+
+        public abstract void CalculateLabelPositions(Point offset);
+
+        /// <summary>
+        /// Draw the major and minor Ticks on the Axis.
+        /// </summary>
+        /// <param name="g"></param>
+        public void DrawTicks(Graphics g)
+        {
+            if (AxisXY == Axis.X)
+            {
+                // Ticks will be VERTICAL
+                foreach (var e in Entries)
+                {
+                    if (e.IsMajorTick)
+                    {
+                        g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X, e.Position.Y + MajorTickLength));
+                    }
+                    else
+                    {
+                        g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X, e.Position.Y + MinorTickLength));
+                    }
+
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                // Ticks will be HORIZONTAL
+                foreach (var e in Entries)
+                {
+                    if (AxisPosition == ElementPosition.LEFT)
+                    {
+                        if (e.IsMajorTick)
+                        {
+                            g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X + MajorTickLength, e.Position.Y));
+                        }
+                        else
+                        {
+                            g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X + MinorTickLength, e.Position.Y));
+                        }
+                    }
+                    else if (AxisPosition == ElementPosition.RIGHT)
+                    {
+                        if (e.IsMajorTick)
+                        {
+                            g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X - MajorTickLength, e.Position.Y));
+                        }
+                        else
+                        {
+                            g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X - MinorTickLength, e.Position.Y));
+                        }
+                    }
+
+                }
+            }
+        }
+
+        public void DrawLabels(Graphics g)
+        {
+
+        }
+
+        public void CalculateLabelPosition(Point offset)
+        {
+            /// LabelPadding - The amount of padding (in pixels) which is placed above and below axis items.
+            /// AxisPadding - The amount of padding (in pixels) which is placed between the label and the axis.
+            if (AxisXY == Axis.X)
+            {
+                offset.Y += AxisPadding;
+                foreach (var e in Entries)
+                {
+                    offset.X += LabelPadding;
+                    switch (LabelHorizontalPosition)
+                    {
+                        case AxisLabelHorizontalPosition.LEFT:
+                            e.Label.Position = new Point(offset.X, offset.Y);
+                            break;
+                        case AxisLabelHorizontalPosition.CENTER:
+                            e.Label.Position = new Point(
+                                (offset.X - (int)(e.Label.Dimensions.Value.Width / 2)),
+                                offset.Y);
+                            break;
+                    }
+                    offset.X += (int)GetMaxLabelDimensions().Width;
+                }
+
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                offset.Y += AxisPadding;
+            }
+        }
     }
 }
