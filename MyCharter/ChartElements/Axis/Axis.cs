@@ -1,4 +1,4 @@
-﻿namespace MyCharter
+﻿namespace MyCharter.ChartElements.Axis
 {
     public enum Axis
     {

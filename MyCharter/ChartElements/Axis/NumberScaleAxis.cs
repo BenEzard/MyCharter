@@ -1,4 +1,7 @@
-﻿namespace MyCharter.ChartElements.Axis
+﻿using System;
+using System.Drawing;
+
+namespace MyCharter.ChartElements.Axis
 {
     public class NumberScaleAxis : AbstractScaleAxis
     {
@@ -36,5 +39,6 @@
                 tickValue -= MinorIncrement;
             }
         }
+
     }
 }

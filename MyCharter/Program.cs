@@ -28,7 +28,7 @@ namespace MyCharter
             StackedVerticalBarChart svChart = new StackedVerticalBarChart();
             svChart.Title = "Demo of Stacked Chart";
             svChart.SubTitle = "Orientation: x-Axis: " + xAxisPositioning.ToString() + ", y-Axis: " + yAxisPositioning.ToString();
-            svChart.OutputFile = @"C:\New Folder\demo-stacked-vertical-chart-"+ xAxisPositioning.ToString()+ "-" + yAxisPositioning.ToString() + ".png";
+            svChart.OutputFile = @"C:\New Folder\aDemo-stacked-vertical-chart-"+ xAxisPositioning.ToString()+ "-" + yAxisPositioning.ToString() + ".png";
             
             var xAxis = new DateScaleAxis(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, DateFormat.DDMM1);
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
@@ -39,8 +39,8 @@ namespace MyCharter
             //yAxis.DebugOutput_ListScale();
 
             svChart.GenerateChart();
-            svChart.DebugOutput_ChartDimensions();
-            Console.WriteLine($"y-axis dimensions > {yAxis.GetDimensions()}");
+            //svChart.DebugOutput_ChartDimensions();
+            //Console.WriteLine($"y-axis dimensions > {yAxis.GetDimensions()}");
         }
 
         private static void BarChartDemo()

@@ -93,24 +93,24 @@ namespace MyCharter.Util
         /// Draw a vertical line on the image (for debug purposes)
         /// </summary>
         /// <param name="g"></param>
-        /// <param name="y"></param>
+        /// <param name="x"></param>
         /// <param name="height"></param>
         /// <param name="line"></param>
-        public static void Debug_DrawVerticalGuide(Graphics g, int y, int height, Pen line)
+        public static void Debug_DrawVerticalGuide(Graphics g, int x, int height, Pen line)
         {
-            g.DrawLine(line, new Point(y, 0), new Point(y, height));
+            g.DrawLine(line, new Point(x, 0), new Point(x, height));
         }
 
         /// <summary>
         /// Draw a horizontal line on the image (for debug purposes)
         /// </summary>
         /// <param name="g"></param>
-        /// <param name="x"></param>
+        /// <param name="y"></param>
         /// <param name="width"></param>
         /// <param name="line"></param>
-        public static void Debug_DrawHorizontalGuide(Graphics g, int x, int width, Pen line)
+        public static void Debug_DrawHorizontalGuide(Graphics g, int y, int width, Pen line)
         {
-            g.DrawLine(line, new Point(0, x), new Point(width, x));
+            g.DrawLine(line, new Point(0, y), new Point(width, y));
         }
 
         public static void Debug_DrawPoint(Graphics g, int x, int y)
@@ -118,6 +118,9 @@ namespace MyCharter.Util
             g.DrawEllipse(new Pen(Brushes.Yellow, 1), x, y, 3, 3);
         }
 
-
+        public static void Debug_DrawRectangle(Graphics g, Rectangle r, Pen p)
+        {
+            g.DrawRectangle(p, r);
+        }
     }
 }

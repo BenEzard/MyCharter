@@ -242,7 +242,6 @@ namespace MyCharter
             ValidateAxis(type, labelPosition, axis);
          
             int index = (int)type;
-            Console.WriteLine($"in SetAxis for {type}");
             // Apply the requested value
             axis.AxisXY = type;
             axis.AxisPosition = labelPosition;
@@ -321,7 +320,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Calculate the initial layout of chart elements, populating the _layout object.
+        /// Calculate the initial layout of positions.
         /// </summary>
         public void CalculateInitialLayout()
         {
@@ -346,72 +345,59 @@ namespace MyCharter
 
             if (_title != null)
             {
-                _title.Position = new Point(x, y);
                 _layout.Title = new Point(x, y);
+                _title.Position = new Point(x, y);
                 y += (int)_title.Dimensions.Value.Height;
             }
 
             if (_subTitle != null)
             {
-                _subTitle.Position = new Point(x, y);
                 _layout.SubTitle = new Point(x, y);
+                _subTitle.Position = new Point(x, y);
                 y += (int)_subTitle.Dimensions.Value.Height;
+                y += 10; // Add some additional space under the heading.
             }
 
             var xAxis = GetAxis(Axis.X);
             var yAxis = GetAxis(Axis.Y);
 
-            // Add padding between title and axis start
-            y += GetPadding(ElementPosition.TOP);
+            Point tempXAxis = new Point(x, y);
+            Point tempYAxis = new Point(x, y);
 
-            Size xAxisFullDimensions = xAxis.CalculateDimensions(true, true, true);
-            Size yAxisFullDimensions = yAxis.CalculateDimensions(true, true, true);
-
-            // X-axis label can be TOP or BOTTOM
-            // Y-axis label can be LEFT or RIGHT.
-            if ((xAxis.AxisPosition == ElementPosition.TOP) && (yAxis.AxisPosition == ElementPosition.LEFT))
+            if (xAxis.AxisPosition == ElementPosition.TOP)
             {
-                // Offset the x-axis by the width of the y-axis
-                _layout.xAxisLabels = new Point(x + yAxisFullDimensions.Width, y);
-                _layout.yAxisLabels = new Point(x, y);
+                // If the x-axis is on the top, then we want the y-axis to be moved down by the height of the x-axis
+                tempYAxis.Y += xAxis.GetDimensions().Height;
 
-                _layout.xAxisTicks = new Point(x + yAxisFullDimensions.Width, y + (xAxisFullDimensions.Height - xAxis.MajorTickLength));
-                _layout.yAxisTicks = new Point(GetStartOfDrawingSpace(ElementPosition.LEFT)
-                    + (int)yAxis.GetMaxLabelDimensions().Width + yAxis.AxisPadding, y);
+                if (yAxis.AxisPosition == ElementPosition.LEFT)
+                {
+                    // If the y-axis is on the left, then we want to move the x-axis right the width of the y-axis
+                    tempXAxis.X += xAxis.GetDimensions().Height;
+                }
+                else if (yAxis.AxisPosition == ElementPosition.RIGHT)
+                {
+                    // If the Y-Axis is on the right, we want to offset the X-Axis a bit to make room for the left-most label on the x-axis
+                   // tempXAxis.X += (int)xAxis.GetMaxLabelDimensions().Width;
+                    tempYAxis.X = tempXAxis.X + xAxis.GetDimensions().Width;
+                }
+                        
             }
-            
-            else if ((xAxis.AxisPosition == ElementPosition.TOP) && (yAxis.AxisPosition == ElementPosition.RIGHT))
+            else if (xAxis.AxisPosition == ElementPosition.BOTTOM)
             {
-                // Offset the y-axis by the height and width of the x-axis
-                _layout.xAxisLabels = new Point(x, y);
-                _layout.yAxisLabels = new Point(x + xAxisFullDimensions.Width, y + xAxisFullDimensions.Height);
+                tempXAxis.Y += yAxis.GetDimensions().Height;
+                if (yAxis.AxisPosition == ElementPosition.LEFT)
+                {
+                    tempXAxis.X += yAxis.GetDimensions().Width;
+                }
+                else if (yAxis.AxisPosition == ElementPosition.RIGHT)
+                {
+                    tempYAxis.X = tempXAxis.X + xAxis.GetDimensions().Width;
+                }
 
-                _layout.xAxisTicks = new Point(x, y + (yAxisFullDimensions.Height - xAxis.MajorTickLength));
-                _layout.yAxisTicks = new Point(x + xAxisFullDimensions.Width, y + xAxisFullDimensions.Height);
-                Console.WriteLine($"Initial axis ticks for Y is {_layout.yAxisTicks}");
             }
-            
-            else if ((xAxis.AxisPosition == ElementPosition.BOTTOM) && (yAxis.AxisPosition == ElementPosition.LEFT))
-            {
-                // Ofset the x-axis by the height and width of the y-axis
-                _layout.xAxisLabels = new Point(x + yAxisFullDimensions.Width, y + yAxisFullDimensions.Height);
-                _layout.yAxisLabels = new Point(x, y);
 
-                _layout.xAxisTicks = new Point(x + yAxisFullDimensions.Width, y + yAxisFullDimensions.Height);
-                _layout.yAxisTicks = new Point(GetStartOfDrawingSpace(ElementPosition.LEFT) 
-                    + (int)yAxis.GetMaxLabelDimensions().Width + yAxis.AxisPadding, y);
-            }
-            
-            else if ((xAxis.AxisPosition == ElementPosition.BOTTOM) && (yAxis.AxisPosition == ElementPosition.RIGHT))
-            {
-                // Offset the x-axis by the height of the y-axis
-                // Offset the y-axis by the width of the x-axis
-                _layout.xAxisLabels = new Point(x, y + yAxisFullDimensions.Height);
-                _layout.yAxisLabels = new Point(x + xAxisFullDimensions.Width, y);
-
-                _layout.xAxisTicks = new Point(x, y + yAxisFullDimensions.Height);
-                _layout.yAxisTicks = new Point(x + xAxisFullDimensions.Width, y);
-            }
+            _layout.xAxis = tempXAxis;
+            _layout.yAxis = tempYAxis;
         }
 
         public int GetStartOfDrawingSpace(ElementPosition side)
@@ -460,11 +446,10 @@ namespace MyCharter
                 $"y-Axis Labels = { _layout.yAxisLabels}\n" +
                 $"y-Axis Ticks = { _layout.yAxisTicks}\n" +
                 $"x-Axis Labels = { _layout.xAxisLabels}\n" +
-                $"x-Axis Ticks = { _layout.xAxisTicks}\n" +
-                $"");
+                $"x-Axis Ticks = { _layout.xAxisTicks}");
 
-            Console.WriteLine($"y-Axis {yAxis.GetDimensions()}");
-            Console.WriteLine($"x-Axis {xAxis.GetDimensions()}");
+            Console.WriteLine($"y-Axis (x,y,h,w) = {_layout.yAxis.X}, {_layout.yAxis.Y}, {yAxis.GetDimensions().Height}, {yAxis.GetDimensions().Width}");
+            Console.WriteLine($"x-Axis (x,y,h,w) = {_layout.xAxis.X}, {_layout.xAxis.Y}, {xAxis.GetDimensions().Height}, {xAxis.GetDimensions().Width}");
 
         }
 
@@ -542,10 +527,10 @@ namespace MyCharter
         /// </summary>
         public void GenerateChart()
         {
-            CalculateInitialLayout();
-
             var xAxis = GetAxis(Axis.X);
             var yAxis = GetAxis(Axis.Y);
+
+            CalculateInitialLayout();
 
             xAxis.FinaliseAxisLayout();
             yAxis.FinaliseAxisLayout();
@@ -563,28 +548,15 @@ namespace MyCharter
 
                 DrawTitles(g);
 
-                //Point xAxisTicksOffset = offset;
-
-                xAxis.DrawTicks(g);
-                xAxis.DrawAxisLabels(g, bmp);
+                xAxis.DrawAxis(g, bmp);
 
                 yAxis.DrawTicks(g);
                 yAxis.DrawAxisLabels(g, bmp);
 
-
-                //ImageMethods.Debug_DrawVerticalGuide(g, GetMargin(ElementPosition.LEFT)+1+GetPadding(ElementPosition.LEFT)+xAxis.GetDimensions().Width, _chartDimensions.Height - 10, new Pen(Color.Orange, 1));
-                //ImageMethods.Debug_DrawVerticalGuide(g, _layout.yAxisLabels.X, _chartDimensions.Height - 10, new Pen(Color.Yellow, 1));
-                ImageMethods.Debug_DrawVerticalGuide(g, _layout.yAxisTicks.X, _chartDimensions.Height-10, new Pen(Color.Yellow, 1));
-                //Debug_DrawVerticalGuide(g, _layout.xAxisTicks.X, Color.Yellow);
-
-                ImageMethods.Debug_DrawPoint(g, _layout.yAxisTicks.X, _layout.yAxisTicks.Y);
-                Console.WriteLine($"Y-axis ticks: {_layout.yAxisTicks}");
-
-                Debug_DrawAxisEntryPosition(g);
-
-                //yAxis.DrawTicks(g);
-                //                xAxis.DrawTicks(g, CalculateTickOffset(xAxis));
-                //                xAxis.DrawTicks(g, CalculateTickOffset(yAxis));
+                /*Pen rectPen = new Pen(Brushes.Red, 1);
+                rectPen.DashPattern = new float[] { 10, 10 };
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(_layout.xAxis, xAxis.GetDimensions()), rectPen);
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(_layout.yAxis, yAxis.GetDimensions()), rectPen);*/
 
                 /*//Point xAxisTicksOffset = new Point(offset.X - (2 * MarginWidth), offset.Y);
                 if (xAxis.LabelPosition == AxisLabelPosition.TOP)
@@ -617,20 +589,6 @@ namespace MyCharter
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
-        }
-
-        public void Debug_DrawAxisEntryPosition(Graphics g)
-        {
-            foreach (AxisEntry e in GetAxis(Axis.X).Entries)
-            {
-                Pen p = new Pen(Brushes.BlueViolet, 1);
-                g.DrawLine(p, e.Position, new Point(e.Position.X, e.Position.Y-1));
-            }
-            foreach (AxisEntry e in GetAxis(Axis.Y).Entries)
-            {
-                Pen p = new Pen(Brushes.BlueViolet, 1);
-                g.DrawLine(p, e.Position, new Point(e.Position.X+1, e.Position.Y));
-            }
         }
 
         /// <summary>

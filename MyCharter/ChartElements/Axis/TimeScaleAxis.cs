@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyCharter.ChartElements.Axis;
+using System;
 using System.Drawing;
 
 namespace MyCharter
