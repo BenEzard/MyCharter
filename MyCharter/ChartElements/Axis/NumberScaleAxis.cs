@@ -11,6 +11,11 @@ namespace MyCharter.ChartElements.Axis
 
         }
 
+        public override string FormatLabelString(object label)
+        {
+            return label.ToString();
+        }
+
         protected override bool AreAxisValuesValid(out string errorMessage)
         {
             //throw new System.NotImplementedException();

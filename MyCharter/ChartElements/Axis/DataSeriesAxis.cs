@@ -129,5 +129,10 @@ namespace MyCharter
         {
             throw new NotImplementedException();
         }
+
+        public override string FormatLabelString(object label)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

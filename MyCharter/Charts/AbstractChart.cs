@@ -1,7 +1,9 @@
 ﻿using MyCharter.ChartElements;
 using MyCharter.ChartElements.Axis;
+using MyCharter.ChartElements.DataSeries;
 using MyCharter.Util;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -129,7 +131,7 @@ namespace MyCharter
             {
                 if (_title == null)
                     return null;
-                else 
+                else
                     return _title.Text;
             }
             set
@@ -166,7 +168,7 @@ namespace MyCharter
                 _subTitle = new ImageText(value);
                 CalculateTitleDimensions();
             }
-       }
+        }
 
         /// <summary>
         /// The font which is used for the Chart Title.
@@ -200,6 +202,11 @@ namespace MyCharter
         /// The background colour of the image.
         /// </summary>
         public Color ImageBackgroundColor = Color.White;
+
+        /// <summary>
+        /// TODO should be generic at this point?
+        /// </summary>
+        public List<DataSeries<DateTime, int>> ChartData {get; set;} = new List<DataSeries<DateTime, int>>();
 
         public AbstractChart(ChartType chartType)
         {
@@ -396,8 +403,8 @@ namespace MyCharter
 
             }
 
-            _layout.xAxis = tempXAxis;
-            _layout.yAxis = tempYAxis;
+            GetAxis(Axis.X).AxisCoords = tempXAxis;
+            GetAxis(Axis.Y).AxisCoords = tempYAxis;
         }
 
         public int GetStartOfDrawingSpace(ElementPosition side)
@@ -448,8 +455,8 @@ namespace MyCharter
                 $"x-Axis Labels = { _layout.xAxisLabels}\n" +
                 $"x-Axis Ticks = { _layout.xAxisTicks}");
 
-            Console.WriteLine($"y-Axis (x,y,h,w) = {_layout.yAxis.X}, {_layout.yAxis.Y}, {yAxis.GetDimensions().Height}, {yAxis.GetDimensions().Width}");
-            Console.WriteLine($"x-Axis (x,y,h,w) = {_layout.xAxis.X}, {_layout.xAxis.Y}, {xAxis.GetDimensions().Height}, {xAxis.GetDimensions().Width}");
+            Console.WriteLine($"y-Axis (x,y,h,w) = {yAxis.AxisCoords.X}, {yAxis.AxisCoords.Y}, {yAxis.GetDimensions().Height}, {yAxis.GetDimensions().Width}");
+            Console.WriteLine($"x-Axis (x,y,h,w) = {xAxis.AxisCoords.X}, {xAxis.AxisCoords.Y}, {xAxis.GetDimensions().Height}, {xAxis.GetDimensions().Width}");
 
         }
 
@@ -548,44 +555,23 @@ namespace MyCharter
 
                 DrawTitles(g);
 
-                xAxis.DrawAxis(g, bmp);
-
-                yAxis.DrawTicks(g);
-                yAxis.DrawAxisLabels(g, bmp);
-
-                /*Pen rectPen = new Pen(Brushes.Red, 1);
-                rectPen.DashPattern = new float[] { 10, 10 };
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(_layout.xAxis, xAxis.GetDimensions()), rectPen);
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(_layout.yAxis, yAxis.GetDimensions()), rectPen);*/
-
-                /*//Point xAxisTicksOffset = new Point(offset.X - (2 * MarginWidth), offset.Y);
-                if (xAxis.LabelPosition == AxisLabelPosition.TOP)
+                if (xAxis.IsVisible)
                 {
-                    // ---- Draw Ticks -------------------------------------------------------------------------------------
-                    //// if the y-axis labels are on the left, then offset the x-axis.
-                    int lhsofticks = (int)yaxis.getaxislabeldimensions().width;
-                    offset.y += xaxis.labelpadding + (int)xaxis.getmaxlabeldimensions().height;
-                    if (yaxis.labelposition == axislabelposition.left)
-                    {
-                        offset.x += lhsofticks;
-                    }
+                    xAxis.DrawAxis(g, bmp);
+                }
 
-                    xAxis.DrawTicks(g, offset);
-                    xAxisTicksOffset = offset;
+                if (yAxis.IsVisible)
+                {
+                    yAxis.DrawAxis(g, bmp);
+                }
 
-                    // ---- Draw Axis Label --------------------------------------------------------------------------------
-                    offset.Y -= (int)xAxis.GetMaxLabelDimensions().Height;
-                    xAxis.DrawAxisLabels(g, offset);
-                }*/
+                Pen rectPen = new Pen(Brushes.Red, 1);
+                rectPen.DashPattern = new float[] { 10, 10 };
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(xAxis.AxisCoords, xAxis.GetDimensions()), rectPen);
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);
 
-                // ---- Draw Y-Axis ------------------------------------------------------------------------------------
-                //int y = xAxisTicksOffset.Y + xAxis.MajorTickLength + yAxis.LabelPadding;
-                //yAxis.DrawTicks(g, new Point(offset.X, y));
-                //                yAxis.DrawAxisLabels(g, offset);
-
-                //              PlotData(g);
-
-                //            xAxis.DrawMajorGridLines(g);
+                //yAxis.DebugOutput_ListScale();
+                PlotData(g);
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
@@ -809,7 +795,28 @@ namespace MyCharter
             return _chartDimensions;
         }
 
+        public void AddDataSeries(DataSeries<DateTime,int> ds)
+        {
+            ChartData.Add(ds);
+        }
+
         public abstract void PlotData(Graphics g);
+
+        public Point GetPosition(object xLabel, object yLabel)
+        {
+            Point rValue = new Point(-1, -1);
+
+            var xAxis = GetAxis(Axis.X);
+            var yAxis = GetAxis(Axis.Y);
+
+            var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
+            var yPoint = yAxis.GetAxisPositionOfLabel(yAxis.FormatLabelString(yLabel));
+
+            if ((xPoint.HasValue) && (yPoint.HasValue))
+                rValue = new Point(xPoint.Value.X, yPoint.Value.Y);
+
+            return rValue;
+        }
 
         /// <summary>
         /// A debug method which outputs chart dimensions.
@@ -828,6 +835,18 @@ namespace MyCharter
             Console.WriteLine($"Titles (p1;p2;w;h): {_title.Position}; {_subTitle.Position}; {(int)titleDimensions.Width}; {(int)titleDimensions.Height}");
             Console.WriteLine($"x-Axis (lp;tp;w;h): {_layout.xAxisLabels}; {_layout.xAxisTicks}; {(int)xAxisDimensions.Width}; {(int)xAxisDimensions.Height}");
             Console.WriteLine($"y-Axis (lp;tp;w;h): {_layout.yAxisLabels}; {_layout.yAxisTicks}; {(int)yAxisDimensions.Width}; {(int)yAxisDimensions.Height}");
+        }
+
+        public void DebugOutput_DataSeries()
+        {
+            foreach (DataSeries<DateTime, int> ds in ChartData)
+            {
+                Console.WriteLine($"{ds.Name}  -  {ds.Color}");
+                foreach (DataPoint<DateTime, int> dp in ds.DataPoints)
+                {
+                    Console.WriteLine($"   axis1: {dp.AxisCoord1}, axis2: {dp.AxisCoord2}");
+                }
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MyCharter.ChartElements.Axis;
+using MyCharter.ChartElements.DataSeries;
+using System;
 using System.Drawing;
 
 namespace MyCharter.Charts
@@ -11,7 +13,16 @@ namespace MyCharter.Charts
 
         public override void PlotData(Graphics g)
         {
-            //throw new NotImplementedException();
+            var xAxis = GetAxis(Axis.X);
+            foreach (DataSeries<DateTime, int> ds in ChartData)
+            {
+                foreach (DataPoint<DateTime, int> dp in ds.DataPoints)
+                {
+                    Point p = GetPosition(dp.AxisCoord1.ToString(), dp.AxisCoord2.ToString());
+                    Console.WriteLine($"Return in PlotData is {p}");
+                    g.DrawRectangle(new Pen(ds.Color), new Rectangle(p, new Size(p.X - 10, p.Y - 10)));
+                }
+            }
         }
     }
 }

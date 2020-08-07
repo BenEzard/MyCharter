@@ -1,4 +1,5 @@
 ﻿using MyCharter.ChartElements.Axis;
+using MyCharter.ChartElements.DataSeries;
 using MyCharter.Charts;
 using System;
 using System.Drawing;
@@ -10,17 +11,17 @@ namespace MyCharter
         static void Main(string[] args)
         {
             //BarChartDemo();
-            Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
+            /*Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.TOP, ElementPosition.LEFT);
 
             Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);
+            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);*/
 
             Console.WriteLine("==========" + ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
 
-            Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);
+            /*Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
+            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);*/
         }
 
         private static void DoStackedChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
@@ -30,7 +31,7 @@ namespace MyCharter
             svChart.SubTitle = "Orientation: x-Axis: " + xAxisPositioning.ToString() + ", y-Axis: " + yAxisPositioning.ToString();
             svChart.OutputFile = @"C:\New Folder\aDemo-stacked-vertical-chart-"+ xAxisPositioning.ToString()+ "-" + yAxisPositioning.ToString() + ".png";
             
-            var xAxis = new DateScaleAxis(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, DateFormat.DDMM1);
+            var xAxis = new DateScaleAxis(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, AxisLabelFormat.DATE_DDMM1);
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             svChart.SetAxis(Axis.X, xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT);
 
@@ -38,9 +39,13 @@ namespace MyCharter
             svChart.SetAxis(Axis.Y, yAxisPositioning, yAxis, AxisWidth.FIT_TO_LABELS);
             //yAxis.DebugOutput_ListScale();
 
+            var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
+            svChart.AddDataSeries(volunteersDS);
+
             svChart.GenerateChart();
-            //svChart.DebugOutput_ChartDimensions();
-            //Console.WriteLine($"y-axis dimensions > {yAxis.GetDimensions()}");
+
+            //svChart.DebugOutput_DataSeries();
         }
 
         private static void BarChartDemo()

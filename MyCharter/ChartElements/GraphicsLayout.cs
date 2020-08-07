@@ -11,8 +11,5 @@ namespace MyCharter.ChartElements
         public Point yAxisTicks { get; set; }
         public Point xAxisLabels { get; set; }
         public Point xAxisTicks { get; set; }
-        public Point xAxis { get; set; }
-        public Point yAxis { get; set; }
-
     }
 }

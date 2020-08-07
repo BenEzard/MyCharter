@@ -107,7 +107,7 @@ namespace MyCharter
 
         public int PixelsPerIncrement { get; set; } = 10;
 
-        #region LabelAngle
+       /* #region LabelAngle
         private float _labelAngle = 0;
 
         /// <summary>
@@ -130,9 +130,14 @@ namespace MyCharter
         {
             return _labelAngle;
         }
-        #endregion
+        #endregion*/
 
         public AxisWidth AxisWidth = AxisWidth.FIT_TO_LABELS; // Default value
+
+        /// <summary>
+        /// The position at where the Axis starts.
+        /// </summary>
+        public Point AxisCoords { get; set; }
 
         /// <summary>
         /// Instantiate an Axis.
@@ -178,7 +183,7 @@ namespace MyCharter
                         }
                         height = (int)_maxLabelDimensions.Height;
                         if (includeAxisPadding)
-                            height += AxisPadding * 2;
+                            height += AxisPadding;
                         if (includeTick)
                             height += MajorTickLength;
                         break;
@@ -186,7 +191,7 @@ namespace MyCharter
                     case Axis.Y:
                         width = (int)_maxLabelDimensions.Width;
                         if (includeAxisPadding)
-                            width += AxisPadding * 2;
+                            width += AxisPadding;
                         if (includeTick)
                             width += MajorTickLength;
                         height = (Entries.Count * (int)_maxLabelDimensions.Height);
@@ -291,6 +296,12 @@ namespace MyCharter
         /// </summary>
         public void DebugOutput_ListScale()
         {
+            Console.WriteLine($"ID  " +
+                $"{"Key".PadRight(10, ' ')}" +
+                $"{"Label".PadRight(15, ' ')}" +
+                $"{"Major".PadRight(6, ' ')}" +
+                $"{"Dimensions".PadRight(18, ' ')}" +
+                $"{"Positions".PadRight(22, ' ')}");
             int counter = 0;
             foreach (object o in Entries)
             {
@@ -299,9 +310,17 @@ namespace MyCharter
                     var label = (ImageText)element.Label;
                     if (label != null)
                     {
-                        Console.WriteLine($"{counter}: Key = {element.KeyValue} | Label = '{label.Text}' | Dim = '{label.Dimensions}'" +
-                            $" | Axis Pos = '{element.Position}'" +
-                            $" | Label Pos = '{label.Position}' | Major = {element.IsMajorTick}");
+                        var labelText = label.Text;
+                        if (labelText.Length > 15)
+                            labelText = labelText.Substring(1, 15);
+                        var majorLabel = element.IsMajorTick ? "Yes" : "No";
+
+                        Console.WriteLine($"{counter,3} " +
+                            $"{element.KeyValue,-10}" +
+                            $"{labelText,-15}" +
+                            $"{majorLabel.PadRight(6, ' ')}" +
+                            $"h={Math.Round(label.Dimensions.Value.Height, 1, MidpointRounding.ToEven)}, w={Math.Round(label.Dimensions.Value.Width, 1, MidpointRounding.ToEven)} ".PadRight(18, ' ') +
+                            $"e X={element.Position.X},Y={element.Position.Y} l X={label.Position.X},Y={label.Position.Y}");
                     }
                 }
                 ++counter;
@@ -442,7 +461,7 @@ namespace MyCharter
                         case ElementPosition.LEFT:
                             // Start with the X-position of the Y-Axis,
                             // then add (the max width - width of this label) to right align the text horizontally
-                            int xPos = ParentChart._layout.yAxis.X + ((int)GetMaxLabelDimensions().Width - (int)e.Label.Dimensions.Value.Width);
+                            int xPos = AxisCoords.X + ((int)GetMaxLabelDimensions().Width - (int)e.Label.Dimensions.Value.Width);
                             // Center the text vertically
                             int yPos = e.Position.Y - (int)_maxLabelDimensions.Height / 2;
                             if (xPos < 0)
@@ -458,6 +477,8 @@ namespace MyCharter
                             break;
                     }
 
+                    if (e.Label.Text.Equals("200"))
+                        Console.WriteLine($"In CalculateFinalLabelPosition() {e.Label.Position}");
 
                 }
             }
@@ -472,12 +493,19 @@ namespace MyCharter
         {
             GraphicsLayout layout = ParentChart._layout;
 
-            Point refPoint = (AxisXY == Axis.X) ? layout.xAxis : layout.yAxis;
+            Point refPoint = (AxisXY == Axis.X) ? AxisCoords : ParentChart.GetAxis(Axis.Y).AxisCoords;
 
             foreach (AxisEntry e in Entries)
             {
+                if (e.Label.Text.Equals("200"))
+                    Console.WriteLine($"In CalculateFinalAxisValuePositions() {e.Position} (before)");
+
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
+
+                if (e.Label.Text.Equals("200"))
+                    Console.WriteLine($"In CalculateFinalAxisValuePositions() {e.Position} (after)");
+
             }
         }
 
@@ -522,7 +550,7 @@ namespace MyCharter
 
                     if (ImageMethods.IsSpaceEmpty(g, bmp, 
                             new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height), 
-                            ignoreColors, @"C:\New Folder\zsnip-" + e.Label.Text + ".png")) 
+                            ignoreColors, null /* @"C:\New Folder\zsnip-" + e.Label.Text + ".png"*/)) 
                     {
                         g.DrawString(e.Label.Text, AxisFont, Brushes.Black, e.Label.Position);
                     }
@@ -556,6 +584,8 @@ namespace MyCharter
 
         public abstract void CalculateLabelPositions(Point offset);
 
+        public abstract string FormatLabelString(object label);
+
         /// <summary>
         /// Draw the major and minor Ticks on the Axis.
         /// </summary>
@@ -574,7 +604,7 @@ namespace MyCharter
                         else if (AxisPosition == ElementPosition.TOP)
                             g.DrawLine(MajorTickPen, 
                                 new Point(e.Position.X, e.Position.Y + (int)GetMaxLabelDimensions().Height + AxisPadding),
-                                new Point(e.Position.X, e.Position.Y + +(int)GetMaxLabelDimensions().Height + AxisPadding + MajorTickLength));
+                                new Point(e.Position.X, e.Position.Y + (int)GetMaxLabelDimensions().Height + AxisPadding + MajorTickLength));
                     }
                     else
                     {
@@ -590,26 +620,28 @@ namespace MyCharter
                 {
                     if (AxisPosition == ElementPosition.LEFT)
                     {
-                        Point startPosition = new Point(e.Position.X + (int)GetMaxLabelDimensions().Width + AxisPadding, e.Position.Y);
                         if (e.IsMajorTick)
                         {
+                            Point startPosition = new Point(e.Position.X + (int)GetMaxLabelDimensions().Width + AxisPadding, e.Position.Y);
                             g.DrawLine(MajorTickPen, startPosition, new Point(startPosition.X + MajorTickLength, e.Position.Y));
                         }
                         else
                         {
-                            g.DrawLine(MajorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
+                            Point startPosition = new Point(e.Position.X + (int)GetMaxLabelDimensions().Width + AxisPadding + (MajorTickLength - MinorTickLength), e.Position.Y);
+                            g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
                         }
                     }
                     else if (AxisPosition == ElementPosition.RIGHT)
                     {
-                        Point startPosition = new Point(e.Position.X + AxisPadding, e.Position.Y);
                         if (e.IsMajorTick)
                         {
+                            Point startPosition = new Point(e.Position.X + AxisPadding, e.Position.Y);
                             g.DrawLine(MajorTickPen, startPosition, new Point(startPosition.X - MajorTickLength, e.Position.Y));
                         }
                         else
                         {
-                            g.DrawLine(MajorTickPen, startPosition, new Point(startPosition.X - MinorTickLength, e.Position.Y));
+                            Point startPosition = new Point(e.Position.X, e.Position.Y);
+                            g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
                         }
                     }
 
@@ -621,12 +653,49 @@ namespace MyCharter
         {
             DrawTicks(g);
             DrawAxisLabels(g, bmp);
-            if (DrawAxisLine) // TODO FIX; the below line is hardcoded for x-value usage.
-                ImageMethods.Debug_DrawHorizontalGuide(g, ParentChart._layout.xAxis.Y, GetDimensions().Width, new Pen(Color.Black, 1));
+            if (DrawAxisLine)
+            {
+                if (AxisXY == Axis.X)
+                {
+                    int yOffset = 0;
+                    if (AxisPosition == ElementPosition.TOP)
+                    {
+                        // Offset the y by the full height of the x-axis.
+                        yOffset = GetDimensions().Height;
+                    }
+
+                    g.DrawLine(new Pen(Color.Black, 1), 
+                        new Point(AxisCoords.X, AxisCoords.Y + yOffset), 
+                        new Point(AxisCoords.X + GetDimensions().Width, AxisCoords.Y + yOffset));
+                }
+                else if (AxisXY == Axis.Y)
+                {
+                    int xOffset = 0;
+                    if (AxisPosition == ElementPosition.LEFT)
+                    {
+                        // Offset the x by the full width of the yAxis.
+                        xOffset = GetDimensions().Width;
+                    }
+                    if (ParentChart.GetAxis(Axis.X).AxisPosition == ElementPosition.BOTTOM)
+                    {
+                        g.DrawLine(new Pen(Color.Black, 1),
+                            new Point(AxisCoords.X + xOffset, (AxisCoords.Y + ((int)GetMaxLabelDimensions().Height / 2))),
+                            new Point(AxisCoords.X + xOffset, AxisCoords.Y + GetDimensions().Height));
+                    }
+                    else if (ParentChart.GetAxis(Axis.X).AxisPosition == ElementPosition.TOP)
+                    {
+                        g.DrawLine(new Pen(Color.Black, 1),
+                            new Point(AxisCoords.X + xOffset, AxisCoords.Y),// + ((int)GetMaxLabelDimensions().Height / 2))),
+                            new Point(AxisCoords.X + xOffset, AxisCoords.Y + GetDimensions().Height));
+                    }
+
+                }
+            }
+                
 
         }
 
-        public void CalculateLabelPosition(Point offset)
+/*        public void CalculateLabelPosition(Point offset)
         {
             /// LabelPadding - The amount of padding (in pixels) which is placed above and below axis items.
             /// AxisPadding - The amount of padding (in pixels) which is placed between the label and the axis.
@@ -655,6 +724,6 @@ namespace MyCharter
             {
                 offset.Y += AxisPadding;
             }
-        }
+        }*/
     }
 }

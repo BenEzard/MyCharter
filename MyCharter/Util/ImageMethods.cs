@@ -118,6 +118,12 @@ namespace MyCharter.Util
             g.DrawEllipse(new Pen(Brushes.Yellow, 1), x, y, 3, 3);
         }
 
+        /// <summary>
+        /// Draw a rectangle (for debug purposes).
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="r"></param>
+        /// <param name="p"></param>
         public static void Debug_DrawRectangle(Graphics g, Rectangle r, Pen p)
         {
             g.DrawRectangle(p, r);

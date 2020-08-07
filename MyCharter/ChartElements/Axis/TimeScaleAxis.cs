@@ -152,5 +152,9 @@ namespace MyCharter
             return rValue;
         }
 
+        public override string FormatLabelString(object label)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
