@@ -11,17 +11,17 @@ namespace MyCharter
         static void Main(string[] args)
         {
             //BarChartDemo();
-            /*Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
+            Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.TOP, ElementPosition.LEFT);
 
             Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);*/
+            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);
 
             Console.WriteLine("==========" + ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
 
-            /*Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);*/
+            Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
+            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);
         }
 
         private static void DoStackedChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
@@ -41,6 +41,8 @@ namespace MyCharter
 
             var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 16), 300);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 17), 320);
             svChart.AddDataSeries(volunteersDS);
 
             svChart.GenerateChart();
@@ -48,7 +50,7 @@ namespace MyCharter
             //svChart.DebugOutput_DataSeries();
         }
 
-        private static void BarChartDemo()
+        /*private static void BarChartDemo()
         {
             BarChart barChart = new BarChart();
             barChart.Title = "PRODUCTION load (composite of 24/04 to 26/04)";
@@ -80,6 +82,6 @@ namespace MyCharter
             yAxis.AddDataSeries(new DurationDataSeriesEntry(new DateTime(2020, 3, 24, 6, 0, 0), new DateTime(2020, 3, 24, 6, 3, 0), "StreetConnect_BusinessIntelligence"));
             barChart.SetAxis(Axis.Y, ElementPosition.LEFT, yAxis);
             barChart.GenerateChart();
-        }
+        }*/
     }
 }

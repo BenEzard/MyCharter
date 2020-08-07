@@ -555,22 +555,14 @@ namespace MyCharter
 
                 DrawTitles(g);
 
-                if (xAxis.IsVisible)
-                {
-                    xAxis.DrawAxis(g, bmp);
-                }
+                xAxis.DrawAxis(g, bmp);
+                yAxis.DrawAxis(g, bmp);
 
-                if (yAxis.IsVisible)
-                {
-                    yAxis.DrawAxis(g, bmp);
-                }
-
-                Pen rectPen = new Pen(Brushes.Red, 1);
+                /*Pen rectPen = new Pen(Brushes.Red, 1);
                 rectPen.DashPattern = new float[] { 10, 10 };
                 ImageMethods.Debug_DrawRectangle(g, new Rectangle(xAxis.AxisCoords, xAxis.GetDimensions()), rectPen);
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
 
-                //yAxis.DebugOutput_ListScale();
                 PlotData(g);
             }
 

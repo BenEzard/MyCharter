@@ -45,5 +45,43 @@ namespace MyCharter.ChartElements.Axis
             }
         }
 
+
+        /// <summary>
+        /// Returns the minimum value from this Axis.
+        /// </summary>
+        /// <returns></returns>
+        public override AxisEntry GetMinimum()
+        {
+            AxisEntry rValue = null;
+            int minimumValue = int.MaxValue;
+            foreach (AxisEntry e in Entries)
+            {
+                if ((int)e.KeyValue <= minimumValue)
+                {
+                    minimumValue = (int)e.KeyValue;
+                    rValue = e;
+                }
+            }
+            return rValue;
+        }
+
+        /// <summary>
+        /// Returns the maximum value from this Axis.
+        /// </summary>
+        /// <returns></returns>
+        public override AxisEntry GetMaximum()
+        {
+            AxisEntry rValue = null;
+            int maximumValue = int.MinValue;
+            foreach (AxisEntry e in Entries)
+            {
+                if ((int)e.KeyValue >= maximumValue)
+                {
+                    maximumValue = (int)e.KeyValue;
+                    rValue = e;
+                }
+            }
+            return rValue;
+        }
     }
 }

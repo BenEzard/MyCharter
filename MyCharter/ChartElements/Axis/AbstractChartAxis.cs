@@ -28,7 +28,7 @@ namespace MyCharter
         /// <summary>
         /// Should a line be drawn the length (either height or width) of the axis?
         /// </summary>
-        public bool DrawAxisLine { get; set; } = true;
+        public bool AxisLine { get; set; } = true;
 
         /// <summary>
         /// List of entries on the axis.
@@ -384,11 +384,6 @@ namespace MyCharter
                         break;
                 }
             }
-            
-            // debug
-            if (AxisXY == Axis.Y)
-                Console.WriteLine($"In CalculateInitialAxisValuePositions() --> 0 is {GetAxisPositionOfLabel("0")}");
-
         }
 
         /// <summary>
@@ -497,15 +492,8 @@ namespace MyCharter
 
             foreach (AxisEntry e in Entries)
             {
-                if (e.Label.Text.Equals("200"))
-                    Console.WriteLine($"In CalculateFinalAxisValuePositions() {e.Position} (before)");
-
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
-
-                if (e.Label.Text.Equals("200"))
-                    Console.WriteLine($"In CalculateFinalAxisValuePositions() {e.Position} (after)");
-
             }
         }
 
@@ -534,7 +522,7 @@ namespace MyCharter
         /// </summary>
         /// <param name="g"></param>
         /// <param name="bmp"></param>
-        public void DrawAxisLabels(Graphics g, Bitmap bmp)
+        private void DrawAxisLabels(Graphics g, Bitmap bmp)
         {           
             foreach (AxisEntry e in Entries)
             {
@@ -590,7 +578,7 @@ namespace MyCharter
         /// Draw the major and minor Ticks on the Axis.
         /// </summary>
         /// <param name="g"></param>
-        public void DrawTicks(Graphics g)
+        private void DrawTicks(Graphics g)
         {
             if (AxisXY == Axis.X)
             {
@@ -649,11 +637,30 @@ namespace MyCharter
             }
         }
 
+        /// <summary>
+        /// Draw the Axis, including the Axis Line, Ticks and labels.
+        /// If IsVisible is set to false, the axis won't be drawn.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="bmp"></param>
         public void DrawAxis(Graphics g, Bitmap bmp)
         {
-            DrawTicks(g);
-            DrawAxisLabels(g, bmp);
-            if (DrawAxisLine)
+            if (IsVisible)
+            {
+                DrawTicks(g);
+                DrawAxisLabels(g, bmp);
+                DrawAxisLine(g);
+            }
+        }
+
+        /// <summary>
+        /// Draw the Axis Line; the border along the X and Y axis.
+        /// If AxisLine is false, it will not be drawn.
+        /// </summary>
+        /// <param name="g"></param>
+        private void DrawAxisLine(Graphics g)
+        {
+            if (AxisLine)
             {
                 if (AxisXY == Axis.X)
                 {
@@ -664,8 +671,8 @@ namespace MyCharter
                         yOffset = GetDimensions().Height;
                     }
 
-                    g.DrawLine(new Pen(Color.Black, 1), 
-                        new Point(AxisCoords.X, AxisCoords.Y + yOffset), 
+                    g.DrawLine(new Pen(Color.Black, 1),
+                        new Point(AxisCoords.X, AxisCoords.Y + yOffset),
                         new Point(AxisCoords.X + GetDimensions().Width, AxisCoords.Y + yOffset));
                 }
                 else if (AxisXY == Axis.Y)
@@ -688,42 +695,20 @@ namespace MyCharter
                             new Point(AxisCoords.X + xOffset, AxisCoords.Y),// + ((int)GetMaxLabelDimensions().Height / 2))),
                             new Point(AxisCoords.X + xOffset, AxisCoords.Y + GetDimensions().Height));
                     }
-
                 }
             }
-                
-
         }
 
-/*        public void CalculateLabelPosition(Point offset)
-        {
-            /// LabelPadding - The amount of padding (in pixels) which is placed above and below axis items.
-            /// AxisPadding - The amount of padding (in pixels) which is placed between the label and the axis.
-            if (AxisXY == Axis.X)
-            {
-                offset.Y += AxisPadding;
-                foreach (var e in Entries)
-                {
-                    offset.X += LabelPadding;
-                    switch (LabelHorizontalPosition)
-                    {
-                        case AxisLabelHorizontalPosition.LEFT:
-                            e.Label.Position = new Point(offset.X, offset.Y);
-                            break;
-                        case AxisLabelHorizontalPosition.CENTER:
-                            e.Label.Position = new Point(
-                                (offset.X - (int)(e.Label.Dimensions.Value.Width / 2)),
-                                offset.Y);
-                            break;
-                    }
-                    offset.X += (int)GetMaxLabelDimensions().Width;
-                }
+        /// <summary>
+        /// Returns the minimum value from this Axis.
+        /// </summary>
+        /// <returns></returns>
+        public abstract AxisEntry GetMinimum();
 
-            }
-            else if (AxisXY == Axis.Y)
-            {
-                offset.Y += AxisPadding;
-            }
-        }*/
+        /// <summary>
+        /// Returns the maximum value from this Axis.
+        /// </summary>
+        /// <returns></returns>
+        public abstract AxisEntry GetMaximum();
     }
 }

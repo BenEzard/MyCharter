@@ -19,7 +19,6 @@ namespace MyCharter.Charts
                 foreach (DataPoint<DateTime, int> dp in ds.DataPoints)
                 {
                     Point p = GetPosition(dp.AxisCoord1.ToString(), dp.AxisCoord2.ToString());
-                    Console.WriteLine($"Return in PlotData is {p}");
                     g.DrawRectangle(new Pen(ds.Color), new Rectangle(p, new Size(p.X - 10, p.Y - 10)));
                 }
             }
