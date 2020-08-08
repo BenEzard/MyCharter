@@ -31,10 +31,12 @@ namespace MyCharter
             svChart.OutputFile = @"C:\New Folder\aDemo-stacked-vertical-chart-"+ xAxisPositioning.ToString()+ "-" + yAxisPositioning.ToString() + ".png";
             
             var xAxis = new DateScaleAxis<DateTime, int>(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, AxisLabelFormat.DATE_DDMM1);
+            xAxis.MajorGridLine = true;
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             svChart.SetAxis(Axis.X, xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT);
 
             var yAxis = new NumberScaleAxis<DateTime, int>(0, 400, 50, 25, 10);
+            yAxis.MajorGridLine = true;
             svChart.SetAxis(Axis.Y, yAxisPositioning, yAxis, AxisWidth.FIT_TO_LABELS);
 
             var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);

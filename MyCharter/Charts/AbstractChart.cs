@@ -457,10 +457,10 @@ namespace MyCharter
                 xAxis.DrawAxis(g, bmp);
                 yAxis.DrawAxis(g, bmp);
 
-                /*Pen rectPen = new Pen(Brushes.Red, 1);
+                Pen rectPen = new Pen(Brushes.Red, 1);
                 rectPen.DashPattern = new float[] { 10, 10 };
                 ImageMethods.Debug_DrawRectangle(g, new Rectangle(xAxis.AxisCoords, xAxis.GetDimensions()), rectPen);
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);
 
                 PlotData(g);
             }
@@ -586,7 +586,7 @@ namespace MyCharter
 
         public abstract void PlotData(Graphics g);
 
-        public Point GetPosition(object xLabel, object yLabel)
+        public Point GetChartPosition(object xLabel, object yLabel)
         {
             Point rValue = new Point(-1, -1);
 
@@ -596,6 +596,24 @@ namespace MyCharter
             // PROBLEM IS HERE
             var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
             var yPoint = yAxis.GetAxisPositionOfLabel(yAxis.FormatLabelString(yLabel));
+
+            AxisEntry valueBelow = null;
+            AxisEntry valueAbove = null;
+            foreach (AxisEntry e in xAxis.AxisEntries)
+            {
+             //   if (e.KeyValue)
+            }
+
+            /*// If the x-value has not been found
+            if (xPoint.HasValue) 
+            {
+
+            }
+
+            if (yPoint.HasValue)
+            {
+
+            }*/
 
             if ((xPoint.HasValue) && (yPoint.HasValue))
                 rValue = new Point(xPoint.Value.X, yPoint.Value.Y);

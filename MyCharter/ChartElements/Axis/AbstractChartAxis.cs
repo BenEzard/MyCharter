@@ -189,7 +189,6 @@ namespace MyCharter
                         break;
                 }
             }
-            else Console.WriteLine("axis is not visible");
 
             return new Size(width, height);
         }
@@ -362,7 +361,7 @@ namespace MyCharter
                 switch (AxisXY)
                 {
                     case Axis.X:
-                        int x = PixelsPerIncrement; // change made here
+                        int x = 0; // PixelsPerIncrement; // change made here
                         // Determine the WIDTH of the label
                         int width = (int)_maxLabelDimensions.Width + LabelPadding;
                         foreach (AxisEntry e in AxisEntries)
@@ -373,11 +372,12 @@ namespace MyCharter
                         break;
                     case Axis.Y:
                         int y = ((int)_maxLabelDimensions.Height / 2);
-                        // Determine the WIDTH of the label
+                        // Determine the HEIGHT of the label
                         int height = (int)_maxLabelDimensions.Height + LabelPadding;
                         foreach (AxisEntry e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
+                            Console.WriteLine($"CalculateInitialAxisValuePositions(): {e.Label.Text} position is {e.Position}");
                             y += height;
                         }
                         break;
@@ -516,6 +516,7 @@ namespace MyCharter
             {
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
+                Console.WriteLine($"CalculateFinalAxisValuePositions(): {e.Label.Text} position is {e.Position}");
             }
         }
 

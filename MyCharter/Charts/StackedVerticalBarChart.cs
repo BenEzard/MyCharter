@@ -2,6 +2,7 @@
 using MyCharter.ChartElements.DataSeries;
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace MyCharter.Charts
 {
@@ -29,9 +30,13 @@ namespace MyCharter.Charts
             {
                 foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
                 {
-                    Point p = GetPosition(dp.AxisCoord1.ToString(), dp.AxisCoord2.ToString());
+                    Point p = GetChartPosition(dp.AxisCoord1, dp.AxisCoord2);
                     Console.WriteLine($"In StackedVerticalBarChart.PlotData; p is {p}");
-                    g.DrawRectangle(new Pen(ds.Color), new Rectangle(p, new Size(p.X - 10, p.Y - 10)));
+                    int pixels = GetAxis(Axis.X).PixelsPerIncrement;
+                    Point zeroPosition = GetAxis(Axis.Y).GetAxisPositionOfLabel("0").Value;
+                    Point p2 = new Point(p.X - (pixels / 2), p.Y);
+                    //g.DrawRectangle(new Pen(ds.Color), new Rectangle(p, new Size(p.X - 10, p.Y - 10)));
+                    g.FillRectangle(Brushes.DarkGray, new Rectangle(p2, new Size(pixels-2, zeroPosition.Y - p.Y)));
                 }
             }
         }
