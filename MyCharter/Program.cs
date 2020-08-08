@@ -10,7 +10,6 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            //BarChartDemo();
             Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.TOP, ElementPosition.LEFT);
 
@@ -37,7 +36,6 @@ namespace MyCharter
 
             var yAxis = new NumberScaleAxis(0, 400, 50, 25, 10);
             svChart.SetAxis(Axis.Y, yAxisPositioning, yAxis, AxisWidth.FIT_TO_LABELS);
-            //yAxis.DebugOutput_ListScale();
 
             var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
@@ -46,8 +44,6 @@ namespace MyCharter
             svChart.AddDataSeries(volunteersDS);
 
             svChart.GenerateChart();
-
-            //svChart.DebugOutput_DataSeries();
         }
 
         /*private static void BarChartDemo()

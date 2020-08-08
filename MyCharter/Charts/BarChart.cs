@@ -102,7 +102,7 @@ namespace MyCharter
             int height = (int)yAxis.GetMaxLabelDimensions().Height;
             if (yAxis is DataSeriesAxis)
             {
-                foreach (AxisEntry entry in yAxis.Entries)
+                foreach (AxisEntry entry in yAxis.AxisEntries)
                 {
                     if (entry is DurationDataSeriesEntry dsEntry)
                     {
@@ -135,6 +135,48 @@ namespace MyCharter
                 }
 
             }
+        }
+
+        /// <summary>
+        /// Returns the minimum value displayed on an Axis.
+        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
+        /// out what the size of the Axis should be).
+        /// </summary>
+        /// <returns></returns>
+        public override AxisEntry GetMinimumDataSeriesValue(Axis axis)
+        {
+            AxisEntry rValue = null;
+            int minimumValue = int.MaxValue;
+            foreach (AxisEntry e in GetAxis(axis).AxisEntries)
+            {
+                if ((int)e.KeyValue <= minimumValue)
+                {
+                    minimumValue = (int)e.KeyValue;
+                    rValue = e;
+                }
+            }
+            return rValue;
+        }
+
+        /// <summary>
+        /// Returns the maximum value displayed on an Axis.
+        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
+        /// out what the size of the Axis should be).
+        /// </summary>
+        /// <returns></returns>
+        public override AxisEntry GetMaximumDataSeriesValue(Axis axis)
+        {
+            AxisEntry rValue = null;
+            int maximumValue = int.MinValue;
+            foreach (AxisEntry e in GetAxis(axis).AxisEntries)
+            {
+                if ((int)e.KeyValue >= maximumValue)
+                {
+                    maximumValue = (int)e.KeyValue;
+                    rValue = e;
+                }
+            }
+            return rValue;
         }
 
     }

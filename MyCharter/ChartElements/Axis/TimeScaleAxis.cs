@@ -127,10 +127,10 @@ namespace MyCharter
             if (remainder > 0)
             {
                 float val = (float)PixelsPerIncrement / (float)MinorIncrement;
-                point = new Point(Entries[increments].Position.X + (remainder * (int)val), Entries[increments].Position.Y);
+                point = new Point(AxisEntries[increments].Position.X + (remainder * (int)val), AxisEntries[increments].Position.Y);
             }
             else 
-                point = Entries[increments].Position;
+                point = AxisEntries[increments].Position;
 
             // If the value can't be mapped to the axis, then we need to determine what is the closest value.
             if (point.X == -1)

@@ -60,7 +60,7 @@ namespace MyCharter
         public int MajorTickCount()
         {
             int rValue = 0;
-            foreach (AxisEntry o in Entries)
+            foreach (AxisEntry o in AxisEntries)
             {
                 if (o.IsMajorTick)
                 {
@@ -76,7 +76,7 @@ namespace MyCharter
         public int MinorTickCount()
         {
             int rValue = 0;
-            foreach (AxisEntry o in Entries)
+            foreach (AxisEntry o in AxisEntries)
             {
                 if (o.IsMajorTick == false)
                 {
@@ -90,7 +90,7 @@ namespace MyCharter
         {
             if (AxisXY == Axis.X)
             {
-                foreach (var e in Entries)
+                foreach (var e in AxisEntries)
                 {
                     if (e.IsMajorTick)
                     {
@@ -113,7 +113,7 @@ namespace MyCharter
             if (AxisXY == Axis.X)
             {
                 int index = 0;
-                foreach (var e in Entries)
+                foreach (var e in AxisEntries)
                 {
                     switch(LabelHorizontalPosition) { 
                         case AxisLabelHorizontalPosition.LEFT:
@@ -141,9 +141,9 @@ namespace MyCharter
             {
                 int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
                 int y = offset.Y + (int)_maxLabelDimensions.Width + AxisPadding;
-                for (int index = 0; index < Entries.Count; index++)
+                for (int index = 0; index < AxisEntries.Count; index++)
                 {
-                    var e = Entries[index];
+                    var e = AxisEntries[index];
                     if (e is AxisEntry entry)
                     {
                         offset.Y += LabelPadding + halfOfLabelHeight;
@@ -167,7 +167,7 @@ namespace MyCharter
             if (AxisXY == Axis.X)
             {
                 int index = 0;
-                foreach (var e in Entries)
+                foreach (var e in AxisEntries)
                 {
                     switch (LabelHorizontalPosition)
                     {
@@ -200,9 +200,9 @@ namespace MyCharter
             {
                 int halfOfLabelHeight = (int)_maxLabelDimensions.Height % 2 == 0 ? (int)_maxLabelDimensions.Height / 2 : ((int)_maxLabelDimensions.Height - 1) / 2;
                 int y = offset.Y + (int)_maxLabelDimensions.Width + AxisPadding;
-                for (int index = 0; index < Entries.Count; index++)
+                for (int index = 0; index < AxisEntries.Count; index++)
                 {
-                    var e = Entries[index];
+                    var e = AxisEntries[index];
                     offset.Y += LabelPadding + halfOfLabelHeight;
                     e.Label.Position = new Point(offset.X, offset.Y - halfOfLabelHeight);
                     e.Position = new Point(offset.X + (int)_maxLabelDimensions.Width, offset.Y - halfOfLabelHeight);
@@ -213,29 +213,9 @@ namespace MyCharter
 
         }
 
-        public override void DrawMajorGridLines(Graphics g)
-        {
-            if (AxisXY == Axis.X)
-            {
-                foreach (var e in Entries)
-                {
-                    Point p = e.Position;
-                    if (e.IsMajorTick)
-                    {
-                        g.DrawLine(MajorGridLinePen, new Point(p.X, p.Y + (int)_maxLabelDimensions.Height + MajorTickLength), new Point(p.X, p.Y + 500));
-                    }
-                }
-            }
-            else if (AxisXY == Axis.Y)
-            {
-                throw new NotImplementedException("Coding not done for AbstractScaleAxis.DrawMajorGridLines() y-axis implementation");
-            }
-
-        }
-
         public override void DrawAxisLabels(Graphics g, Point offset)
         {
-            foreach (AxisEntry entry in Entries)
+            foreach (AxisEntry entry in AxisEntries)
             {
                 if (entry.IsMajorTick)
                 {

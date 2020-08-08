@@ -48,24 +48,5 @@ namespace MyCharter
             EntryContent = content;
             Label = new ImageText(label);
         }
-
-/*        public int Compare(AxisEntry? x, AxisEntry y)
-        {
-            // TODO this works for *this* implementation, but isn't a great design. WHat happens when the key is int or string ?
-            if (x.KeyValue is TimeSpan)
-            {
-                TimeSpan xKeyTimeSpan = (TimeSpan)x.KeyValue;
-                TimeSpan yKeyTimeSpan = (TimeSpan)y.KeyValue;
-
-                if (xKeyTimeSpan == yKeyTimeSpan)
-                    return 0;
-                if (xKeyTimeSpan < yKeyTimeSpan)
-                    return -1;
-
-                return 1;
-            }
-            else
-                return -2;
-        }*/
     }
 }

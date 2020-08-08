@@ -259,73 +259,6 @@ namespace MyCharter
             axis.InitialAxisPreparation();
         }
 
-        private Point GetLabelOffset(Axis axis)
-        {
-            int x = 0;
-            int y = 0;
-
-            if (BorderPen != null)
-            {
-                x += (int)BorderPen.Width;
-                y += (int)BorderPen.Width;
-            }
-
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
-
-            switch (axis)
-            {
-                // Get the label position of the x-axis.
-                case Axis.X:
-                    switch (yAxis.AxisPosition)
-                    {
-                        case ElementPosition.LEFT:
-                            x = GetMargin(ElementPosition.LEFT)
-                                + GetPadding(ElementPosition.LEFT)
-                                + yAxis.GetDimensions().Width;
-                            break;
-                        case ElementPosition.RIGHT:
-                            x *= -1;
-                            x = GetChartDimensions().Width;
-                            x -= (GetMargin(ElementPosition.RIGHT)
-                                + GetPadding(ElementPosition.RIGHT)
-                                + yAxis.GetDimensions().Width);
-                            break;
-                    }
-                    y = GetMargin(ElementPosition.TOP)
-                        + GetPadding(ElementPosition.TOP)
-                        + GetTitleDimensions().Height
-                        + yAxis.GetDimensions().Height
-                        + yAxis.MajorTickLength
-                        + yAxis.AxisPadding;
-
-                    break;
-                case Axis.Y:
-                    switch (xAxis.AxisPosition)
-                    {
-                        case ElementPosition.TOP:
-                            x = GetMargin(ElementPosition.TOP)
-                                + GetPadding(ElementPosition.TOP);
-                            y = GetMargin(ElementPosition.TOP)
-                                + GetPadding(ElementPosition.TOP)
-                                + GetTitleDimensions().Height
-                                + xAxis.GetDimensions().Height;
-                            break;
-                        case ElementPosition.BOTTOM:
-                            x = GetMargin(ElementPosition.TOP)
-                                + GetPadding(ElementPosition.TOP);
-                            y = GetMargin(ElementPosition.TOP)
-                                + GetPadding(ElementPosition.TOP)
-                                + GetTitleDimensions().Height
-                                + yAxis.GetDimensions().Height;
-                            break;
-                    }
-                    break;
-            }
-
-            return new Point(x, y);
-        }
-
         /// <summary>
         /// Calculate the initial layout of positions.
         /// </summary>
@@ -405,40 +338,6 @@ namespace MyCharter
 
             GetAxis(Axis.X).AxisCoords = tempXAxis;
             GetAxis(Axis.Y).AxisCoords = tempYAxis;
-        }
-
-        public int GetStartOfDrawingSpace(ElementPosition side)
-        {
-            int p = 0;
-            switch (side)
-            {
-                case ElementPosition.LEFT:
-                    p += GetMargin(side) + GetPadding(side);
-                    if (BorderPen != null)
-                        p += (int)BorderPen.Width;
-                    p += 1; // increment by 1 so that it returns the START of the drawing space (not the end of the non-drawing space).
-                    break;
-                case ElementPosition.TOP:
-                    p += GetMargin(side) + GetPadding(side);
-                    if (BorderPen != null)
-                        p += (int)BorderPen.Width;
-                    p += GetTitleDimensions().Height;
-                    p += 1; // increment by 1 so that it returns the START of the drawing space (not the end of the non-drawing space).
-                    break;
-                case ElementPosition.RIGHT:
-                    p += GetMargin(side) + GetPadding(side);
-                    if (BorderPen != null)
-                        p += (int)BorderPen.Width;
-                    p -= 1; // increment by 1 so that it returns the START of the drawing space (not the end of the non-drawing space).
-                    break;
-                case ElementPosition.BOTTOM:
-                    p += GetMargin(side) + GetPadding(side);
-                    if (BorderPen != null)
-                        p += (int)BorderPen.Width;
-                    p -= 1; // increment by 1 so that it returns the START of the drawing space (not the end of the non-drawing space).
-                    break;
-            }
-            return p;
         }
 
         public void Debug_GetLayout()
@@ -595,72 +494,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Calculate the offset of where the ticks should be for a given axis.
-        /// For the X-axis will return a point which is at the top-left-most point of the first tick.
-        /// For the Y-axis will return a point which is at the left-most point of the first tick.
-        /// 
-        /// TODO: Add BOTH axis type (where axis scale is displayed on both sides of the chart.
-        /// </summary>
-        /// <param name="axis"></param>
-        /// <returns></returns>
-        private Point CalculateTickOffset(AbstractChartAxis axis)
-        {
-            Point offset = new Point();
-            SizeF titleDimensions = GetTitleDimensions();
-
-            int xPos = 0;
-            int yPos = 0;
-
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
-
-            switch (axis.AxisXY)
-            {
-                case Axis.X:
-                    // Axis on the X-plane can be at the TOP or BOTTOM of the chart.
-                    // Return a point which is at the top-left-most point of the first tick.
-                    xPos = GetMargin(ElementPosition.LEFT);
-                    if (yAxis.AxisPosition == ElementPosition.LEFT)
-                    {
-                        xPos += (int)yAxis.GetMaxLabelDimensions().Width + yAxis.AxisPadding;
-                    }
-                    switch (axis.AxisPosition)
-                    {
-                        case ElementPosition.TOP:
-                            yPos = GetMargin(ElementPosition.TOP) + (int)titleDimensions.Height + (int)axis.GetMaxLabelDimensions().Height + axis.AxisPadding;
-                            break;
-                        case ElementPosition.BOTTOM:
-                            yPos = (int)GetChartDimensions().Height - (int)axis.GetMaxLabelDimensions().Height - axis.AxisPadding - axis.MajorTickLength;
-                            break;
-                    }
-                    offset = new Point(xPos, yPos);
-                    break;
-                
-                case Axis.Y:
-                    // Axis on the Y-plane can be at the LEFT or RIGHT of the chart.
-                    yPos = GetMargin(ElementPosition.TOP) + (int)titleDimensions.Height;
-                    if (xAxis.AxisPosition == ElementPosition.TOP)
-                    {
-                        yPos += (int)xAxis.GetMaxLabelDimensions().Height + xAxis.AxisPadding;
-                    }
-                    switch (axis.AxisPosition)
-                    {
-                        case ElementPosition.LEFT:
-                            xPos = GetMargin(ElementPosition.LEFT) + (int)axis.GetMaxLabelDimensions().Width + yAxis.AxisPadding;
-                            break;
-                        case ElementPosition.RIGHT:
-                            xPos = (int)GetChartDimensions().Width - GetMargin(ElementPosition.RIGHT) - (int)yAxis.GetMaxLabelDimensions().Width - yAxis.AxisPadding - yAxis.MajorTickLength;
-                            break;
-                    }
-                    offset = new Point(xPos, yPos);
-                    break;
-            }
-
-            return offset;
-        }
-
-        /// <summary>
-        /// Draw the titles onto the image, adjusting the offset.
+        /// Draw the titles onto the image.
         /// </summary>
         /// <param name="g"></param>
         internal void DrawTitles(Graphics g)
@@ -740,48 +574,6 @@ namespace MyCharter
                     chartWidth = (int)titleDimensions.Width;
 
                 _chartDimensions = new Size(chartWidth, chartHeight); // TODO fix
-
-                /*                if (yAxis.AxisPosition == ElementPosition.LEFT)
-                                {
-                                    chartWidth = _layout.yAxisLabels.X + yAxis.GetDimensions().Width + xAxis.GetDimensions().Width + GetPadding(ElementPosition.RIGHT) + GetMargin(ElementPosition.RIGHT);
-                                    if (BorderPen != null)
-                                        chartWidth += (int)BorderPen.Width;
-                                }
-                                else if (yAxis.AxisPosition == ElementPosition.RIGHT)
-                                {
-                                    chartWidth = _layout.yAxisLabels.X + yAxis.GetDimensions().Width + GetPadding(ElementPosition.RIGHT) + GetMargin(ElementPosition.RIGHT);
-                                    if (BorderPen != null)
-                                        chartWidth += (int)BorderPen.Width;
-                                }
-
-                                if (xAxis.AxisPosition == ElementPosition.TOP)
-                                {
-                                    chartHeight = _layout.xAxisLabels.X + xAxis.GetDimensions().Height + yAxis.GetDimensions().Height + GetPadding(ElementPosition.BOTTOM) + GetMargin(ElementPosition.BOTTOM);
-                                    if (BorderPen != null)
-                                        chartHeight += (int)BorderPen.Width;
-                                }
-                                else if (xAxis.AxisPosition == ElementPosition.BOTTOM)
-                                {
-                                    chartHeight = _layout.xAxisLabels.X + xAxis.GetDimensions().Height + GetPadding(ElementPosition.BOTTOM) + GetMargin(ElementPosition.BOTTOM);
-                                    if (BorderPen != null)
-                                        chartHeight += (int)BorderPen.Width;
-                                }
-
-                                //                xAxis.CalculateLabelPositions(_layout.xAxisLabels);
-                                //                yAxis.CalculateLabelPositions(_layout.yAxisLabels);
-
-                                chartWidth += xAxis.GetDimensions().Width + yAxis.GetDimensions().Width;
-                                chartHeight += xAxis.GetDimensions().Height + yAxis.GetDimensions().Height;
-
-
-                                var lastXElement = xAxis.Entries[xAxis.Entries.Count - 1];
-                                var lastYElement = yAxis.Entries[yAxis.Entries.Count - 1];
-                                int w = lastXElement.Label.Position.X + (int)lastXElement.Label.Dimensions.Value.Width + GetPadding(ElementPosition.RIGHT) + GetMargin(ElementPosition.RIGHT);
-                                int h = lastYElement.Label.Position.Y + (int)lastXElement.Label.Dimensions.Value.Height + GetPadding(ElementPosition.BOTTOM) + GetMargin(ElementPosition.BOTTOM);
-                                Console.WriteLine($"new size is {w}, {h}");
-
-                                _chartDimensions = new Size(w, h); // TODO fix*/
-
             }
 
             return _chartDimensions;
@@ -801,6 +593,7 @@ namespace MyCharter
             var xAxis = GetAxis(Axis.X);
             var yAxis = GetAxis(Axis.Y);
 
+            // PROBLEM IS HERE
             var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
             var yPoint = yAxis.GetAxisPositionOfLabel(yAxis.FormatLabelString(yLabel));
 
@@ -840,5 +633,21 @@ namespace MyCharter
                 }
             }
         }
+
+        /// <summary>
+        /// Returns the minimum value displayed on an Axis.
+        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
+        /// out what the size of the Axis should be).
+        /// </summary>
+        /// <returns></returns>
+        public abstract AxisEntry GetMinimumDataSeriesValue(Axis axis);
+
+        /// <summary>
+        /// Returns the maximum value displayed on an Axis.
+        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
+        /// out what the size of the Axis should be).
+        /// </summary>
+        /// <returns></returns>
+        public abstract AxisEntry GetMaximumDataSeriesValue(Axis axis);
     }
 }

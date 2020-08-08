@@ -35,7 +35,7 @@ namespace MyCharter
         /// SortedList provides sorting that we might not want on Data Series'
         /// List provides no sorting/easy access
         /// </summary>
-        public List<AxisEntry> Entries = new List<AxisEntry>();
+        public List<AxisEntry> AxisEntries = new List<AxisEntry>();
 
         /// <summary>
         /// The font that is used to label the axis.
@@ -94,6 +94,11 @@ namespace MyCharter
         public Pen MajorGridLinePen = new Pen(Brushes.Gray, 1);
 
         /// <summary>
+        /// Should the major grid lines be drawn?
+        /// </summary>
+        public bool MajorGridLine { get; set; } = false;
+
+        /// <summary>
         /// The Pen used to draw the major ticks.
         /// </summary>
         public Pen MinorTickPen = new Pen(Brushes.Black, 1);
@@ -106,31 +111,6 @@ namespace MyCharter
         public AbstractChart ParentChart = null;
 
         public int PixelsPerIncrement { get; set; } = 10;
-
-       /* #region LabelAngle
-        private float _labelAngle = 0;
-
-        /// <summary>
-        /// Set the angle of the Labels.
-        /// </summary>
-        /// <param name="angle"></param>
-        public void SetLabelAngle(float angle)
-        {
-            if ((angle < 0) || (angle > 90))
-                throw new ArgumentException("Label angle must be between 0 and 90.");
-
-            _labelAngle = angle;
-        }
-
-        /// <summary>
-        /// Get the angle of the Axis label.
-        /// </summary>
-        /// <returns></returns>
-        public float GetLabelAngle()
-        {
-            return _labelAngle;
-        }
-        #endregion*/
 
         public AxisWidth AxisWidth = AxisWidth.FIT_TO_LABELS; // Default value
 
@@ -194,19 +174,13 @@ namespace MyCharter
                             width += AxisPadding;
                         if (includeTick)
                             width += MajorTickLength;
-                        height = (Entries.Count * (int)_maxLabelDimensions.Height);
+                        height = (AxisEntries.Count * (int)_maxLabelDimensions.Height);
                         if (includeLabelPadding)
-                            height += (LabelPadding * Entries.Count) + LabelPadding;
+                            height += (LabelPadding * AxisEntries.Count) + LabelPadding;
                         break;
                 }
             }
             else Console.WriteLine("axis is not visible");
-
-            /*Console.WriteLine($"in CalculateDimensions for {AxisXY} {AxisWidth}\n" +
-                $"   total increment count = {TotalIncrementCount()}\n" +
-                $"   max width = {_maxLabelDimensions.Width}\n" +
-                $"   pxs per inc = {PixelsPerIncrement}\n" +
-                $"   = width ={width}, height={height}\n");*/
 
             return new Size(width, height);
         }
@@ -246,7 +220,7 @@ namespace MyCharter
         /// <param name="entry"></param>
         protected void AddEntry(AxisEntry entry)
         {
-            Entries.Add(entry);
+            AxisEntries.Add(entry);
         }
 
         /// <summary>
@@ -255,7 +229,46 @@ namespace MyCharter
         /// </summary>
         internal abstract void GenerateAxisEntries();
 
-        public abstract void DrawMajorGridLines(Graphics g);
+        /// <summary>
+        /// Draw the major gridlines.
+        /// </summary>
+        /// <param name="g"></param>
+        public void DrawMajorGridLines(Graphics g)
+        {
+            if (AxisXY == Axis.X)
+            {
+                foreach (AxisEntry e in AxisEntries)
+                {
+                    if (e.IsMajorTick)
+                    {
+                        if (AxisPosition == ElementPosition.BOTTOM)
+                            g.DrawLine(MajorGridLinePen, e.Position, new Point(e.Position.X, e.Position.Y - ParentChart.GetAxis(Axis.Y).GetDimensions().Height));
+                        else if (AxisPosition == ElementPosition.TOP)
+                            g.DrawLine(MajorGridLinePen, 
+                                new Point(e.Position.X, e.Position.Y + GetDimensions().Height), 
+                                new Point(e.Position.X, e.Position.Y + GetDimensions().Height + ParentChart.GetAxis(Axis.Y).GetDimensions().Height));
+                    }
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                foreach (AxisEntry e in AxisEntries)
+                {
+                    if (e.IsMajorTick)
+                    {
+                        if (AxisPosition == ElementPosition.LEFT)
+                            g.DrawLine(MajorGridLinePen, 
+                                new Point(e.Position.X + GetDimensions().Width, e.Position.Y), 
+                                new Point(e.Position.X + ParentChart.GetAxis(Axis.X).GetDimensions().Width, e.Position.Y));
+                        else if (AxisPosition == ElementPosition.RIGHT)
+                            g.DrawLine(MajorGridLinePen,
+                                new Point(e.Position.X, e.Position.Y),
+                                new Point(e.Position.X - ParentChart.GetAxis(Axis.X).GetDimensions().Width, e.Position.Y));
+                    }
+                }
+            }
+
+        }
 
         /// <summary>
         /// Calculates the dimensions of the axis labels (based on the font being used). 
@@ -272,9 +285,9 @@ namespace MyCharter
             float maxWidth = 0;
             float maxHeight = 0;
 
-            for (int i = 0; i < Entries.Count; i++)
+            for (int i = 0; i < AxisEntries.Count; i++)
             {
-                ImageText label = (ImageText)Entries[i].Label;
+                ImageText label = (ImageText)AxisEntries[i].Label;
                 if (label != null)
                 {
                     SizeF stringMeasurement = tempGraphics.MeasureString(label.Text, AxisFont);
@@ -303,7 +316,7 @@ namespace MyCharter
                 $"{"Dimensions".PadRight(18, ' ')}" +
                 $"{"Positions".PadRight(22, ' ')}");
             int counter = 0;
-            foreach (object o in Entries)
+            foreach (object o in AxisEntries)
             {
                 if (o is AxisEntry element)
                 {
@@ -343,7 +356,7 @@ namespace MyCharter
                         int x = PixelsPerIncrement; // change made here
                         // Determine the WIDTH of the label
                         int width = (int)_maxLabelDimensions.Width + LabelPadding;
-                        foreach (AxisEntry e in Entries)
+                        foreach (AxisEntry e in AxisEntries)
                         {
                             e.Position = new Point(x, 0);
                             x += width;
@@ -353,7 +366,7 @@ namespace MyCharter
                         int y = ((int)_maxLabelDimensions.Height / 2);
                         // Determine the WIDTH of the label
                         int height = (int)_maxLabelDimensions.Height + LabelPadding;
-                        foreach (AxisEntry e in Entries)
+                        foreach (AxisEntry e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
                             y += height;
@@ -368,7 +381,7 @@ namespace MyCharter
                 {
                     case Axis.X:
                         int x = PixelsPerIncrement; // change made here
-                        foreach (AxisEntry e in Entries)
+                        foreach (AxisEntry e in AxisEntries)
                         {
                             e.Position = new Point(x, 0);
                             x += PixelsPerIncrement;
@@ -376,7 +389,7 @@ namespace MyCharter
                         break;
                     case Axis.Y:
                         int y = 0;
-                        foreach (AxisEntry e in Entries)
+                        foreach (AxisEntry e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
                             y += PixelsPerIncrement;
@@ -418,7 +431,7 @@ namespace MyCharter
         {
             if (AxisXY == Axis.X)
             {
-                foreach (AxisEntry e in Entries)
+                foreach (AxisEntry e in AxisEntries)
                 {
                     int x = 0;
                     int y = 0;
@@ -449,7 +462,7 @@ namespace MyCharter
             }
             else if (AxisXY == Axis.Y)
             {
-                foreach (AxisEntry e in Entries)
+                foreach (AxisEntry e in AxisEntries)
                 {
                     switch (AxisPosition)
                     {
@@ -490,7 +503,7 @@ namespace MyCharter
 
             Point refPoint = (AxisXY == Axis.X) ? AxisCoords : ParentChart.GetAxis(Axis.Y).AxisCoords;
 
-            foreach (AxisEntry e in Entries)
+            foreach (AxisEntry e in AxisEntries)
             {
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
@@ -505,7 +518,7 @@ namespace MyCharter
         public Point? GetAxisPositionOfLabel(string label)
         {
             Point? rValue = null;
-            foreach (AxisEntry e in Entries)
+            foreach (AxisEntry e in AxisEntries)
             {
                 if (e.Label.Text.Equals(label))
                 {
@@ -524,7 +537,7 @@ namespace MyCharter
         /// <param name="bmp"></param>
         private void DrawAxisLabels(Graphics g, Bitmap bmp)
         {           
-            foreach (AxisEntry e in Entries)
+            foreach (AxisEntry e in AxisEntries)
             {
                 if (e.IsMajorTick)
                 {
@@ -558,7 +571,7 @@ namespace MyCharter
         /// <returns></returns>
         public int TotalIncrementCount()
         {
-            return Entries.Count + 1;
+            return AxisEntries.Count + 1;
         }
 
         /// <summary>
@@ -583,7 +596,7 @@ namespace MyCharter
             if (AxisXY == Axis.X)
             {
                 // Ticks will be VERTICAL
-                foreach (var e in Entries)
+                foreach (var e in AxisEntries)
                 {
                     if (e.IsMajorTick)
                     {
@@ -604,7 +617,7 @@ namespace MyCharter
             else if (AxisXY == Axis.Y)
             {
                 // Ticks will be HORIZONTAL
-                foreach (var e in Entries)
+                foreach (var e in AxisEntries)
                 {
                     if (AxisPosition == ElementPosition.LEFT)
                     {
@@ -651,6 +664,9 @@ namespace MyCharter
                 DrawAxisLabels(g, bmp);
                 DrawAxisLine(g);
             }
+
+            if (MajorGridLine)
+                DrawMajorGridLines(g);
         }
 
         /// <summary>
@@ -698,17 +714,5 @@ namespace MyCharter
                 }
             }
         }
-
-        /// <summary>
-        /// Returns the minimum value from this Axis.
-        /// </summary>
-        /// <returns></returns>
-        public abstract AxisEntry GetMinimum();
-
-        /// <summary>
-        /// Returns the maximum value from this Axis.
-        /// </summary>
-        /// <returns></returns>
-        public abstract AxisEntry GetMaximum();
     }
 }
