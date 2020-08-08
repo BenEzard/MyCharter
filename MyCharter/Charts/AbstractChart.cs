@@ -229,7 +229,7 @@ namespace MyCharter
             // Apply the requested value
             axis.AxisXY = type;
             axis.AxisPosition = labelPosition;
-            axis.ParentChart = this;
+//            axis.ParentChart = this;
             axes[index] = axis;
 
             axis.InitialAxisPreparation();
@@ -252,7 +252,7 @@ namespace MyCharter
             // Apply the requested value
             axis.AxisXY = type;
             axis.AxisPosition = labelPosition;
-            axis.ParentChart = this;
+//            axis.ParentChart = this;
             axis.AxisWidth = axisWidth;
             axes[index] = axis;
 
@@ -438,8 +438,8 @@ namespace MyCharter
 
             CalculateInitialLayout();
 
-            xAxis.FinaliseAxisLayout();
-            yAxis.FinaliseAxisLayout();
+            xAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
+            yAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
 
             SizeF chartDimension = GetChartDimensions();
 
@@ -454,8 +454,8 @@ namespace MyCharter
 
                 DrawTitles(g);
 
-                xAxis.DrawAxis(g, bmp);
-                yAxis.DrawAxis(g, bmp);
+                xAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
+                yAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
 
                 Pen rectPen = new Pen(Brushes.Red, 1);
                 rectPen.DashPattern = new float[] { 10, 10 };
@@ -597,22 +597,10 @@ namespace MyCharter
             var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
             var yPoint = yAxis.GetAxisPositionOfLabel(yAxis.FormatLabelString(yLabel));
 
-            AxisEntry valueBelow = null;
+            /*AxisEntry valueBelow = null;
             AxisEntry valueAbove = null;
             foreach (AxisEntry e in xAxis.AxisEntries)
             {
-             //   if (e.KeyValue)
-            }
-
-            /*// If the x-value has not been found
-            if (xPoint.HasValue) 
-            {
-
-            }
-
-            if (yPoint.HasValue)
-            {
-
             }*/
 
             if ((xPoint.HasValue) && (yPoint.HasValue))

@@ -117,7 +117,7 @@ namespace MyCharter
         /// <summary>
         /// 
         /// </summary>
-        public AbstractChart<TXAxis, TYAxis> ParentChart = null;
+//        public AbstractChart<TXAxis, TYAxis> ParentChart = null;
 
         public int PixelsPerIncrement { get; set; } = 10;
 
@@ -241,7 +241,9 @@ namespace MyCharter
         /// Draw the major gridlines.
         /// </summary>
         /// <param name="g"></param>
-        public void DrawMajorGridLines(Graphics g)
+        /// <param name="xAxisWidth"></param>
+        /// <param name="yAxisHeight"></param>
+        public void DrawMajorGridLines(Graphics g, int xAxisWidth, int yAxisHeight)
         {
             if (AxisXY == Axis.X)
             {
@@ -250,11 +252,11 @@ namespace MyCharter
                     if (e.IsMajorTick)
                     {
                         if (AxisPosition == ElementPosition.BOTTOM)
-                            g.DrawLine(MajorGridLinePen, e.Position, new Point(e.Position.X, e.Position.Y - ParentChart.GetAxis(Axis.Y).GetDimensions().Height));
+                            g.DrawLine(MajorGridLinePen, e.Position, new Point(e.Position.X, e.Position.Y - yAxisHeight));
                         else if (AxisPosition == ElementPosition.TOP)
                             g.DrawLine(MajorGridLinePen, 
                                 new Point(e.Position.X, e.Position.Y + GetDimensions().Height), 
-                                new Point(e.Position.X, e.Position.Y + GetDimensions().Height + ParentChart.GetAxis(Axis.Y).GetDimensions().Height));
+                                new Point(e.Position.X, e.Position.Y + GetDimensions().Height + yAxisHeight));
                     }
                 }
             }
@@ -267,11 +269,11 @@ namespace MyCharter
                         if (AxisPosition == ElementPosition.LEFT)
                             g.DrawLine(MajorGridLinePen, 
                                 new Point(e.Position.X + GetDimensions().Width, e.Position.Y), 
-                                new Point(e.Position.X + ParentChart.GetAxis(Axis.X).GetDimensions().Width, e.Position.Y));
+                                new Point(e.Position.X + xAxisWidth, e.Position.Y));
                         else if (AxisPosition == ElementPosition.RIGHT)
                             g.DrawLine(MajorGridLinePen,
                                 new Point(e.Position.X, e.Position.Y),
-                                new Point(e.Position.X - ParentChart.GetAxis(Axis.X).GetDimensions().Width, e.Position.Y));
+                                new Point(e.Position.X - xAxisWidth, e.Position.Y));
                     }
                 }
             }
@@ -427,9 +429,9 @@ namespace MyCharter
         /// 1) Calculates the final Axis positions (relative to everything else) 
         /// 2) Calculates the label positions.
         /// </summary>
-        public void FinaliseAxisLayout()
+        public void FinaliseAxisLayout(Point xAxisCoords, Point yAxisCoords)
         {
-            CalculateFinalAxisValuePositions();
+            CalculateFinalAxisValuePositions(xAxisCoords, yAxisCoords);
             CalculateFinalLabelPosition();
         }
 
@@ -506,11 +508,9 @@ namespace MyCharter
         /// This adds the layout values to the exiswting positions of Axis entries and other Axis dimensions.
         /// This uses CalculateFinalLabelPosition() for the Y-axis (and so should be used AFTER it).
         /// </summary>
-        private void CalculateFinalAxisValuePositions()
+        private void CalculateFinalAxisValuePositions(Point xAxisCoords, Point yAxisCoords)
         {
-            GraphicsLayout layout = ParentChart._layout;
-
-            Point refPoint = (AxisXY == Axis.X) ? AxisCoords : ParentChart.GetAxis(Axis.Y).AxisCoords;
+            Point refPoint = (AxisXY == Axis.X) ? xAxisCoords : yAxisCoords;
 
             foreach (AxisEntry e in AxisEntries)
             {
@@ -557,7 +557,7 @@ namespace MyCharter
                     }
 
                     // Check to see if space is free for the label.
-                    List<int> ignoreColors = new List<int> { ParentChart.ImageBackgroundColor.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
+                    List<int> ignoreColors = new List<int> { Color.White.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
 
                     if (ImageMethods.IsSpaceEmpty(g, bmp, 
                             new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height), 
@@ -666,17 +666,20 @@ namespace MyCharter
         /// </summary>
         /// <param name="g"></param>
         /// <param name="bmp"></param>
-        public void DrawAxis(Graphics g, Bitmap bmp)
+        /// <param name="xAxisPosition"></param>
+        /// <param name="xAxisWidth"></param>
+        /// <param name="yAxisHeight"></param>
+        public void DrawAxis(Graphics g, Bitmap bmp, ElementPosition xAxisPosition, int xAxisWidth, int yAxisHeight)
         {
             if (IsVisible)
             {
                 DrawTicks(g);
                 DrawAxisLabels(g, bmp);
-                DrawAxisLine(g);
+                DrawAxisLine(g, xAxisPosition);
             }
 
             if (MajorGridLine)
-                DrawMajorGridLines(g);
+                DrawMajorGridLines(g, xAxisWidth, yAxisHeight);
         }
 
         /// <summary>
@@ -684,7 +687,8 @@ namespace MyCharter
         /// If AxisLine is false, it will not be drawn.
         /// </summary>
         /// <param name="g"></param>
-        private void DrawAxisLine(Graphics g)
+        /// <param name="xAxisPosition"></param>
+        private void DrawAxisLine(Graphics g, ElementPosition xAxisPosition)
         {
             if (AxisLine)
             {
@@ -709,13 +713,13 @@ namespace MyCharter
                         // Offset the x by the full width of the yAxis.
                         xOffset = GetDimensions().Width;
                     }
-                    if (ParentChart.GetAxis(Axis.X).AxisPosition == ElementPosition.BOTTOM)
+                    if (xAxisPosition == ElementPosition.BOTTOM)
                     {
                         g.DrawLine(new Pen(Color.Black, 1),
                             new Point(AxisCoords.X + xOffset, (AxisCoords.Y + ((int)GetMaxLabelDimensions().Height / 2))),
                             new Point(AxisCoords.X + xOffset, AxisCoords.Y + GetDimensions().Height));
                     }
-                    else if (ParentChart.GetAxis(Axis.X).AxisPosition == ElementPosition.TOP)
+                    else if (xAxisPosition == ElementPosition.TOP)
                     {
                         g.DrawLine(new Pen(Color.Black, 1),
                             new Point(AxisCoords.X + xOffset, AxisCoords.Y),// + ((int)GetMaxLabelDimensions().Height / 2))),
