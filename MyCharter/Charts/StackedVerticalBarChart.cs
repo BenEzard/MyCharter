@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace MyCharter.Charts
 {
-    public class StackedVerticalBarChart : AbstractChart
+    public class StackedVerticalBarChart<TXAxis, TYAxis> : AbstractChart<TXAxis, TYAxis>
     {
         public StackedVerticalBarChart() : base(ChartType.STACKED_VERTICAL_BAR_CHART)
         {
@@ -24,10 +24,10 @@ namespace MyCharter.Charts
 
         public override void PlotData(Graphics g)
         {
-            var xAxis = GetAxis(Axis.X);
-            foreach (DataSeries<DateTime, int> ds in ChartData)
+            var xAxis = GetAxis(Axis.X); // date scale axis
+            foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
             {
-                foreach (DataPoint<DateTime, int> dp in ds.DataPoints)
+                foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
                 {
                     Point p = GetPosition(dp.AxisCoord1.ToString(), dp.AxisCoord2.ToString());
                     Console.WriteLine($"In StackedVerticalBarChart.PlotData; p is {p}");

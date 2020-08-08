@@ -5,7 +5,7 @@ using System.Drawing.Drawing2D;
 
 namespace MyCharter
 {
-    public class BarChart : AbstractChart
+    public class BarChart<TXAxis, TYAxis> : AbstractChart<TXAxis, TYAxis>
     {
         public BarChart() : base(ChartType.BAR_CHART)
         {
@@ -91,16 +91,16 @@ namespace MyCharter
         public override void PlotData(Graphics g)
         {
             // TODO this needs to be elsewhere
-            var xAxis = (TimeScaleAxis)GetAxis(Axis.X);
-            var yAxis = (DataSeriesAxis)GetAxis(Axis.Y);
+            var xAxis = (TimeScaleAxis<TXAxis, TYAxis>)GetAxis(Axis.X);
+            var yAxis = (DataSeriesAxis<TXAxis, TYAxis>)GetAxis(Axis.Y);
             
-            if (xAxis is DataSeriesAxis)
+            if (xAxis is DataSeriesAxis<TXAxis, TYAxis>)
             {
                 throw new NotImplementedException("BarChart.PlotData() is not implemented for x-axis yet.");
             }
 
             int height = (int)yAxis.GetMaxLabelDimensions().Height;
-            if (yAxis is DataSeriesAxis)
+            if (yAxis is DataSeriesAxis<TXAxis, TYAxis>)
             {
                 foreach (AxisEntry entry in yAxis.AxisEntries)
                 {

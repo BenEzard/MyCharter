@@ -8,7 +8,13 @@ using System.Drawing.Drawing2D;
 
 namespace MyCharter
 {
-    public abstract class AbstractChartAxis
+    /// <summary>
+    /// TODO I don't really like this implementation of having to pass in x and y axis to AbstractChartAxis, but I have to because of references to
+    /// ParentChart member.
+    /// </summary>
+    /// <typeparam name="TXAxis"></typeparam>
+    /// <typeparam name="TYAxis"></typeparam>
+    public abstract class AbstractChartAxis<TXAxis, TYAxis>
     {
         /// <summary>
         /// The X or Y value which denotes which axis this is.
@@ -108,7 +114,10 @@ namespace MyCharter
         /// </summary>
         public int MinorTickLength = 3;
 
-        public AbstractChart ParentChart = null;
+        /// <summary>
+        /// 
+        /// </summary>
+        public AbstractChart<TXAxis, TYAxis> ParentChart = null;
 
         public int PixelsPerIncrement { get; set; } = 10;
 

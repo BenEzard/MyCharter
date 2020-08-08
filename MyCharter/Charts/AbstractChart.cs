@@ -10,7 +10,7 @@ using System.Drawing.Imaging;
 
 namespace MyCharter
 {
-    public abstract class AbstractChart
+    public abstract class AbstractChart<TXAxis, TYAxis>
     {
         private ChartType ChartType { get; }
 
@@ -191,7 +191,7 @@ namespace MyCharter
         /// <summary>
         /// The axes to be displayed on the chart
         /// </summary>
-        private AbstractChartAxis[] axes = new AbstractChartAxis[2] { null, null };
+        private AbstractChartAxis<TXAxis, TYAxis>[] axes = new AbstractChartAxis<TXAxis, TYAxis>[2] { null, null };
 
         /// <summary>
         /// The Pen (colour and width) of a border that will be drawn around the image (inset by MarginWidth).
@@ -206,7 +206,7 @@ namespace MyCharter
         /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
-        public List<DataSeries<DateTime, int>> ChartData {get; set;} = new List<DataSeries<DateTime, int>>();
+        public List<DataSeries<TXAxis, TYAxis>> ChartData {get; set;} = new List<DataSeries<TXAxis, TYAxis>>();
 
         public AbstractChart(ChartType chartType)
         {
@@ -220,7 +220,7 @@ namespace MyCharter
         /// <param name="type"></param>
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
-        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis axis)
+        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis)
         {
             // Will throw an ArgumentException if it doesn't work.
             ValidateAxis(type, labelPosition, axis);
@@ -243,7 +243,7 @@ namespace MyCharter
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
         /// <param name="axisWidth"></param>
-        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis axis, AxisWidth axisWidth)
+        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis, AxisWidth axisWidth)
         {
             // Will throw an ArgumentException if it doesn't work.
             ValidateAxis(type, labelPosition, axis);
@@ -365,7 +365,7 @@ namespace MyCharter
         /// <param name="type"></param>
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
-        public void ValidateAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis axis)
+        public void ValidateAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis)
         {
             int index = (int)type;
 
@@ -385,9 +385,9 @@ namespace MyCharter
         /// </summary>
         /// <param name="axis"></param>
         /// <returns></returns>
-        public AbstractChartAxis GetAxis(Axis axis)
+        public AbstractChartAxis<TXAxis, TYAxis> GetAxis(Axis axis)
         {
-            AbstractChartAxis rValue = null;
+            AbstractChartAxis<TXAxis, TYAxis> rValue = null;
 
             for (int i = 0; i < axes.Length; i++)
             {
@@ -579,7 +579,7 @@ namespace MyCharter
             return _chartDimensions;
         }
 
-        public void AddDataSeries(DataSeries<DateTime,int> ds)
+        public void AddDataSeries(DataSeries<TXAxis, TYAxis> ds)
         {
             ChartData.Add(ds);
         }
@@ -624,10 +624,10 @@ namespace MyCharter
 
         public void DebugOutput_DataSeries()
         {
-            foreach (DataSeries<DateTime, int> ds in ChartData)
+            foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
             {
                 Console.WriteLine($"{ds.Name}  -  {ds.Color}");
-                foreach (DataPoint<DateTime, int> dp in ds.DataPoints)
+                foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
                 {
                     Console.WriteLine($"   axis1: {dp.AxisCoord1}, axis2: {dp.AxisCoord2}");
                 }

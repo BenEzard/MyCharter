@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace MyCharter
 {
-    public abstract class AbstractScaleAxis : AbstractChartAxis
+    public abstract class AbstractScaleAxis<TXAxis, TYAxis> : AbstractChartAxis<TXAxis, TYAxis>
     {
         /// <summary>
         /// The minimum value to be displayed on the axis.

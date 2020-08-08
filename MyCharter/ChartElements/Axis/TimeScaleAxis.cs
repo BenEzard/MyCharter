@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace MyCharter
 {
-    public class TimeScaleAxis : AbstractScaleAxis
+    public class TimeScaleAxis<TXAxis, TYAxis> : AbstractScaleAxis<TXAxis, TYAxis>
     {
         public TimeScaleAxis(object minimumValue, object maximumValue, int majorIncrement, int minorIncrement, int pixelsPerIncrement) :
             base(AxisFormat.TIME_SCALE, minimumValue, maximumValue, majorIncrement, minorIncrement, pixelsPerIncrement)

@@ -3,17 +3,22 @@ using System.Drawing;
 
 namespace MyCharter.ChartElements.DataSeries
 {
-    public class DataSeries<T1, T2>
+    /// <summary>
+    /// Define a Data Series.
+    /// </summary>
+    /// <typeparam name="TXAxis">The data type of the x axis.</typeparam>
+    /// <typeparam name="TYAxis">The data type of the y axis.</typeparam>
+    public class DataSeries<TXAxis, TYAxis>
     {
         public string Name { get; set; }
         public Color Color { get; set; }
-        public List<DataPoint<T1,T2>> DataPoints { get; set; } = new List<DataPoint<T1, T2>>();
+        public List<DataPoint<TXAxis,TYAxis>> DataPoints { get; set; } = new List<DataPoint<TXAxis, TYAxis>>();
 
         /// <summary>
-        /// 
+        /// Define a new Data Series with the given name and color.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="color"></param>
+        /// <param name="name">Name of the Data Series.</param>
+        /// <param name="color">Color of the Data Series</param>
         public DataSeries(string name, Color color)
         {
             Name = name;
@@ -25,9 +30,9 @@ namespace MyCharter.ChartElements.DataSeries
         /// </summary>
         /// <param name="axisEntry1"></param>
         /// <param name="axisEntry2"></param>
-        public void AddDataPoint(T1 axisEntry1, T2 axisEntry2)
+        public void AddDataPoint(TXAxis axisEntry1, TYAxis axisEntry2)
         {
-            DataPoints.Add(new DataPoint<T1, T2>(axisEntry1, axisEntry2));
+            DataPoints.Add(new DataPoint<TXAxis, TYAxis>(axisEntry1, axisEntry2));
         }
     }
 }

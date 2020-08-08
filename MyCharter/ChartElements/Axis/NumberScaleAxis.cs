@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace MyCharter.ChartElements.Axis
 {
-    public class NumberScaleAxis : AbstractScaleAxis
+    public class NumberScaleAxis<TXAxis, TYAxis> : AbstractScaleAxis<TXAxis, TYAxis>
     {
         public NumberScaleAxis(object minimumValue, object maximumValue, int majorIncrement, int minorIncrement, int pixelsPerIncrement) :
             base(AxisFormat.NUMBER_SCALE, minimumValue, maximumValue, majorIncrement, minorIncrement, pixelsPerIncrement)
