@@ -12,17 +12,6 @@ namespace MyCharter.Charts
         {
         }
 
-        public override AxisEntry GetMaximumDataSeriesValue(Axis axis)
-        {
-            // For each value on an axis, we want to combine all of the data series values (and work out the maximum).
-            throw new NotImplementedException();
-        }
-
-        public override AxisEntry GetMinimumDataSeriesValue(Axis axis)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void PlotData(Graphics g)
         {
             foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)

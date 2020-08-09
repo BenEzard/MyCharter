@@ -2,7 +2,7 @@
 
 namespace MyCharter
 {
-    public class AxisEntry
+    public class AxisEntry<TKeyDataType>
     {
         private ImageText _label;
         public ImageText Label 
@@ -17,7 +17,7 @@ namespace MyCharter
 
         public object EntryContent { get; set; }
 
-        public object KeyValue { get; set; }
+        public TKeyDataType KeyValue { get; set; }
 
         public bool IsMajorTick { get; set; } = false;
 
@@ -30,7 +30,7 @@ namespace MyCharter
         {
         }
 
-        public AxisEntry(object key, object content)
+        public AxisEntry(TKeyDataType key, object content)
         {
             KeyValue = key;
             EntryContent = content;
@@ -42,7 +42,7 @@ namespace MyCharter
         /// <param name="key"></param>
         /// <param name="content"></param>
         /// <param name="label"></param>
-        public AxisEntry(object key, object content, string label)
+        public AxisEntry(TKeyDataType key, object content, string label)
         {
             KeyValue = key;
             EntryContent = content;

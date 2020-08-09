@@ -45,5 +45,7 @@ namespace MyCharter.ChartElements.Axis
             }
         }
 
+        public override
+
     }
 }

@@ -43,13 +43,13 @@ namespace MyCharter.ChartElements.Axis
             DateTime maxDate = ((DateTime)MaximumValue).Date;
             DateTime minDate = ((DateTime)MinimumValue).Date;
             DateTime tickDate = minDate;
-            AxisEntry tick;
+            AxisEntry<DateTime> tick;
             int tickCounter = 0;
 
             while (tickDate <= maxDate)
             {
                 ++tickCounter;
-                tick = new AxisEntry(tickDate, null, FormatLabelString(tickDate));
+                tick = new AxisEntry<DateTime>(tickDate, null, FormatLabelString(tickDate));
 
                 if (tickCounter % MajorIncrement == 0)
                     tick.IsMajorTick = true;

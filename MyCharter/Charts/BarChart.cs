@@ -139,15 +139,5 @@ namespace MyCharter
                     }*/
                 }
 
-        public override AxisEntry GetMinimumDataSeriesValue(Axis axis)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override AxisEntry GetMaximumDataSeriesValue(Axis axis)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

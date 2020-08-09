@@ -10,12 +10,37 @@ namespace MyCharter
         {
         }
 
+        public override void CalculateLabelPositions(Point offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawAxis(Graphics g, Point offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawAxisLabels(Graphics g, Point offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawTicks(Graphics g, Point offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string FormatLabelString(object label)
+        {
+            throw new NotImplementedException();
+        }
+
         internal override void GenerateAxisEntries()
         {
             if (AxisEntries.Count == 0) throw new ArgumentException("There are no values on the Data Series Axis.");
         }
 
-        public void AddDataSeries(DurationDataSeriesEntry dataSeries)
+/*        public void AddDataSeries(DurationDataSeriesEntry dataSeries)
         {
             AddEntry(dataSeries);
         }
@@ -29,7 +54,7 @@ namespace MyCharter
                 case Axis.Y:
                     foreach (var e in AxisEntries)
                     {
-                        if (e is AxisEntry entry)
+                        if (e is AxisEntry<TAxisDataSeries> entry)
                         {
                             offset.Y += LabelPadding;
                             g.DrawString(entry.Label.Text, AxisFont, Brushes.Black, offset);
@@ -52,7 +77,7 @@ namespace MyCharter
                     for (int index = 0; index < AxisEntries.Count; index++)
                     {
                         var e = AxisEntries[index];
-                        if (e is AxisEntry entry)
+                        if (e is AxisEntry<TAxisDataSeries> entry)
                         {
                             offset.Y += LabelPadding + halfOfLabelHeight;
                             e.Label.Position = new Point(x, offset.Y - halfOfLabelHeight);
@@ -67,7 +92,7 @@ namespace MyCharter
 
         public override void DrawAxisLabels(Graphics g, Point offset)
         {
-            foreach (AxisEntry entry in AxisEntries)
+            foreach (AxisEntry<TAxisDataSeries> entry in AxisEntries)
             {
                 g.DrawString(entry.Label.Text, AxisFont, Brushes.Black, entry.Label.Position);
             }
@@ -83,7 +108,7 @@ namespace MyCharter
         {
             int rValue = -1;
             Point point = new Point(-1, -1);
-            foreach (AxisEntry e in AxisEntries)
+            foreach (AxisEntry<TAxisDataSeries> e in AxisEntries)
             {
                 DurationDataSeriesEntry dds = (DurationDataSeriesEntry)e;
                 if (dds.KeyValue.Equals(key))
@@ -106,7 +131,7 @@ namespace MyCharter
         public override string FormatLabelString(object label)
         {
             throw new NotImplementedException();
-        }
+        }*/
 
     }
 }

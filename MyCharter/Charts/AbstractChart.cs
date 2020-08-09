@@ -614,22 +614,6 @@ namespace MyCharter
             }
         }
 
-        /// <summary>
-        /// Returns the minimum value displayed on an Axis.
-        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
-        /// out what the size of the Axis should be).
-        /// </summary>
-        /// <returns></returns>
-        public abstract AxisEntry GetMinimumDataSeriesValue(Axis axis);
-
-        /// <summary>
-        /// Returns the maximum value displayed on an Axis.
-        /// (This is in the Chart class because, for example, a stacked chart needs to be able to add the values up from multiple data series to work
-        /// out what the size of the Axis should be).
-        /// </summary>
-        /// <returns></returns>
-        public abstract AxisEntry GetMaximumDataSeriesValue(Axis axis);
-
         public AbstractChartAxis<TXAxisDataType> GetX1Axis()
         {
             return _xAxis1;

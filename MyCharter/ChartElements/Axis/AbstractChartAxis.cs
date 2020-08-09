@@ -41,7 +41,7 @@ namespace MyCharter
         /// SortedList provides sorting that we might not want on Data Series'
         /// List provides no sorting/easy access
         /// </summary>
-        public List<AxisEntry> AxisEntries = new List<AxisEntry>();
+        public List<AxisEntry<TDataType>> AxisEntries = new List<AxisEntry<TDataType>>();
 
         /// <summary>
         /// The font that is used to label the axis.
@@ -226,7 +226,7 @@ namespace MyCharter
         /// Add an AxisEntry to the Axis.
         /// </summary>
         /// <param name="entry"></param>
-        protected void AddEntry(AxisEntry entry)
+        protected void AddEntry(AxisEntry<TDataType> entry)
         {
             AxisEntries.Add(entry);
         }
@@ -247,7 +247,7 @@ namespace MyCharter
         {
             if (AxisXY == Axis.X)
             {
-                foreach (AxisEntry e in AxisEntries)
+                foreach (AxisEntry<TDataType> e in AxisEntries)
                 {
                     if (e.IsMajorTick)
                     {
@@ -262,7 +262,7 @@ namespace MyCharter
             }
             else if (AxisXY == Axis.Y)
             {
-                foreach (AxisEntry e in AxisEntries)
+                foreach (AxisEntry<TDataType> e in AxisEntries)
                 {
                     if (e.IsMajorTick)
                     {
@@ -328,7 +328,7 @@ namespace MyCharter
             int counter = 0;
             foreach (object o in AxisEntries)
             {
-                if (o is AxisEntry element)
+                if (o is AxisEntry<TDataType> element)
                 {
                     var label = (ImageText)element.Label;
                     if (label != null)
@@ -366,7 +366,7 @@ namespace MyCharter
                         int x = 0; // PixelsPerIncrement; // change made here
                         // Determine the WIDTH of the label
                         int width = (int)_maxLabelDimensions.Width + LabelPadding;
-                        foreach (AxisEntry e in AxisEntries)
+                        foreach (AxisEntry<TDataType> e in AxisEntries)
                         {
                             e.Position = new Point(x, 0);
                             x += width;
@@ -376,7 +376,7 @@ namespace MyCharter
                         int y = ((int)_maxLabelDimensions.Height / 2);
                         // Determine the HEIGHT of the label
                         int height = (int)_maxLabelDimensions.Height + LabelPadding;
-                        foreach (AxisEntry e in AxisEntries)
+                        foreach (AxisEntry<TDataType> e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
                             Console.WriteLine($"CalculateInitialAxisValuePositions(): {e.Label.Text} position is {e.Position}");
@@ -392,7 +392,7 @@ namespace MyCharter
                 {
                     case Axis.X:
                         int x = PixelsPerIncrement; // change made here
-                        foreach (AxisEntry e in AxisEntries)
+                        foreach (AxisEntry<TDataType> e in AxisEntries)
                         {
                             e.Position = new Point(x, 0);
                             x += PixelsPerIncrement;
@@ -400,7 +400,7 @@ namespace MyCharter
                         break;
                     case Axis.Y:
                         int y = 0;
-                        foreach (AxisEntry e in AxisEntries)
+                        foreach (AxisEntry<TDataType> e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
                             y += PixelsPerIncrement;
@@ -442,7 +442,7 @@ namespace MyCharter
         {
             if (AxisXY == Axis.X)
             {
-                foreach (AxisEntry e in AxisEntries)
+                foreach (AxisEntry<TDataType> e in AxisEntries)
                 {
                     int x = 0;
                     int y = 0;
@@ -473,7 +473,7 @@ namespace MyCharter
             }
             else if (AxisXY == Axis.Y)
             {
-                foreach (AxisEntry e in AxisEntries)
+                foreach (AxisEntry<TDataType> e in AxisEntries)
                 {
                     switch (AxisPosition)
                     {
@@ -512,7 +512,7 @@ namespace MyCharter
         {
             Point refPoint = (AxisXY == Axis.X) ? xAxisCoords : yAxisCoords;
 
-            foreach (AxisEntry e in AxisEntries)
+            foreach (AxisEntry<TDataType> e in AxisEntries)
             {
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
@@ -528,7 +528,7 @@ namespace MyCharter
         public Point? GetAxisPositionOfLabel(string label)
         {
             Point? rValue = null;
-            foreach (AxisEntry e in AxisEntries)
+            foreach (AxisEntry<TDataType> e in AxisEntries)
             {
                 if (e.Label.Text.Equals(label))
                 {
@@ -548,7 +548,7 @@ namespace MyCharter
         /// <param name="bmp"></param>
         private void DrawAxisLabels(Graphics g, Bitmap bmp)
         {           
-            foreach (AxisEntry e in AxisEntries)
+            foreach (AxisEntry<TDataType> e in AxisEntries)
             {
                 if (e.IsMajorTick)
                 {
@@ -596,7 +596,15 @@ namespace MyCharter
 
         public abstract void CalculateLabelPositions(Point offset);
 
+        /// <summary>
+        /// Format the label for display. 
+        /// For example, the number 1007 might be formatted to "1,007" or 1/06/2020 to "01/06".
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
         public abstract string FormatLabelString(object label);
+
+        public abstract int DetermineAxisLocation(TDataType key);
 
         /// <summary>
         /// Draw the major and minor Ticks on the Axis.
