@@ -10,7 +10,7 @@ using System.Drawing.Imaging;
 
 namespace MyCharter
 {
-    public abstract class AbstractChart<TXAxis, TYAxis>
+    public abstract class AbstractChart<TXAxisDataType, TYAxisDataType>
     {
         private ChartType ChartType { get; }
 
@@ -189,9 +189,14 @@ namespace MyCharter
         public string OutputFile = null;
 
         /// <summary>
-        /// The axes to be displayed on the chart
+        /// The 1st x-axis.
         /// </summary>
-        private AbstractChartAxis<TXAxis, TYAxis>[] axes = new AbstractChartAxis<TXAxis, TYAxis>[2] { null, null };
+        private AbstractChartAxis<TXAxisDataType> _xAxis1 = null;
+
+        /// <summary>
+        /// The y-axis.
+        /// </summary>
+        private AbstractChartAxis<TYAxisDataType> _yAxis = null;
 
         /// <summary>
         /// The Pen (colour and width) of a border that will be drawn around the image (inset by MarginWidth).
@@ -206,7 +211,7 @@ namespace MyCharter
         /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
-        public List<DataSeries<TXAxis, TYAxis>> ChartData {get; set;} = new List<DataSeries<TXAxis, TYAxis>>();
+        public List<DataSeries<TXAxisDataType, TYAxisDataType>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType>>();
 
         public AbstractChart(ChartType chartType)
         {
@@ -214,47 +219,43 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Set the axis with a specific type of ChartAxis.
+        /// Set the X-axis with a specific type of ChartAxis.
         /// If successful, assigns the Axis type (x,y) and label position to the axis.
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
-        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis)
+        /// <param name="axisWidth"></param>
+        public void SetX1Axis(ElementPosition labelPosition, AbstractChartAxis<TXAxisDataType> axis, AxisWidth axisWidth)
         {
             // Will throw an ArgumentException if it doesn't work.
-            ValidateAxis(type, labelPosition, axis);
+            ValidateAxis(Axis.X, labelPosition);
 
-            int index = (int)type;
             // Apply the requested value
-            axis.AxisXY = type;
+            axis.AxisXY = Axis.X;
             axis.AxisPosition = labelPosition;
-//            axis.ParentChart = this;
-            axes[index] = axis;
+            axis.AxisWidth = axisWidth;
+            _xAxis1 = axis;
 
             axis.InitialAxisPreparation();
         }
 
         /// <summary>
-        /// Set the axis with a specific type of ChartAxis.
+        /// Set the X-axis with a specific type of ChartAxis.
         /// If successful, assigns the Axis type (x,y) and label position to the axis.
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
         /// <param name="axisWidth"></param>
-        public void SetAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis, AxisWidth axisWidth)
+        public void SetYAxis(ElementPosition labelPosition, AbstractChartAxis<TYAxisDataType> axis, AxisWidth axisWidth)
         {
             // Will throw an ArgumentException if it doesn't work.
-            ValidateAxis(type, labelPosition, axis);
-         
-            int index = (int)type;
+            ValidateAxis(Axis.Y, labelPosition);
+
             // Apply the requested value
-            axis.AxisXY = type;
+            axis.AxisXY = Axis.Y;
             axis.AxisPosition = labelPosition;
-//            axis.ParentChart = this;
             axis.AxisWidth = axisWidth;
-            axes[index] = axis;
+            _yAxis = axis;
 
             axis.InitialAxisPreparation();
         }
@@ -298,8 +299,8 @@ namespace MyCharter
                 y += 10; // Add some additional space under the heading.
             }
 
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
+            var xAxis = _xAxis1;
+            var yAxis = _yAxis;
 
             Point tempXAxis = new Point(x, y);
             Point tempYAxis = new Point(x, y);
@@ -336,15 +337,12 @@ namespace MyCharter
 
             }
 
-            GetAxis(Axis.X).AxisCoords = tempXAxis;
-            GetAxis(Axis.Y).AxisCoords = tempYAxis;
+            _xAxis1.AxisCoords = tempXAxis;
+            _yAxis.AxisCoords = tempYAxis;
         }
 
         public void Debug_GetLayout()
         {
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
-
             Console.WriteLine("Layout\n");
             Console.WriteLine($"Border = {_layout.Border}\n" +
                 $"Title = {_layout.Title}\n" +
@@ -354,8 +352,8 @@ namespace MyCharter
                 $"x-Axis Labels = { _layout.xAxisLabels}\n" +
                 $"x-Axis Ticks = { _layout.xAxisTicks}");
 
-            Console.WriteLine($"y-Axis (x,y,h,w) = {yAxis.AxisCoords.X}, {yAxis.AxisCoords.Y}, {yAxis.GetDimensions().Height}, {yAxis.GetDimensions().Width}");
-            Console.WriteLine($"x-Axis (x,y,h,w) = {xAxis.AxisCoords.X}, {xAxis.AxisCoords.Y}, {xAxis.GetDimensions().Height}, {xAxis.GetDimensions().Width}");
+            Console.WriteLine($"y-Axis (x,y,h,w) = {_yAxis.AxisCoords.X}, {_yAxis.AxisCoords.Y}, {_yAxis.GetDimensions().Height}, {_yAxis.GetDimensions().Width}");
+            Console.WriteLine($"x-Axis (x,y,h,w) = {_xAxis1.AxisCoords.X}, {_xAxis1.AxisCoords.Y}, {_xAxis1.GetDimensions().Height}, {_xAxis1.GetDimensions().Width}");
 
         }
 
@@ -364,10 +362,10 @@ namespace MyCharter
         /// </summary>
         /// <param name="type"></param>
         /// <param name="labelPosition"></param>
-        /// <param name="axis"></param>
-        public void ValidateAxis(Axis type, ElementPosition labelPosition, AbstractChartAxis<TXAxis, TYAxis> axis)
+        public void ValidateAxis(Axis type, ElementPosition labelPosition)
         {
-            int index = (int)type;
+            // TODO redo
+           /* int index = (int)type;
 
             if (axes[index] != null)
                 throw new ArgumentException($"Axis {type} has already been set.");
@@ -377,31 +375,7 @@ namespace MyCharter
 
             if ((type == Axis.X) && ((labelPosition == ElementPosition.LEFT) || (labelPosition == ElementPosition.RIGHT))
                 || (type == Axis.Y) && ((labelPosition == ElementPosition.TOP) || (labelPosition == ElementPosition.BOTTOM)))
-                throw new ArgumentException($"Axis label positions are not valid.");
-        }
-
-        /// <summary>
-        /// Return the specified axis.
-        /// </summary>
-        /// <param name="axis"></param>
-        /// <returns></returns>
-        public AbstractChartAxis<TXAxis, TYAxis> GetAxis(Axis axis)
-        {
-            AbstractChartAxis<TXAxis, TYAxis> rValue = null;
-
-            for (int i = 0; i < axes.Length; i++)
-            {
-                if (axes[i].AxisXY == axis)
-                {
-                    rValue = axes[i];
-                    break;
-                }
-            }
-
-            if (rValue == null)
-                throw new ArgumentException($"Can't find axis {axis}. Has it been set?");
-
-            return rValue;
+                throw new ArgumentException($"Axis label positions are not valid.");*/
         }
 
         /// <summary>
@@ -433,8 +407,8 @@ namespace MyCharter
         /// </summary>
         public void GenerateChart()
         {
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
+            var xAxis = _xAxis1;
+            var yAxis = _yAxis;
 
             CalculateInitialLayout();
 
@@ -543,8 +517,8 @@ namespace MyCharter
             {
                 int chartWidth = 0;
                 int chartHeight = 0;
-                var xAxis = GetAxis(Axis.X);
-                var yAxis = GetAxis(Axis.Y);
+                var xAxis = _xAxis1;
+                var yAxis = _yAxis;
 
                 // Margins - appear at the outer-most of the image
                 chartWidth += GetMargin(ElementPosition.LEFT) + GetMargin(ElementPosition.RIGHT);
@@ -579,7 +553,7 @@ namespace MyCharter
             return _chartDimensions;
         }
 
-        public void AddDataSeries(DataSeries<TXAxis, TYAxis> ds)
+        public void AddDataSeries(DataSeries<TXAxisDataType, TYAxisDataType> ds)
         {
             ChartData.Add(ds);
         }
@@ -590,8 +564,8 @@ namespace MyCharter
         {
             Point rValue = new Point(-1, -1);
 
-            var xAxis = GetAxis(Axis.X);
-            var yAxis = GetAxis(Axis.Y);
+            var xAxis = _xAxis1;
+            var yAxis = _yAxis;
 
             // PROBLEM IS HERE
             var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
@@ -614,8 +588,8 @@ namespace MyCharter
         /// </summary>
         public void DebugOutput_ChartDimensions()
         {
-            SizeF xAxisDimensions = GetAxis(Axis.X).GetDimensions();
-            SizeF yAxisDimensions = GetAxis(Axis.Y).GetDimensions();
+            SizeF xAxisDimensions = _xAxis1.GetDimensions();
+            SizeF yAxisDimensions = _yAxis.GetDimensions();
             SizeF titleDimensions = GetTitleDimensions();
 
             Console.WriteLine($"Margin (L;T;R;B): {GetMargin(ElementPosition.LEFT)}; {GetMargin(ElementPosition.TOP)}; " +
@@ -630,10 +604,10 @@ namespace MyCharter
 
         public void DebugOutput_DataSeries()
         {
-            foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
+            foreach (DataSeries<TXAxisDataType, TYAxisDataType> ds in ChartData)
             {
                 Console.WriteLine($"{ds.Name}  -  {ds.Color}");
-                foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
+                foreach (DataPoint<TXAxisDataType, TYAxisDataType> dp in ds.DataPoints)
                 {
                     Console.WriteLine($"   axis1: {dp.AxisCoord1}, axis2: {dp.AxisCoord2}");
                 }
@@ -655,5 +629,15 @@ namespace MyCharter
         /// </summary>
         /// <returns></returns>
         public abstract AxisEntry GetMaximumDataSeriesValue(Axis axis);
+
+        public AbstractChartAxis<TXAxisDataType> GetX1Axis()
+        {
+            return _xAxis1;
+        }
+
+        public AbstractChartAxis<TYAxisDataType> GetYAxis()
+        {
+            return _yAxis;
+        }
     }
 }

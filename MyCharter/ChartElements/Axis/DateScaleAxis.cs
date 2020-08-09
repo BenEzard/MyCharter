@@ -2,7 +2,7 @@
 
 namespace MyCharter.ChartElements.Axis
 {
-    public class DateScaleAxis<TXAxis, TYAxis> : AbstractScaleAxis<TXAxis, TYAxis>
+    public class DateScaleAxis<TAxisDataType> : AbstractScaleAxis<TAxisDataType>
     {
         private AxisLabelFormat _labelFormat;
 

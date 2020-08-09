@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace MyCharter
 {
-    public class DataSeriesAxis<TXAxis, TYAxis> : AbstractChartAxis<TXAxis, TYAxis>
+    public class DataSeriesAxis<TAxisDataSeries> : AbstractChartAxis<TAxisDataSeries>
     {
         public DataSeriesAxis() : base(AxisFormat.DATA_SERIES)
         {

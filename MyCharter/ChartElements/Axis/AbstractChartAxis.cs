@@ -14,7 +14,7 @@ namespace MyCharter
     /// </summary>
     /// <typeparam name="TXAxis"></typeparam>
     /// <typeparam name="TYAxis"></typeparam>
-    public abstract class AbstractChartAxis<TXAxis, TYAxis>
+    public abstract class AbstractChartAxis<TDataType>
     {
         /// <summary>
         /// The X or Y value which denotes which axis this is.
@@ -538,6 +538,7 @@ namespace MyCharter
             }
             return rValue;
         }
+
 
         /// <summary>
         /// Draw the Axis label.
