@@ -574,8 +574,6 @@ namespace MyCharter
             }
         }
 
-        public abstract void DrawAxisLabels(Graphics g, Point offset);
-
         /// <summary>
         /// Returns the total number of increments on the scale.
         /// </summary>
@@ -586,17 +584,6 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Draw the Axis.
-        /// </summary>
-        /// <param name="g"></param>
-        /// <param name="offset"></param>
-        public abstract void DrawAxis(Graphics g, Point offset);
-
-        public abstract void DrawTicks(Graphics g, Point offset);
-
-        public abstract void CalculateLabelPositions(Point offset);
-
-        /// <summary>
         /// Format the label for display. 
         /// For example, the number 1007 might be formatted to "1,007" or 1/06/2020 to "01/06".
         /// </summary>
@@ -604,7 +591,7 @@ namespace MyCharter
         /// <returns></returns>
         public abstract string FormatLabelString(object label);
 
-        public abstract int DetermineAxisLocation(TDataType key);
+        //public abstract int DetermineAxisLocation(TDataType key);
 
         /// <summary>
         /// Draw the major and minor Ticks on the Axis.
@@ -736,6 +723,79 @@ namespace MyCharter
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Return the position along an Axis for a key value.
+        /// For example:
+        ///    if the value you're searching for is 12 and 12 is an AxisEntry then it will return that x/y value for that Point.
+        ///    if the AxisEntries are 10 and 15, then the value will be 2/5ths between 10 and 15.
+        /// </summary>
+        /// <param name="keyValue"></param>
+        /// <returns></returns>
+        public int GetAxisPosition(TDataType keyValue)
+        {
+            int rValue = -1;
+
+            // First, get the AxisEntry for those above/below the specific value.
+      /*      TDataType currentValue;
+            AxisEntry<TDataType> belowAxisEntry = null;
+            AxisEntry<TDataType> equalAxisEntry = null;
+            AxisEntry<TDataType> aboveAxisEntry = null;
+
+            foreach (AxisEntry<TDataType> e in AxisEntries)
+            {
+                if (e.KeyValue < keyValue)
+                {
+                    belowAxisEntry = e.KeyValue;
+                }
+
+                if (e.KeyValue == keyValue)
+                {
+                    equalAxisEntry = e.KeyValue;
+                }
+
+                if ((e.KeyValue > keyValue) && (aboveAxisEntry == null))
+                {
+                    aboveAxisEntry = e.KeyValue;
+                }
+            }
+
+            // Second, (if required) calculate how far along it is between ticks
+            if (equalAxisEntry == null)
+            {
+                int abovePos;
+                int belowPos;
+                int pixelGapBetween;
+                double PixelsPerValue;
+                int difference;
+
+                switch (AxisXY)
+                {
+                    case Axis.X: // 12
+                        abovePos = aboveAxisEntry.Position.X; // 15
+                        belowPos = belowAxisEntry.Position.X; // 10
+                        pixelGapBetween = abovePos - belowPos; // 20px
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
+                        difference = keyValue - belowAxisEntry.KeyValue;
+                        rValue = belowPos + (difference * PixelsPerValue);
+                        break;
+                    case Axis.Y:
+                        abovePos = aboveAxisEntry.Position.Y; // 15
+                        belowPos = belowAxisEntry.Position.Y; // 10
+                        pixelGapBetween = abovePos - belowPos; // 20px
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
+                        difference = keyValue - belowAxisEntry.KeyValue;
+                        rValue = belowPos - (difference * PixelsPerValue);
+                        break;
+                }
+            }
+            else
+            {
+                rValue = (AxisXY == Axis.X) ? equalAxisEntry.Position.X : equalAxisEntry.Position.Y;
+            }*/
+
+            return rValue;
         }
     }
 }

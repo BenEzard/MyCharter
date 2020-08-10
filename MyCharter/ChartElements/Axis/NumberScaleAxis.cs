@@ -29,13 +29,13 @@ namespace MyCharter.ChartElements.Axis
             int minValue = (int)MinimumValue;
             int maxValue = (int)MaximumValue;
             int tickValue = maxValue;
-            AxisEntry tick;
+            AxisEntry<TAxisDataType> tick;
             int majorTickCounter = 0;
 
             while (tickValue >= minValue)
             {
                 ++majorTickCounter;
-                tick = new AxisEntry(tickValue, null, tickValue.ToString());
+                tick = new AxisEntry<TAxisDataType>(tickValue, null, tickValue.ToString());
 
                 if (tickValue % MajorIncrement == 0)
                     tick.IsMajorTick = true;
@@ -45,7 +45,7 @@ namespace MyCharter.ChartElements.Axis
             }
         }
 
-        public override
+        
 
     }
 }
