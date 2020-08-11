@@ -22,6 +22,11 @@ namespace MyCharter
         public Axis AxisXY { get; set; }
 
         /// <summary>
+        /// The ordering the axis has: ascending or descending.
+        /// </summary>
+        public AxisOrdering AxisOrdering { get; set; }
+
+        /// <summary>
         /// The format (number/time etc) of this axis.
         /// </summary>
         public AxisFormat Format { get; set; }
@@ -135,6 +140,16 @@ namespace MyCharter
         public AbstractChartAxis(AxisFormat format)
         {
             Format = format;
+
+            switch (AxisXY)
+            {
+                case Axis.X:
+                    AxisOrdering = AxisOrdering.ASCENDING;
+                    break;
+                case Axis.Y:
+                    AxisOrdering = AxisOrdering.DESCENDING;
+                    break;
+            }
 
             // Configure MajorGridLinePen
             MajorGridLinePen.DashStyle = DashStyle.Dash;
@@ -734,5 +749,79 @@ namespace MyCharter
         /// <param name="keyValue"></param>
         /// <returns></returns>
         public abstract int GetAxisPosition(TDataType keyValue);
+
+        /// <summary>
+        /// Get the minimum (first) AxisEntry.
+        /// </summary>
+        /// <returns></returns>
+        public AxisEntry<TDataType> GetMinimumAxisEntry()
+        {
+            AxisEntry<TDataType> rValue = null;
+
+            if (AxisXY == Axis.X)
+            {
+                switch (AxisOrdering)
+                {
+                    case AxisOrdering.ASCENDING:
+                        rValue = AxisEntries[0];
+                        break;
+                    case AxisOrdering.DESCENDING:
+                        rValue = AxisEntries[AxisEntries.Count - 1];
+                        break;
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                switch (AxisOrdering)
+                {
+                    case AxisOrdering.ASCENDING:
+                        rValue = AxisEntries[AxisEntries.Count - 1];
+                        break;
+                    case AxisOrdering.DESCENDING:
+                        rValue = AxisEntries[0];
+                        break;
+                }
+            }
+
+            return rValue;
+        }
+
+        /// <summary>
+        /// Get the maximum (last) AxisEntry.
+        /// </summary>
+        /// <returns></returns>
+        public AxisEntry<TDataType> GetMaximumAxisEntry()
+        {
+            AxisEntry<TDataType> rValue = null;
+
+            if (AxisXY == Axis.X)
+            {
+                switch (AxisOrdering)
+                {
+                    case AxisOrdering.ASCENDING:
+                        rValue = AxisEntries[AxisEntries.Count - 1];
+                        break;
+                    case AxisOrdering.DESCENDING:
+                        rValue = AxisEntries[0];
+                        break;
+                }
+            }
+            else if (AxisXY == Axis.Y)
+            {
+                switch (AxisOrdering)
+                {
+                    case AxisOrdering.ASCENDING:
+                        rValue = AxisEntries[AxisEntries.Count - 1];
+                        break;
+                    case AxisOrdering.DESCENDING:
+                        rValue = AxisEntries[0];
+                        break;
+                }
+            }
+
+            return rValue;
+        }
+
+        public abstract double GetAxisPixelsPerValue();
     }
 }

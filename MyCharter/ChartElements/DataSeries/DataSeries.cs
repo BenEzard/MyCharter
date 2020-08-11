@@ -34,5 +34,18 @@ namespace MyCharter.ChartElements.DataSeries
         {
             DataPoints.Add(new DataPoint<TXAxis, TYAxis>(axisEntry1, axisEntry2));
         }
+
+        public DataPoint<TXAxis, TYAxis> GetDataPointOnX(TXAxis x)
+        {
+            DataPoint<TXAxis, TYAxis> rValue = null;
+            foreach (DataPoint<TXAxis, TYAxis> dp in DataPoints)
+            {
+                if (dp.AxisCoord1 == x)
+                {
+                    rValue = x;
+                }
+            }
+            return rValue;
+        }
     }
 }

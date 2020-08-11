@@ -87,6 +87,7 @@ namespace MyCharter.ChartElements.Axis
                     Console.WriteLine($"Looking for {keyValue}, below={belowAxisEntry.KeyValue}, equal={equalAxisEntry.KeyValue}, after={aboveAxisEntry.KeyValue}");
                 else
                     Console.WriteLine($"Looking for {keyValue}, below={belowAxisEntry.KeyValue} {belowAxisEntry.Position}, after={aboveAxisEntry.KeyValue} {aboveAxisEntry.Position}");
+                
                 // Second, (if required) calculate how far along it is between ticks
                 if (equalAxisEntry == null)
                 {
@@ -126,6 +127,8 @@ namespace MyCharter.ChartElements.Axis
 
             return rValue;
         }
+
+        public override double GetAxisPixelsPerValue() => PixelsPerIncrement / MinorIncrement;
 
     }
 }
