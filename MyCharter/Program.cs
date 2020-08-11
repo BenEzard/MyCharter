@@ -30,12 +30,12 @@ namespace MyCharter
             svChart.SubTitle = "Orientation: x-Axis: " + xAxisPositioning.ToString() + ", y-Axis: " + yAxisPositioning.ToString();
             svChart.OutputFile = @"C:\New Folder\aDemo-stacked-vertical-chart-"+ xAxisPositioning.ToString()+ "-" + yAxisPositioning.ToString() + ".png";
             
-            var xAxis = new DateScaleAxis<DateTime>(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, AxisLabelFormat.DATE_DDMM1);
+            var xAxis = new DateScaleAxis(new DateTime(2020, 5, 15), new DateTime(2020, 6, 15), 1, 0, 30, AxisLabelFormat.DATE_DDMM1);
             xAxis.MajorGridLine = true;
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             svChart.SetX1Axis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT);
 
-            var yAxis = new NumberScaleAxis<int>(0, 400, 50, 25, 10);
+            var yAxis = new NumberScaleAxis(0, 400, 50, 25, 10);
             yAxis.MajorGridLine = true;
             svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_LABELS);
 
@@ -43,7 +43,12 @@ namespace MyCharter
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 16), 300);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 17), 320);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 19), 10);
             svChart.AddDataSeries(volunteersDS);
+
+            var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Beige);
+            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 50);
+            svChart.AddDataSeries(centrelinkDS);
 
             svChart.GenerateChart();
         }

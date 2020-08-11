@@ -2,11 +2,11 @@
 
 namespace MyCharter.ChartElements.Axis
 {
-    public class DateScaleAxis<TAxisDataType> : AbstractScaleAxis<TAxisDataType>
+    public class DateScaleAxis : AbstractScaleAxis<DateTime>
     {
         private AxisLabelFormat _labelFormat;
 
-        public DateScaleAxis(object minimumValue, object maximumValue, int majorIncrementDaysBetween, int minorIncrementDaysBetween, int pixelsPerIncrement,
+        public DateScaleAxis(DateTime minimumValue, DateTime maximumValue, int majorIncrementDaysBetween, int minorIncrementDaysBetween, int pixelsPerIncrement,
             AxisLabelFormat labelFormat) :
             base(AxisFormat.DATE_SCALE, minimumValue, maximumValue, majorIncrementDaysBetween, minorIncrementDaysBetween, pixelsPerIncrement)
         {
@@ -23,8 +23,6 @@ namespace MyCharter.ChartElements.Axis
             bool rValue = true;
             errorMessage = null;
 
-            if (MinimumValue is DateTime == false) errorMessage = "Minimum Value must be of type DateTime for DATE_SCALE.";
-            if (MaximumValue is DateTime == false) errorMessage = "Maximum Value must be of type DateTime for DATE_SCALE.";
             if (MajorIncrement <= 0) errorMessage = $"Major Increment must be > 0 for DATE_SCALE. It is set to {MajorIncrement}";
             if (MinorIncrement < 0) errorMessage = $"Minor Increment must be >= 0 for DATE_SCALE. It is set to {MinorIncrement}";
             if (MajorIncrement < MinorIncrement) errorMessage = $"Major Increment must be > Minor Increment for DATE_SCALE. Major increment is {MajorIncrement}, Minor increment is {MinorIncrement}";
@@ -123,5 +121,69 @@ namespace MyCharter.ChartElements.Axis
             return rValue;
         }
 
+        public override int GetAxisPosition(DateTime keyValue)
+        {
+            int rValue = -1;
+
+            // First, get the AxisEntry for those above/below the specific value.
+            AxisEntry<DateTime> belowAxisEntry = null;
+            AxisEntry<DateTime> equalAxisEntry = null;
+            AxisEntry<DateTime> aboveAxisEntry = null;
+
+            foreach (AxisEntry<DateTime> e in AxisEntries)
+            {
+                if (e.KeyValue < keyValue)
+                {
+                    belowAxisEntry = e;
+                }
+
+                if (e.KeyValue == keyValue)
+                {
+                    equalAxisEntry = e;
+                }
+
+                if ((e.KeyValue > keyValue) && (aboveAxisEntry == null))
+                {
+                    aboveAxisEntry = e;
+                }
+            }
+
+            // Second, (if required) calculate how far along it is between ticks
+            if (equalAxisEntry == null)
+            {
+                throw new NotImplementedException("This section not implemented.");
+                /*double abovePos;
+                double belowPos;
+                double pixelGapBetween;
+                double PixelsPerValue;
+                int difference;
+
+                switch (AxisXY)
+                {
+                    case Axis.X: // 12
+                        abovePos = aboveAxisEntry.Position.X; // 15
+                        belowPos = belowAxisEntry.Position.X; // 10
+                        pixelGapBetween = abovePos - belowPos; // 20px
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
+                        difference = keyValue - belowAxisEntry.KeyValue;
+                        rValue = (int)(belowPos + (difference * PixelsPerValue));
+                        break;
+                    case Axis.Y:
+                        abovePos = aboveAxisEntry.Position.Y; // 15
+                        belowPos = belowAxisEntry.Position.Y; // 10
+                        pixelGapBetween = abovePos - belowPos; // 20px
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
+                        difference = keyValue - belowAxisEntry.KeyValue;
+                        rValue = (int)(belowPos - (difference * PixelsPerValue));
+                        break;
+                }*/
+            }
+            else
+            {
+                rValue = (AxisXY == Axis.X) ? equalAxisEntry.Position.X : equalAxisEntry.Position.Y;
+            }
+
+            return rValue;
+        }
     }
 }

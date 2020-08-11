@@ -4,9 +4,9 @@ using System.Drawing;
 
 namespace MyCharter
 {
-    public class TimeScaleAxis<TAxisDataSeries> : AbstractScaleAxis<TAxisDataSeries>
+    public class TimeScaleAxis: AbstractScaleAxis<DateTime>
     {
-        public TimeScaleAxis(object minimumValue, object maximumValue, int majorIncrement, int minorIncrement, int pixelsPerIncrement) :
+        public TimeScaleAxis(DateTime minimumValue, DateTime maximumValue, int majorIncrement, int minorIncrement, int pixelsPerIncrement) :
             base(AxisFormat.TIME_SCALE, minimumValue, maximumValue, majorIncrement, minorIncrement, pixelsPerIncrement)
         {
             
@@ -28,8 +28,6 @@ namespace MyCharter
             bool rValue = true;
             errorMessage = null;
 
-            if (MinimumValue is DateTime == false) errorMessage = "Minimum Value must be of type DateTime for TIME_SCALE.";
-            if (MaximumValue is DateTime == false) errorMessage = "Maximum Value must be of type DateTime for TIME_SCALE.";
             if (MajorIncrement <= 0) errorMessage = $"Major Increment must be > 0 for TIME_SCALE. It is set to {MajorIncrement}";
             if (MinorIncrement <= 0) errorMessage = $"Minor Increment must be > 0 for TIME_SCALE. It is set to {MinorIncrement}";
             if (MajorIncrement <= MinorIncrement) errorMessage = $"Major Increment must be > Minor Increment for TIME_SCALE. Major increment is {MajorIncrement}, Minor increment is {MinorIncrement}";
@@ -45,7 +43,8 @@ namespace MyCharter
         /// </summary>
         internal override void GenerateAxisEntries()
         {
-            DateTime maxTime = (DateTime)MaximumValue;
+            // TODO fix
+         /*   DateTime maxTime = (DateTime)MaximumValue;
             DateTime minTime = (DateTime)MinimumValue;
 
             // Because this is a TimeScale, check to see if the range spans midnight.
@@ -59,7 +58,7 @@ namespace MyCharter
             {
                 while (current.Hour != 0 && current.Minute <= 59) // added =
                 {
-
+                    // below used to be timespan
                     tick = new AxisEntry<TimeSpan>(key:current.TimeOfDay, content:null, label:current.ToShortTimeString());
                     if ((LastTick == null) || (current.Subtract(minTime).TotalMinutes % MajorIncrement == 0))
                     {
@@ -83,7 +82,7 @@ namespace MyCharter
 
                 AddEntry(tick);
                 current = current.AddMinutes(MinorIncrement);
-            }
+            }*/
         }
 
         /// <summary>
@@ -153,6 +152,11 @@ namespace MyCharter
         }
 
         public override string FormatLabelString(object label)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetAxisPosition(DateTime keyValue)
         {
             throw new NotImplementedException();
         }

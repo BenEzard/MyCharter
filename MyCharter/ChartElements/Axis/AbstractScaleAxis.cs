@@ -9,12 +9,12 @@ namespace MyCharter
         /// <summary>
         /// The minimum value to be displayed on the axis.
         /// </summary>
-        public object MinimumValue { get; set; }
+        public TAxisDataType MinimumValue { get; set; }
 
         /// <summary>
         /// The maximum value to be displayed on the axis.
         /// </summary>
-        public object MaximumValue { get; set; }
+        public TAxisDataType MaximumValue { get; set; }
 
         public int MajorIncrement { get; set; }
 
@@ -29,7 +29,7 @@ namespace MyCharter
         /// <param name="majorIncrement">How often a major increment (tick) occurs.</param>
         /// <param name="minorIncrement">How often a minor increment (tick) occurs.</param>
         /// <param name="pixelsPerIncrement">Number of pixels per increment</param>
-        public AbstractScaleAxis(AxisFormat format, object minimumValue, object maximumValue, int majorIncrement, int minorIncrement,
+        public AbstractScaleAxis(AxisFormat format, TAxisDataType minimumValue, TAxisDataType maximumValue, int majorIncrement, int minorIncrement,
             int pixelsPerIncrement) : base(format)
         {
             Format = format;

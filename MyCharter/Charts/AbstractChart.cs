@@ -560,27 +560,15 @@ namespace MyCharter
 
         public abstract void PlotData(Graphics g);
 
-        public Point GetChartPosition(object xLabel, object yLabel)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xValue"></param>
+        /// <param name="yValue"></param>
+        /// <returns></returns>
+        public Point GetChartPosition(TXAxisDataType xValue, TYAxisDataType yValue)
         {
-            Point rValue = new Point(-1, -1);
-
-            var xAxis = _xAxis1;
-            var yAxis = _yAxis;
-
-            // PROBLEM IS HERE
-            var xPoint = xAxis.GetAxisPositionOfLabel(xAxis.FormatLabelString(xLabel));
-            var yPoint = yAxis.GetAxisPositionOfLabel(yAxis.FormatLabelString(yLabel));
-
-            /*AxisEntry valueBelow = null;
-            AxisEntry valueAbove = null;
-            foreach (AxisEntry e in xAxis.AxisEntries)
-            {
-            }*/
-
-            if ((xPoint.HasValue) && (yPoint.HasValue))
-                rValue = new Point(xPoint.Value.X, yPoint.Value.Y);
-
-            return rValue;
+            return new Point(_xAxis1.GetAxisPosition(xValue), _yAxis.GetAxisPosition(yValue));
         }
 
         /// <summary>
