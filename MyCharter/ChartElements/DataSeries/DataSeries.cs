@@ -40,9 +40,9 @@ namespace MyCharter.ChartElements.DataSeries
             DataPoint<TXAxis, TYAxis> rValue = null;
             foreach (DataPoint<TXAxis, TYAxis> dp in DataPoints)
             {
-                if (dp.AxisCoord1 == x)
+                if (object.Equals(dp.AxisCoord1, x))
                 {
-                    rValue = x;
+                    rValue = dp;
                 }
             }
             return rValue;

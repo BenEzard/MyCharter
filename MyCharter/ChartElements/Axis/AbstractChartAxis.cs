@@ -198,13 +198,22 @@ namespace MyCharter
                             width += AxisPadding;
                         if (includeTick)
                             width += MajorTickLength;
-                        height = (AxisEntries.Count * (int)_maxLabelDimensions.Height);
-                        if (includeLabelPadding)
-                            height += (LabelPadding * AxisEntries.Count) + LabelPadding;
+
+                        if (AxisWidth == AxisWidth.FIT_TO_LABELS)
+                        {
+                            height = (AxisEntries.Count * (int)_maxLabelDimensions.Height);
+                            if (includeLabelPadding)
+                                height += (LabelPadding * AxisEntries.Count) + LabelPadding;
+                        }
+                        else if (AxisWidth == AxisWidth.FIT_TO_INCREMENT)
+                        {
+                            height = TotalIncrementCount() * PixelsPerIncrement;
+                        }
                         break;
                 }
             }
-
+            Console.WriteLine($"Axis dimensions for {AxisXY} is width={width}, height={height}");
+            Console.WriteLine($"Total increment count = {TotalIncrementCount()}, pixels per increment = {PixelsPerIncrement} : {TotalIncrementCount() * PixelsPerIncrement}");
             return new Size(width, height);
         }
 
@@ -284,7 +293,7 @@ namespace MyCharter
                         if (AxisPosition == ElementPosition.LEFT)
                             g.DrawLine(MajorGridLinePen, 
                                 new Point(e.Position.X + GetDimensions().Width, e.Position.Y), 
-                                new Point(e.Position.X + xAxisWidth, e.Position.Y));
+                                new Point(e.Position.X + GetDimensions().Width + xAxisWidth, e.Position.Y));
                         else if (AxisPosition == ElementPosition.RIGHT)
                             g.DrawLine(MajorGridLinePen,
                                 new Point(e.Position.X, e.Position.Y),
@@ -595,7 +604,7 @@ namespace MyCharter
         /// <returns></returns>
         public int TotalIncrementCount()
         {
-            return AxisEntries.Count + 1;
+            return AxisEntries.Count;
         }
 
         /// <summary>

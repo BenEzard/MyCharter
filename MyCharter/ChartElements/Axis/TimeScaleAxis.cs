@@ -160,5 +160,10 @@ namespace MyCharter
         {
             throw new NotImplementedException();
         }
+
+        public override double GetAxisPixelsPerValue()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

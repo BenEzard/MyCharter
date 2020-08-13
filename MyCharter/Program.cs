@@ -10,17 +10,17 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
+            /*Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.TOP, ElementPosition.LEFT);
 
             Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);
+            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);*/
 
             Console.WriteLine("==========" + ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
 
-            Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);
+            /*Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
+            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);*/
         }
 
         private static void DoStackedChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
@@ -37,7 +37,7 @@ namespace MyCharter
 
             var yAxis = new NumberScaleAxis(0, 400, 50, 25, 10);
             yAxis.MajorGridLine = true;
-            svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_LABELS);
+            svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
 
             var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
@@ -46,8 +46,8 @@ namespace MyCharter
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 19), 10);
             svChart.AddDataSeries(volunteersDS);
 
-            var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Beige);
-            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 50);
+            var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Red);
+            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 20);
             svChart.AddDataSeries(centrelinkDS);
 
             svChart.GenerateChart();

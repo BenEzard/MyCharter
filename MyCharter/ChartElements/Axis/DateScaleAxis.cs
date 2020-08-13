@@ -185,5 +185,10 @@ namespace MyCharter.ChartElements.Axis
 
             return rValue;
         }
+
+        public override double GetAxisPixelsPerValue()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
