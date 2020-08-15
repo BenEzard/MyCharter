@@ -35,19 +35,21 @@ namespace MyCharter
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             svChart.SetX1Axis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT);
 
-            var yAxis = new NumberScaleAxis(0, 400, 50, 25, 10);
+            var yAxis = new NumberScaleAxis(0, 40000, 10000, 2500, 10, AxisLabelFormat.NUMBER_THOU_SEP_COMMA);
             yAxis.MajorGridLine = true;
             svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
 
             var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange);
-            volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 200);
-            volunteersDS.AddDataPoint(new DateTime(2020, 5, 16), 300);
-            volunteersDS.AddDataPoint(new DateTime(2020, 5, 17), 320);
-            volunteersDS.AddDataPoint(new DateTime(2020, 5, 19), 10);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 27000);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 16), 15000);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 17), 13200);
+            volunteersDS.AddDataPoint(new DateTime(2020, 5, 19), 1000);
             svChart.AddDataSeries(volunteersDS);
 
             var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Red);
-            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 20);
+            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 12000);
+            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 16), 500);
+            centrelinkDS.AddDataPoint(new DateTime(2020, 5, 18), 5500);
             svChart.AddDataSeries(centrelinkDS);
 
             svChart.GenerateChart();

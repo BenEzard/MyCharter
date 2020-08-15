@@ -520,9 +520,6 @@ namespace MyCharter
                             break;
                     }
 
-                    if (e.Label.Text.Equals("200"))
-                        Console.WriteLine($"In CalculateFinalLabelPosition() {e.Label.Position}");
-
                 }
             }
         }
@@ -576,11 +573,6 @@ namespace MyCharter
             {
                 if (e.IsMajorTick)
                 {
-                    if (e.Label.Text.Equals("0"))
-                    {
-                        Console.WriteLine($"In DrawAxisLabels(): {e.Label.Text} is at {e.Position}; label position is {e.Label.Position}");
-                    }
-
                     // Check to see if space is free for the label.
                     List<int> ignoreColors = new List<int> { Color.White.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
 

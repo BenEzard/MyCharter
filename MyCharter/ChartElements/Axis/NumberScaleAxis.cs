@@ -11,9 +11,49 @@ namespace MyCharter.ChartElements.Axis
 
         }
 
+        public NumberScaleAxis(int minimumValue, int maximumValue, int majorIncrement, int minorIncrement, int pixelsPerIncrement, AxisLabelFormat labelFormat) :
+    base(AxisFormat.NUMBER_SCALE, minimumValue, maximumValue, majorIncrement, minorIncrement, pixelsPerIncrement)
+        {
+            LabelFormat = labelFormat;
+        }
+
         public override string FormatLabelString(object label)
         {
-            return label.ToString();
+            string rValue = null;
+            int numValue = (int)label;
+            double dValue;
+
+            switch (LabelFormat)
+            {
+                case AxisLabelFormat.NUMBER_ALL:
+                    rValue = label.ToString();
+                    break;
+                case AxisLabelFormat.NUMBER_THOU_SEP_COMMA:
+                    rValue = String.Format("{0:n0}", numValue);
+                    break;
+                case AxisLabelFormat.NUMBER_THOU_SEP_SPACE:
+                    rValue = String.Format("{0:n0}", numValue).Replace(',', ' ');
+                    break;
+                case AxisLabelFormat.NUMBER_THOU_ABBR:
+                    if (numValue >= 1000)
+                    {
+                        dValue = (double)numValue / (double)1000;
+                        rValue = String.Format("{0:n1}", dValue) + "k";
+                    }
+                    else
+                        rValue = numValue.ToString();
+                    break;
+                case AxisLabelFormat.NUMBER_MIL_ABBR:
+                    dValue = (double)numValue / (double)1000000;
+                    rValue = String.Format("{0:n1}", dValue) + "m";
+                    break;
+                default:
+                    rValue = label.ToString();
+                    break;
+            }
+            Console.WriteLine($"In NumberScaleAxis.FormatLabelString for {label}, results in {rValue}");
+
+            return rValue;
         }
 
         protected override bool AreAxisValuesValid(out string errorMessage)
@@ -35,7 +75,7 @@ namespace MyCharter.ChartElements.Axis
             while (tickValue >= minValue)
             {
                 ++majorTickCounter;
-                tick = new AxisEntry<int>(tickValue, null, tickValue.ToString());
+                tick = new AxisEntry<int>(tickValue, null, FormatLabelString(tickValue));
 
                 if (tickValue % MajorIncrement == 0)
                     tick.IsMajorTick = true;

@@ -431,10 +431,10 @@ namespace MyCharter
                 xAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
                 yAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
 
-                Pen rectPen = new Pen(Brushes.Red, 1);
+                /*Pen rectPen = new Pen(Brushes.Red, 1);
                 rectPen.DashPattern = new float[] { 10, 10 };
                 ImageMethods.Debug_DrawRectangle(g, new Rectangle(xAxis.AxisCoords, xAxis.GetDimensions()), rectPen);
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);
+                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
 
                 PlotData(g);
             }

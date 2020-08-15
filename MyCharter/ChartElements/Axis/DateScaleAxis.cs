@@ -4,13 +4,11 @@ namespace MyCharter.ChartElements.Axis
 {
     public class DateScaleAxis : AbstractScaleAxis<DateTime>
     {
-        private AxisLabelFormat _labelFormat;
-
         public DateScaleAxis(DateTime minimumValue, DateTime maximumValue, int majorIncrementDaysBetween, int minorIncrementDaysBetween, int pixelsPerIncrement,
             AxisLabelFormat labelFormat) :
             base(AxisFormat.DATE_SCALE, minimumValue, maximumValue, majorIncrementDaysBetween, minorIncrementDaysBetween, pixelsPerIncrement)
         {
-            _labelFormat = labelFormat;
+            LabelFormat = labelFormat;
         }
 
         /// <summary>
@@ -66,7 +64,7 @@ namespace MyCharter.ChartElements.Axis
             {
                 DateTime date = (DateTime)label;
                 string dateValue = "";
-                switch (_labelFormat)
+                switch (LabelFormat)
                 {
                     case AxisLabelFormat.DATE_DDMMYYYY1:
                         rValue = date.Date.ToShortDateString();

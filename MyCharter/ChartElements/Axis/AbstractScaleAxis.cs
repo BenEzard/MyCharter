@@ -6,6 +6,9 @@ namespace MyCharter
 {
     public abstract class AbstractScaleAxis<TAxisDataType> : AbstractChartAxis<TAxisDataType>
     {
+
+        public AxisLabelFormat LabelFormat;
+
         /// <summary>
         /// The minimum value to be displayed on the axis.
         /// </summary>
