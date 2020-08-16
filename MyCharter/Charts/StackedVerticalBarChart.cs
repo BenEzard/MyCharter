@@ -20,6 +20,8 @@ namespace MyCharter.Charts
             }
         }
 
+        public bool DisplayVerticalBarTotals { get; set; } = true;
+
         public StackedVerticalBarChart() : base(ChartType.STACKED_VERTICAL_BAR_CHART)
         {
         }
@@ -54,6 +56,10 @@ namespace MyCharter.Charts
             tempBMP.Dispose();
         }
 
+        /// <summary>
+        /// Calculate the position of the DataPoint labels.
+        /// </summary>
+        /// <param name="dataPoint"></param>
         private void CalculateDataLabelPosition(DataPoint<TXAxis, TYAxis> dataPoint)
         {
             int dataPointLabelHeight = (int)dataPoint.DataPointLabel.Dimensions.Value.Height;
@@ -83,15 +89,18 @@ namespace MyCharter.Charts
             // Loop through the x-axis for each data point
             foreach (AxisEntry<TXAxis> xEntry in GetX1Axis().AxisEntries)
             {
+                int totalBarValue = 0;
                 int initialY = GetYAxis().GetMinimumAxisEntry().Position.Y;
                 int pxPerIncrement = GetYAxis().PixelsPerIncrement;
                 Font dataPointFont = GetYAxis().DataPointLabelFont;
+                Rectangle dataPointRectangle = new Rectangle();
                 foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
                 {
                     // Get the DataPoint on the x-axis for for each DataSeries
                     var dataPoint = ds.GetDataPointOnX(xEntry.KeyValue);
                     if (dataPoint != null)
                     {
+                        totalBarValue += (int)(CastMethods.To<double>(dataPoint.yAxisCoord, 0));
                         // The x-value at this point is the axis line
                         int x = GetX1Axis().GetAxisPosition(dataPoint.xAxisCoord);
                         int heightBasedOnValue = -1;
@@ -101,7 +110,7 @@ namespace MyCharter.Charts
                         }
 
                         // Get the rectangle measurements
-                        Rectangle dataPointRectangle = new Rectangle(new Point(x - (BarWidth / 2), initialY - heightBasedOnValue),
+                        dataPointRectangle = new Rectangle(new Point(x - (BarWidth / 2), initialY - heightBasedOnValue),
                             new Size(BarWidth, heightBasedOnValue));
                         dataPoint.GraphicalRepresentation = dataPointRectangle;
                         g.FillRectangle(new SolidBrush(ds.Color), dataPointRectangle);
@@ -120,7 +129,15 @@ namespace MyCharter.Charts
 
                         initialY -= heightBasedOnValue;
                     }
+                } // end foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
+
+                // Display the total
+                if ((DisplayVerticalBarTotals) && (totalBarValue > 0))
+                {
+                    string totalLabel = GetYAxis().FormatLabelString(totalBarValue);
+                    g.DrawString(totalLabel, dataPointFont, Brushes.Black, new Point(dataPointRectangle.X, initialY-20));
                 }
+
             }
         }
     }
