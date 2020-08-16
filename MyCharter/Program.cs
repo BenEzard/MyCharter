@@ -41,20 +41,20 @@ namespace MyCharter
             yAxis.MajorGridLine = true;
             svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
 
-            var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange, AxisLabelFormat.NUMBER_THOU_SEP_COMMA);
+            var volunteersDS = new DataSeries<DateTime, int>("Volunteers", Color.Orange, AxisLabelFormat.NUMBER_THOU_SEP_COMMA, LegendDisplayType.SQUARE);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 15), 2700);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 16), 1500);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 17), 1320);
             volunteersDS.AddDataPoint(new DateTime(2020, 5, 19), 100);
             svChart.AddDataSeries(volunteersDS);
 
-            var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Red, AxisLabelFormat.NUMBER_THOU_SEP_COMMA);
+            var centrelinkDS = new DataSeries<DateTime, int>("Centrelink", Color.Red, AxisLabelFormat.NUMBER_THOU_SEP_COMMA, LegendDisplayType.SQUARE);
             centrelinkDS.AddDataPoint(new DateTime(2020, 5, 15), 1200);
             centrelinkDS.AddDataPoint(new DateTime(2020, 5, 16), 500);
             centrelinkDS.AddDataPoint(new DateTime(2020, 5, 18), 550);
             svChart.AddDataSeries(centrelinkDS);
 
-            var socialDS = new DataSeries<DateTime, int>("Social", Color.DeepSkyBlue, AxisLabelFormat.NUMBER_THOU_SEP_COMMA);
+            var socialDS = new DataSeries<DateTime, int>("Social", Color.DeepSkyBlue, AxisLabelFormat.NUMBER_THOU_SEP_COMMA, LegendDisplayType.LINE);
             socialDS.AddDataPoint(new DateTime(2020, 5, 16), 1271);
             svChart.AddDataSeries(socialDS);
 

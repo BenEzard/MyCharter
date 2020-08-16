@@ -128,5 +128,25 @@ namespace MyCharter.Util
         {
             g.DrawRectangle(p, r);
         }
+
+        public static Bitmap CropImage(Bitmap source, Rectangle section)
+        {
+            var bitmap = new Bitmap(section.Width, section.Height);
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+                //DrawImage(Image image, int x, int y, Rectangle srcRect, GraphicsUnit srcUnit);
+                
+            }
+            return bitmap;
+        }
+
+        public static void CopyRegionIntoImage(Bitmap srcBitmap, Rectangle srcRegion, ref Bitmap destBitmap, Rectangle destRegion)
+        {
+            using (Graphics grD = Graphics.FromImage(destBitmap))
+            {
+                grD.DrawImage(srcBitmap, destRegion, srcRegion, GraphicsUnit.Pixel);
+            }
+        }
     }
 }

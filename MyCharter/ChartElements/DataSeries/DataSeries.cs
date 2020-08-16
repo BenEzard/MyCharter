@@ -22,6 +22,10 @@ namespace MyCharter.ChartElements.DataSeries
         public AxisLabelFormat DataSeriesLabelFormat { get; set; } = AxisLabelFormat.NONE;
 
         /// <summary>
+        /// The type of display which this DataSeries should have in the legend.
+        /// </summary>
+        public LegendDisplayType LegendDisplay { get; set; } = LegendDisplayType.SQUARE;
+        /// <summary>
         /// Define a new Data Series with the given name and color.
         /// </summary>
         /// <param name="name">Name of the Data Series.</param>
@@ -38,11 +42,13 @@ namespace MyCharter.ChartElements.DataSeries
         /// <param name="name">Name of the Data Series.</param>
         /// <param name="color">Color of the Data Series</param>
         /// <param name="labelFormat">Format to apply the label too</param>
-        public DataSeries(string name, Color color, AxisLabelFormat labelFormat)
+        /// <param name="legendDisplay"></param>
+        public DataSeries(string name, Color color, AxisLabelFormat labelFormat, LegendDisplayType legendDisplay)
         {
             Name = name;
             Color = color;
             DataSeriesLabelFormat = labelFormat;
+            LegendDisplay = legendDisplay;
         }
 
         /// <summary>

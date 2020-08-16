@@ -441,9 +441,66 @@ namespace MyCharter
                 ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
 
                 PlotData(g);
+                Bitmap legendBMP = DrawLegend();
+                ImageMethods.CopyRegionIntoImage(bmp, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
+                    ref legendBMP, new Rectangle(bmp.Width - legendBMP.Width, 0, legendBMP.Width, legendBMP.Height));
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
+        }
+
+        public Bitmap DrawLegend()
+        {
+            int sizeOfLegendIcon = 10;
+            int lineWidth = 3;
+            int gapBetweenIconAndText = 5;
+
+            int xOffset = 0;
+            int yOffset = 0;
+            int maxTextWidth = 0;
+            Font legendFont = GetYAxis().AxisFont;
+            Bitmap bmp = new Bitmap(500, 500);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(ImageBackgroundColor);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                foreach (DataSeries<TXAxisDataType, TYAxisDataType> dataSeries in ChartData)
+                {
+                    SizeF stringMeasurement = g.MeasureString(dataSeries.Name, legendFont);
+                    if (stringMeasurement.Width > maxTextWidth)
+                        maxTextWidth = (int)stringMeasurement.Width;
+
+                    int textHeight = (int)stringMeasurement.Height;
+
+                    if (yOffset == 0)
+                        yOffset = (textHeight - sizeOfLegendIcon) / 2;
+
+                    switch (dataSeries.LegendDisplay)
+                    {
+                        case LegendDisplayType.SQUARE:
+                            g.FillRectangle(new SolidBrush(dataSeries.Color), new Rectangle(xOffset, yOffset, sizeOfLegendIcon, sizeOfLegendIcon));
+                            break;
+                        case LegendDisplayType.LINE:
+                            g.DrawLine(new Pen(dataSeries.Color, lineWidth), 
+                                new Point(0, yOffset + (sizeOfLegendIcon - lineWidth) /2), 
+                                new Point(sizeOfLegendIcon, yOffset + (sizeOfLegendIcon - lineWidth) / 2));
+                            break;
+                    }
+                    
+                    xOffset += sizeOfLegendIcon + gapBetweenIconAndText;
+                    yOffset -= (textHeight - sizeOfLegendIcon) / 2;
+                    g.DrawString(dataSeries.Name, legendFont, Brushes.Black, new Point(xOffset, yOffset));
+                    yOffset += textHeight + gapBetweenIconAndText;
+                    xOffset = 0;
+                }
+                yOffset -= gapBetweenIconAndText;
+                maxTextWidth += sizeOfLegendIcon + gapBetweenIconAndText;
+
+                bmp.Save(@"c:\new folder\legend.png", ImageFormat.Png);
+                bmp.Dispose();
+            }
+
+            return ImageMethods.CropImage(bmp, new Rectangle(new Point(0, 0), new Size(maxTextWidth, yOffset)));
         }
 
         /// <summary>
