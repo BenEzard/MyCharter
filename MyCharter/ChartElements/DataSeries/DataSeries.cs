@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MyCharter.ChartElements.Axis;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace MyCharter.ChartElements.DataSeries
@@ -15,6 +16,12 @@ namespace MyCharter.ChartElements.DataSeries
         public List<DataPoint<TXAxis,TYAxis>> DataPoints { get; set; } = new List<DataPoint<TXAxis, TYAxis>>();
 
         /// <summary>
+        /// Should the label for this DataSeries be visible?
+        /// Note that individual DataPoints may be set to visible/invisible and disregard the DataSeries value.
+        /// </summary>
+        public AxisLabelFormat DataSeriesLabelFormat { get; set; } = AxisLabelFormat.NONE;
+
+        /// <summary>
         /// Define a new Data Series with the given name and color.
         /// </summary>
         /// <param name="name">Name of the Data Series.</param>
@@ -23,6 +30,19 @@ namespace MyCharter.ChartElements.DataSeries
         {
             Name = name;
             Color = color;
+        }
+
+        /// <summary>
+        /// Define a new Data Series with the given name and color, setting the specified label format.
+        /// </summary>
+        /// <param name="name">Name of the Data Series.</param>
+        /// <param name="color">Color of the Data Series</param>
+        /// <param name="labelFormat">Format to apply the label too</param>
+        public DataSeries(string name, Color color, AxisLabelFormat labelFormat)
+        {
+            Name = name;
+            Color = color;
+            DataSeriesLabelFormat = labelFormat;
         }
 
         /// <summary>
@@ -40,7 +60,7 @@ namespace MyCharter.ChartElements.DataSeries
             DataPoint<TXAxis, TYAxis> rValue = null;
             foreach (DataPoint<TXAxis, TYAxis> dp in DataPoints)
             {
-                if (object.Equals(dp.AxisCoord1, x))
+                if (object.Equals(dp.xAxisCoord, x))
                 {
                     rValue = dp;
                 }

@@ -1,6 +1,7 @@
 ﻿using MyCharter.ChartElements;
 using MyCharter.ChartElements.Axis;
 using MyCharter.ChartElements.DataSeries;
+using MyCharter.Charts;
 using MyCharter.Util;
 using System;
 using System.Collections.Generic;
@@ -213,6 +214,8 @@ namespace MyCharter
         /// </summary>
         public List<DataSeries<TXAxisDataType, TYAxisDataType>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType>>();
 
+        public DataSeriesLabelOption LabelOption { get; set; } = DataSeriesLabelOption.LABEL_ON_DATA_SERIES;
+
         public AbstractChart(ChartType chartType)
         {
             ChartType = chartType;
@@ -414,6 +417,7 @@ namespace MyCharter
 
             xAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
             yAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
+            CalculateDataPointLabelDimensions();
 
             SizeF chartDimension = GetChartDimensions();
 
@@ -506,6 +510,8 @@ namespace MyCharter
             tempBMP.Dispose();
         }
 
+        public abstract void CalculateDataPointLabelDimensions();
+
         /// <summary>
         /// Get the Chart dimensions.
         /// </summary>
@@ -597,7 +603,7 @@ namespace MyCharter
                 Console.WriteLine($"{ds.Name}  -  {ds.Color}");
                 foreach (DataPoint<TXAxisDataType, TYAxisDataType> dp in ds.DataPoints)
                 {
-                    Console.WriteLine($"   axis1: {dp.AxisCoord1}, axis2: {dp.AxisCoord2}");
+                    Console.WriteLine($"   axis1: {dp.xAxisCoord}, axis2: {dp.yAxisCoord}");
                 }
             }
         }

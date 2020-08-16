@@ -51,8 +51,6 @@ namespace MyCharter.ChartElements.Axis
                     rValue = label.ToString();
                     break;
             }
-            Console.WriteLine($"In NumberScaleAxis.FormatLabelString for {label}, results in {rValue}");
-
             return rValue;
         }
 
@@ -123,11 +121,6 @@ namespace MyCharter.ChartElements.Axis
                     }
                 }
 
-                if (equalAxisEntry != null)
-                    Console.WriteLine($"Looking for {keyValue}, below={belowAxisEntry.KeyValue}, equal={equalAxisEntry.KeyValue}, after={aboveAxisEntry.KeyValue}");
-                else
-                    Console.WriteLine($"Looking for {keyValue}, below={belowAxisEntry.KeyValue} {belowAxisEntry.Position}, after={aboveAxisEntry.KeyValue} {aboveAxisEntry.Position}");
-                
                 // Second, (if required) calculate how far along it is between ticks
                 if (equalAxisEntry == null)
                 {

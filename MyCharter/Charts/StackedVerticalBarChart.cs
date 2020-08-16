@@ -24,6 +24,55 @@ namespace MyCharter.Charts
         {
         }
 
+        /// <summary>
+        /// Calculate the size of the labels attached to the DataPoint.
+        /// TODO: Not really sure where this method should sit. How do you know which axis coordinate (if any) the label should be based off?
+        /// </summary>
+        public override void CalculateDataPointLabelDimensions()
+        {
+            // Create a temporary BMP for 'sketching'
+            Bitmap tempBMP = new Bitmap(300, 300);
+            Graphics tempGraphics = Graphics.FromImage(tempBMP);
+
+            var yAxis = GetYAxis();
+
+            foreach (DataSeries<TXAxis, TYAxis> dataSeries in ChartData)
+            {
+                if (dataSeries.DataSeriesLabelFormat != AxisLabelFormat.NONE)
+                {
+                    foreach (DataPoint<TXAxis, TYAxis> dataPoint in dataSeries.DataPoints)
+                    {
+                        string label = yAxis.FormatLabelString(dataPoint.yAxisCoord);
+                        dataPoint.DataPointLabel = new ImageText(label);
+                        // Because this is a vertical bar chart, we know that the DataPoint value we want to label will be on the TYAxis value.
+                        SizeF stringMeasurement = tempGraphics.MeasureString(label, yAxis.DataPointLabelFont);
+                        dataPoint.DataPointLabel.Dimensions = stringMeasurement;
+                    }
+                }
+            }
+
+            tempBMP.Dispose();
+        }
+
+        private void CalculateDataLabelPosition(DataPoint<TXAxis, TYAxis> dataPoint)
+        {
+            int dataPointLabelHeight = (int)dataPoint.DataPointLabel.Dimensions.Value.Height;
+            int dataPointLabelWidth = (int)dataPoint.DataPointLabel.Dimensions.Value.Width;
+            Rectangle dataPointRectangle = (Rectangle)dataPoint.GraphicalRepresentation;
+            int dpLabelXPos = -1;
+            int dpLabelYPos = dataPointRectangle.Y + ((dataPointRectangle.Height - dataPointLabelHeight) / 2);
+
+            if (dataPointLabelWidth >= dataPointRectangle.Width)
+            {   // Data Point label is wider than the rectangle
+                dpLabelXPos = dataPointRectangle.X - ((dataPointLabelWidth - dataPointRectangle.Width) / 2);
+            }
+            else
+            {   // Rectangle is wider than the Data Point label
+                dpLabelXPos = dataPointRectangle.X + ((dataPointRectangle.Width - dataPointLabelWidth) / 2);
+            }
+            dataPoint.DataPointLabel.Position = new Point(dpLabelXPos, dpLabelYPos);
+        }
+
         public override void PlotData(Graphics g)
         {
             BarWidth = GetX1Axis().PixelsPerIncrement - 4;
@@ -36,24 +85,19 @@ namespace MyCharter.Charts
             {
                 int initialY = GetYAxis().GetMinimumAxisEntry().Position.Y;
                 int pxPerIncrement = GetYAxis().PixelsPerIncrement;
+                Font dataPointFont = GetYAxis().DataPointLabelFont;
                 foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
                 {
                     // Get the DataPoint on the x-axis for for each DataSeries
                     var dataPoint = ds.GetDataPointOnX(xEntry.KeyValue);
                     if (dataPoint != null)
                     {
-                        Console.WriteLine($"Looking for {xEntry.Label.Text} on {ds.Name} and found {dataPoint.AxisCoord1}, {dataPoint.AxisCoord2} {ds.Color.ToString().ToUpper()}");
-                        
                         // The x-value at this point is the axis line
-                        int x = GetX1Axis().GetAxisPosition(dataPoint.AxisCoord1);
-                        //Point p = GetChartPosition(dataPoint.AxisCoord1, dataPoint.AxisCoord2);
-                        //int x = p.X;
-//                        Console.WriteLine(p);
+                        int x = GetX1Axis().GetAxisPosition(dataPoint.xAxisCoord);
                         int heightBasedOnValue = -1;
                         if (typeof(TYAxis) == typeof(int)) // Will always be an int
                         {
-                            heightBasedOnValue = (int)((CastMethods.To<double>(dataPoint.AxisCoord2, 0) / (double)minorIncrement) * pxPerIncrement);
-                            Console.WriteLine($"x = {x}, height = {heightBasedOnValue}, width = {BarWidth}, px = {pxPerIncrement}");
+                            heightBasedOnValue = (int)((CastMethods.To<double>(dataPoint.yAxisCoord, 0) / (double)minorIncrement) * pxPerIncrement);
                         }
 
                         // Get the rectangle measurements
@@ -62,43 +106,22 @@ namespace MyCharter.Charts
                         dataPoint.GraphicalRepresentation = dataPointRectangle;
                         g.FillRectangle(new SolidBrush(ds.Color), dataPointRectangle);
 
-                        Console.WriteLine($"Rectangle dimensions are top = {dataPointRectangle}");
+                        if (ds.DataSeriesLabelFormat != AxisLabelFormat.NONE)
+                        {
+                            CalculateDataLabelPosition(dataPoint);
+
+                            if (dataPointRectangle.Height >= dataPoint.DataPointLabel.Dimensions.Value.Height)
+                            {
+                                g.DrawString(dataPoint.DataPointLabel.Text, dataPointFont, Brushes.Black, dataPoint.DataPointLabel.Position);
+                            }
+                            else
+                                dataPoint.IsDataPointLabelVisible = false;
+                        }
+
                         initialY -= heightBasedOnValue;
                     }
                 }
             }
-
-
-            /*foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
-            {
-                Rectangle dpRectangle;
-                if (firstDataSeries) {
-                    foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
-                    {
-                        Point dataPointCoord = GetChartPosition(dp.AxisCoord1, dp.AxisCoord2);
-
-                        // Offset the x position of the bar to be halfway along the x AxisEntry.
-                        Point offsetDataPointCoord = new Point(dataPointCoord.X - (BarWidth / 2), dataPointCoord.Y);
-
-                        Console.WriteLine($"initial position = {initialY}, offsetdatapoint = {offsetDataPointCoord}");
-                        dpRectangle = new Rectangle(offsetDataPointCoord, new Size(BarWidth, initialY - dataPointCoord.Y));
-                        lastPlotted = offsetDataPointCoord;
-                        g.FillRectangle(new SolidBrush(ds.Color), dpRectangle);
-                    }
-                }
-
-                if (firstDataSeries == false)
-                {
-                    foreach (DataPoint<TXAxis, TYAxis> dp in ds.DataPoints)
-                    {
-                        g.FillRectangle(new SolidBrush(ds.Color),
-                        new Rectangle(new Point(lastPlotted.Value.X, lastPlotted.Value.Y - (int)GetYAxis().GetAxisPixelsPerValue() * (int)dp.AxisCoord2),
-                        new Size(BarWidth, 30)));
-                    }
-                }
-
-            firstDataSeries = false;
-            } */
         }
     }
 }

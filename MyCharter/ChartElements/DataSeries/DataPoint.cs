@@ -1,4 +1,6 @@
-﻿namespace MyCharter.ChartElements.DataSeries
+﻿using System.Drawing;
+
+namespace MyCharter.ChartElements.DataSeries
 {
     /// <summary>
     /// A DataPoint provides the x and y values of plottable information on a Chart.
@@ -7,26 +9,47 @@
     /// <typeparam name="TYAxis"></typeparam>
     public class DataPoint<TXAxis, TYAxis>
     {
-        public TXAxis AxisCoord1 { get; set; }
-        public TYAxis AxisCoord2 { get; set; }
+        /// <summary>
+        /// The x-axis value of this DataPoint.
+        /// </summary>
+        public TXAxis xAxisCoord { get; set; }
 
+        /// <summary>
+        /// The y-axis value of this DataPoint.
+        /// </summary>
+        public TYAxis yAxisCoord { get; set; }
+
+        /// <summary>
+        /// The graphical representation of the DataPoint.
+        /// This could be represented as a Rectangle object.
+        /// </summary>
         public object GraphicalRepresentation { get; set; }
 
-        private ImageText _label;
-        public ImageText Label
+        private ImageText _dataPointlabel;
+        public ImageText DataPointLabel
         {
-            get => _label;
+            get => _dataPointlabel;
             set
             {
-                _label = value;
-                _label.Dimensions = null;
+                _dataPointlabel = value;
+                _dataPointlabel.Dimensions = null;
             }
         }
 
-        public DataPoint(TXAxis axisCoord1, TYAxis axisCoord2)
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsDataPointLabelVisible { get; set; } = false;
+
+        /// <summary>
+        /// Create a new Data Point with the given x and y coordinate values.
+        /// </summary>
+        /// <param name="xCoord"></param>
+        /// <param name="yCoord"></param>
+        public DataPoint(TXAxis xCoord, TYAxis yCoord)
         {
-            AxisCoord1 = axisCoord1;
-            AxisCoord2 = axisCoord2;
+            xAxisCoord = xCoord;
+            yAxisCoord = yCoord;
         }
     }
 }

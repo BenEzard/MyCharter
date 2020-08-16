@@ -2,6 +2,7 @@
 {
     public enum AxisLabelFormat
     {
+        NONE,
         DATE_DDMMYYYY1,         // DD/MM/YYYY
         DATE_DDMMYYYY2,         // DD-MM-YYYY
         DATE_DDMM1,             // DD/MM

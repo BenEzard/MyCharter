@@ -53,6 +53,8 @@ namespace MyCharter
         /// </summary>
         public Font AxisFont { get; set; } = new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
 
+        public Font DataPointLabelFont { get; set; } = new Font("Arial", 6 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
+
         /// <summary>
         /// The amount of padding (in pixels) which is placed above and below axis items.
         /// </summary>
@@ -212,8 +214,6 @@ namespace MyCharter
                         break;
                 }
             }
-            Console.WriteLine($"Axis dimensions for {AxisXY} is width={width}, height={height}");
-            Console.WriteLine($"Total increment count = {TotalIncrementCount()}, pixels per increment = {PixelsPerIncrement} : {TotalIncrementCount() * PixelsPerIncrement}");
             return new Size(width, height);
         }
 
@@ -403,7 +403,6 @@ namespace MyCharter
                         foreach (AxisEntry<TDataType> e in AxisEntries)
                         {
                             e.Position = new Point(0, y);
-                            Console.WriteLine($"CalculateInitialAxisValuePositions(): {e.Label.Text} position is {e.Position}");
                             y += height;
                         }
                         break;
