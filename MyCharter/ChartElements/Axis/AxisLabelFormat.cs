@@ -17,6 +17,6 @@
         NUMBER_THOU_SEP_COMMA,  // Thousands, comma-separated. 1,234
         NUMBER_THOU_SEP_SPACE,  // Thousands, space-separated. 1 234
         NUMBER_THOU_ABBR,       // Thousands, abbreviated 1.2k
-        NUMBER_MIL_ABBR,       // Thousands, abbreviated 1.2k
+        NUMBER_MIL_ABBR,       // Thousands, abbreviated 1.2m
     }
 }

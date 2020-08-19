@@ -442,8 +442,23 @@ namespace MyCharter
 
                 PlotData(g);
                 Bitmap legendBMP = DrawLegend();
-                ImageMethods.CopyRegionIntoImage(bmp, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
-                    ref legendBMP, new Rectangle(bmp.Width - legendBMP.Width, 0, legendBMP.Width, legendBMP.Height));
+                Console.WriteLine($"return value is {legendBMP.Width}, {legendBMP.Height}");
+
+                int xOffset = bmp.Width;
+                xOffset -= GetMargin(ElementPosition.RIGHT) + GetPadding(ElementPosition.RIGHT);
+                if (BorderPen != null)
+                    xOffset -= (int)BorderPen.Width;
+                xOffset -= legendBMP.Width;
+
+                int yOffset = GetMargin(ElementPosition.TOP) + GetPadding(ElementPosition.TOP);
+                if (BorderPen != null)
+                    yOffset += (int)BorderPen.Width;
+
+
+                
+                ImageMethods.CopyRegionIntoImage(legendBMP, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
+                    ref bmp, new Rectangle(xOffset, 
+                    yOffset, legendBMP.Width, legendBMP.Height));
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
@@ -496,11 +511,12 @@ namespace MyCharter
                 yOffset -= gapBetweenIconAndText;
                 maxTextWidth += sizeOfLegendIcon + gapBetweenIconAndText;
 
+                bmp = ImageMethods.CropImage(bmp, new Rectangle(new Point(0, 0), new Size(maxTextWidth, yOffset)));
                 bmp.Save(@"c:\new folder\legend.png", ImageFormat.Png);
-                bmp.Dispose();
+                //bmp.Dispose();
             }
 
-            return ImageMethods.CropImage(bmp, new Rectangle(new Point(0, 0), new Size(maxTextWidth, yOffset)));
+            return bmp;
         }
 
         /// <summary>
