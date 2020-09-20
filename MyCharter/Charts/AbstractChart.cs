@@ -228,8 +228,11 @@ namespace MyCharter
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
         /// <param name="axisWidth"></param>
-        public void SetX1Axis(ElementPosition labelPosition, AbstractChartAxis<TXAxisDataType> axis, AxisWidth axisWidth)
+        /// <param name="axisLabelAngle"></param>
+        public void SetX1Axis(ElementPosition labelPosition, AbstractChartAxis<TXAxisDataType> axis, AxisWidth axisWidth, int axisLabelAngle = 0)
         {
+            if ((axisLabelAngle != 0) && (axisLabelAngle != 90)) throw new ArgumentException("AxisLabelAngle can only be 0 or 90.");
+
             // Will throw an ArgumentException if it doesn't work.
             ValidateAxis(Axis.X, labelPosition);
 
@@ -237,6 +240,7 @@ namespace MyCharter
             axis.AxisXY = Axis.X;
             axis.AxisPosition = labelPosition;
             axis.AxisWidth = axisWidth;
+            axis.LabelAngle = axisLabelAngle;
             _xAxis1 = axis;
 
             axis.InitialAxisPreparation();

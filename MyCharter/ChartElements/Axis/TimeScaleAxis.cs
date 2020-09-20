@@ -151,7 +151,14 @@ namespace MyCharter
             return rValue;
         }
 
-        public override string FormatLabelString(object label)
+        /// <summary>
+        /// Format the label for display. 
+        /// For example, the number 1007 might be formatted to "1,007" or 1/06/2020 to "01/06".
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="isSpecial">Do something special (implemented in the sub-classes) with this label.</param>
+        /// <returns></returns>
+        public override string FormatLabelString(object label, bool isSpecial=false)
         {
             throw new NotImplementedException();
         }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace MyCharter
 {
@@ -64,6 +65,24 @@ namespace MyCharter
         /// The amount of padding (in pixels) which is placed between the label and the axis.
         /// </summary>
         public int AxisPadding { get; set; } = 5;
+
+        private int _labelAngle = 0;
+        /// <summary>
+        /// The angle that the label should be displayed at.
+        /// Only 0' (left-to-right) and 90 (standing-on-end) is currently supported.
+        /// </summary>
+        public int LabelAngle
+        {
+            get => _labelAngle;
+            set { 
+                if ((value == 0) || (value == 90)) {
+                    _labelAngle = value;
+                } else
+                {
+                    throw new ArgumentException($"Angle {value} not supported.");
+                }
+            }
+        }
 
         /// <summary>
         /// Defines where the axis appears in relation to the chart.
@@ -316,6 +335,9 @@ namespace MyCharter
             // Create a temporary BMP for 'sketching'
             Bitmap tempBMP = new Bitmap(300, 300);
             Graphics tempGraphics = Graphics.FromImage(tempBMP);
+            //tempGraphics.Clear(ImageBackgroundColor);
+            tempGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+
             float maxWidth = 0;
             float maxHeight = 0;
 
@@ -325,11 +347,23 @@ namespace MyCharter
                 if (label != null)
                 {
                     SizeF stringMeasurement = tempGraphics.MeasureString(label.Text, AxisFont);
-                    label.Dimensions = stringMeasurement;
+                    Console.WriteLine($"Measuring {label.Text} and results in {stringMeasurement}");
 
+                    if (LabelAngle == 0)
+                    {
+                        label.Dimensions = stringMeasurement;
+                    }
+                    else if (LabelAngle == 90) // Text is standing on-end
+                    {
+                        // Purposely swap the height and width around
+                        stringMeasurement = new SizeF(stringMeasurement.Height, stringMeasurement.Width);
+                        Console.WriteLine($"After flipping {label.Text} it's {stringMeasurement}");
+                        label.Dimensions = stringMeasurement;
+                    }
                     // Update the max values.
                     maxWidth = (maxWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : maxWidth;
                     maxHeight = (maxHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : maxHeight;
+
                 }
             }
 
@@ -459,7 +493,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Calculate the Label positions relative to the Axis ticks.
+        /// Calculate the final Label positions relative to the Axis ticks.
         /// </summary>
         private void CalculateFinalLabelPosition()
         {
@@ -491,6 +525,7 @@ namespace MyCharter
                             x += e.Position.X - ((int)e.Label.Dimensions.Value.Width / 2);
                             break;
                     }
+
                     e.Label.Position = new Point(x, y);
                 } // end foreach
             }
@@ -536,7 +571,7 @@ namespace MyCharter
             {
                 e.Position.X += refPoint.X;
                 e.Position.Y += refPoint.Y;
-                Console.WriteLine($"CalculateFinalAxisValuePositions(): {e.Label.Text} position is {e.Position}");
+//                Console.WriteLine($"CalculateFinalAxisValuePositions(): {e.Label.Text} position is {e.Position}");
             }
         }
 
@@ -574,12 +609,31 @@ namespace MyCharter
                 {
                     // Check to see if space is free for the label.
                     List<int> ignoreColors = new List<int> { Color.White.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
+                    bool spaceEmpty = ImageMethods.IsSpaceEmpty(g, bmp,
+                            new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height),
+                            ignoreColors, null /* @"C:\New Folder\zsnip-" + e.Label.Text + ".png"*/);
 
-                    if (ImageMethods.IsSpaceEmpty(g, bmp, 
-                            new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height), 
-                            ignoreColors, null /* @"C:\New Folder\zsnip-" + e.Label.Text + ".png"*/)) 
+                    if (spaceEmpty) 
                     {
-                        g.DrawString(e.Label.Text, AxisFont, Brushes.Black, e.Label.Position);
+                        if (LabelAngle == 0)
+                        {
+                            g.DrawString(e.Label.Text, AxisFont, Brushes.Black, e.Label.Position);
+                        }
+                        else if (LabelAngle == 90)
+                        {
+                            var tempBMP = new Bitmap((int)e.Label.Dimensions.Value.Height, (int)e.Label.Dimensions.Value.Width);
+                            using (var gTemp = Graphics.FromImage(tempBMP))
+                            {
+                                gTemp.SmoothingMode = SmoothingMode.AntiAlias;
+                                gTemp.Clear(Color.White);
+                                gTemp.DrawString(e.Label.Text, AxisFont, Brushes.Black, new Point(0,0));
+                                var flippedBMP = ImageMethods.FlipImage(tempBMP, 90);
+                                ImageMethods.CopyRegionIntoImage(flippedBMP, new Rectangle(0, 0, flippedBMP.Width, flippedBMP.Height),
+                                    ref bmp, new Rectangle(e.Label.Position.X, e.Label.Position.Y, flippedBMP.Width, flippedBMP.Height));
+                            }
+                            
+                                
+                        }
                     }
                     else {
                         //Console.WriteLine($"Can't draw {e.Label.Text} due to space restrictions");
@@ -603,8 +657,9 @@ namespace MyCharter
         /// For example, the number 1007 might be formatted to "1,007" or 1/06/2020 to "01/06".
         /// </summary>
         /// <param name="label"></param>
+        /// <param name="isSpecial">Do something special (implemented in the sub-classes) with this label.</param>
         /// <returns></returns>
-        public abstract string FormatLabelString(object label);
+        public abstract string FormatLabelString(object label, bool isSpecial=false);
 
         //public abstract int DetermineAxisLocation(TDataType key);
 

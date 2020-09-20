@@ -45,7 +45,7 @@ namespace MyCharter.ChartElements.Axis
             while (tickDate <= maxDate)
             {
                 ++tickCounter;
-                tick = new AxisEntry<DateTime>(tickDate, null, FormatLabelString(tickDate));
+                tick = new AxisEntry<DateTime>(tickDate, null, FormatLabelString(tickDate, false));
 
                 if (tickCounter % MajorIncrement == 0)
                     tick.IsMajorTick = true;
@@ -56,7 +56,13 @@ namespace MyCharter.ChartElements.Axis
 
         }
 
-        public override string FormatLabelString(object label)
+        /// <summary>
+        /// Take the object of the label and format it based on the AxisLabelFormat value.
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="isSpecial">Do something special (implemented in the sub-classes) with this label.</param>
+        /// <returns></returns>
+        public override string FormatLabelString(object label, bool isSpecial)
         {
             string rValue = "";
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Text;
 
 namespace MyCharter.Util
@@ -134,6 +135,7 @@ namespace MyCharter.Util
             var bitmap = new Bitmap(section.Width, section.Height);
             using (var g = Graphics.FromImage(bitmap))
             {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
                 //DrawImage(Image image, int x, int y, Rectangle srcRect, GraphicsUnit srcUnit);
                 
@@ -145,8 +147,44 @@ namespace MyCharter.Util
         {
             using (Graphics grD = Graphics.FromImage(destBitmap))
             {
+                grD.SmoothingMode = SmoothingMode.AntiAlias;
                 grD.DrawImage(srcBitmap, destRegion, srcRegion, GraphicsUnit.Pixel);
             }
+        }
+
+        /// <summary>
+        /// Flip an image by the specified angle.
+        /// The only supported angle at this stage is 90 'on-end'.
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static Bitmap FlipImage(Bitmap original, double angle)
+        {
+            Bitmap rValue;
+            switch (angle)
+            {
+                case 90:
+                    rValue = new Bitmap(original.Height, original.Width);
+
+                    using (var g = Graphics.FromImage(original))
+                    {
+                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                        for (int x = 0; x < original.Width; x++)
+                        {
+                            for (int y = 0; y < original.Height; y++)
+                            {
+                                Color c = original.GetPixel(x, y);
+                                rValue.SetPixel(y, original.Width - x - 1, c);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new ArgumentException("Angle not supported by FlipImage");
+            }
+
+            return rValue;
         }
     }
 }

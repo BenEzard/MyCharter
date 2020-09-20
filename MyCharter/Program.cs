@@ -1,6 +1,7 @@
 ﻿using MyCharter.ChartElements.Axis;
 using MyCharter.ChartElements.DataSeries;
 using MyCharter.Charts;
+using MyCharter.Util;
 using System;
 using System.Drawing;
 
@@ -10,17 +11,21 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            /*Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
+            Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.TOP, ElementPosition.LEFT);
 
             Console.WriteLine("==========" + ElementPosition.TOP.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);*/
+            DoStackedChartDemo(ElementPosition.TOP, ElementPosition.RIGHT);
 
             Console.WriteLine("==========" + ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.LEFT.ToString());
             DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
 
-            /*Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
-            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);*/
+            Console.WriteLine("=========="+ ElementPosition.BOTTOM.ToString() + "-" + ElementPosition.RIGHT.ToString());
+            DoStackedChartDemo(ElementPosition.BOTTOM, ElementPosition.RIGHT);
+
+            Console.WriteLine("========== Duration chart");
+
+            DoDurationChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
         }
 
         private static void DoStackedChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
@@ -59,6 +64,38 @@ namespace MyCharter
             svChart.AddDataSeries(socialDS);
 
             svChart.GenerateChart();
+        }
+
+        private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
+        {
+            DurationChart<DateTime, DateTime> svChart = new DurationChart<DateTime, DateTime>();
+            svChart.Title = "Demo of Duration Chart";
+            svChart.SubTitle = "Orientation: x-Axis: " + xAxisPositioning.ToString() + ", y-Axis: " + yAxisPositioning.ToString();
+            svChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
+
+            var xAxis = new DateAndTimeScaleAxis(
+                minimumValue: new DateTime(2020,9,20, 0,0,0), 
+                maximumValue: new DateTime(2020,9,22, 16,00,00), 
+                majorIncrementMinutes: 60, 
+                minorIncrementMinutes: 10, 
+                pixelsPerIncrement: 10, 
+                labelFormat: AxisLabelFormat.DATETIME_DDMM1_HHMM24);
+            xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
+            svChart.SetX1Axis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
+            Console.WriteLine($"**** {xAxis.GetMaxLabelDimensions()}");
+            xAxis.DebugOutput_ListScale();
+
+            var yAxis = new DateScaleAxis(new DateTime(2020,01,01), new DateTime(2020, 01, 05), 5, 1, pixelsPerIncrement: 10,
+                AxisLabelFormat.DATE_DDMM1);
+            svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
+
+
+            var timeTracker = new DataSeries<DateTime, DateTime>("TimeTracker", Color.BlueViolet, AxisLabelFormat.DATE_DDMM1, LegendDisplayType.SQUARE);
+            timeTracker.AddDataPoint(new DateTime(2020, 9, 5, 9, 30, 00), new DateTime(2020, 9, 5, 9, 40, 00));
+            svChart.AddDataSeries(timeTracker);
+
+            svChart.GenerateChart();
+
         }
 
     }
