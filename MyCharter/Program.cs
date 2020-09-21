@@ -68,7 +68,7 @@ namespace MyCharter
 
         private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
-            DurationChart<DateTime, DateTime> svChart = new DurationChart<DateTime, DateTime>();
+            DurationChart<DateTime, DataSeries<DateTime, DateTime>> svChart = new DurationChart<DateTime, DataSeries<DateTime, DateTime>>();
             svChart.Title = "Demo of Duration Chart";
             svChart.SubTitle = "Orientation: x-Axis: " + xAxisPositioning.ToString() + ", y-Axis: " + yAxisPositioning.ToString();
             svChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
@@ -82,17 +82,15 @@ namespace MyCharter
                 labelFormat: AxisLabelFormat.DATETIME_DDMM1_HHMM24);
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
             svChart.SetX1Axis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
-            Console.WriteLine($"**** {xAxis.GetMaxLabelDimensions()}");
-            xAxis.DebugOutput_ListScale();
 
-            var yAxis = new DateScaleAxis(new DateTime(2020,01,01), new DateTime(2020, 01, 05), 5, 1, pixelsPerIncrement: 10,
-                AxisLabelFormat.DATE_DDMM1);
+            var etlProcess1 = new DataSeries<DateTime, DateTime>("ETL Process 1", Color.BlueViolet, AxisLabelFormat.DATE_DDMM1, LegendDisplayType.SQUARE);
+            etlProcess1.AddDataPoint(new DateTime(2020, 9, 20, 0, 0, 0), new DateTime(2020, 9, 20, 1, 10, 0));
+            etlProcess1.AddDataPoint(new DateTime(2020, 9, 21, 17, 0, 0), new DateTime(2020, 9, 21, 17, 40, 0));
+            svChart.AddDataSeries(etlProcess1);
+            
+
+            var yAxis = new DataSeriesAxis<string>(svChart.ChartData);
             svChart.SetYAxis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
-
-
-            var timeTracker = new DataSeries<DateTime, DateTime>("TimeTracker", Color.BlueViolet, AxisLabelFormat.DATE_DDMM1, LegendDisplayType.SQUARE);
-            timeTracker.AddDataPoint(new DateTime(2020, 9, 5, 9, 30, 00), new DateTime(2020, 9, 5, 9, 40, 00));
-            svChart.AddDataSeries(timeTracker);
 
             svChart.GenerateChart();
 
