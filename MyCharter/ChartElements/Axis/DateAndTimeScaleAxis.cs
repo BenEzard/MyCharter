@@ -4,6 +4,11 @@ namespace MyCharter.ChartElements.Axis
 {
     public class DateAndTimeScaleAxis : AbstractScaleAxis<DateTime>
     {
+        public DateAndTimeScaleAxis(int pixelsPerIncrement, AxisLabelFormat labelFormat) : base(AxisFormat.DATE_AND_TIME_SCALE, pixelsPerIncrement)
+        {
+            LabelFormat = labelFormat;
+        }
+
         public DateAndTimeScaleAxis(DateTime minimumValue, DateTime maximumValue, int majorIncrementMinutes, int minorIncrementMinutes, int pixelsPerIncrement,
     AxisLabelFormat labelFormat) :
     base(AxisFormat.DATE_SCALE, minimumValue, maximumValue, majorIncrementMinutes, minorIncrementMinutes, pixelsPerIncrement)
@@ -166,13 +171,13 @@ namespace MyCharter.ChartElements.Axis
             return rValue;
         }
 
-        protected override bool AreAxisValuesValid(out string errorMessage)
-        {
-            //throw new NotImplementedException();
-            // TODO
-            errorMessage = "";
-            return true;
-        }
+        //protected override bool AreAxisValuesValid(out string errorMessage)
+        //{
+        //    //throw new NotImplementedException();
+        //    // TODO
+        //    errorMessage = "";
+        //    return true;
+        //}
 
         internal override void GenerateAxisEntries()
         {

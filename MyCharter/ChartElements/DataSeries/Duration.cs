@@ -5,15 +5,21 @@ namespace MyCharter
 {
     public class Duration
     {
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime EndDateTime { get; set; }
         public Color Color { get; set; }
 
-
-        public Duration(DateTime startTime, DateTime endTime, Color color)
+        public Duration(DateTime startDateTime, DateTime endDateTime)
         {
-            StartTime = startTime;
-            EndTime = endTime;
+            StartDateTime = startDateTime;
+            EndDateTime = endDateTime;
+            Color = Color.Blue;
+        }
+
+        public Duration(DateTime startDateTime, DateTime endDateTime, Color color)
+        {
+            StartDateTime = startDateTime;
+            EndDateTime = endDateTime;
             Color = color;
         }
 

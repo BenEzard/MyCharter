@@ -61,14 +61,6 @@ namespace MyCharter.ChartElements.Axis
             return rValue;
         }
 
-        protected override bool AreAxisValuesValid(out string errorMessage)
-        {
-            //throw new System.NotImplementedException();
-            bool rValue = true;
-            errorMessage = null;
-            return rValue;
-        }
-
         internal override void GenerateAxisEntries()
         {
             int minValue = (int)MinimumValue;

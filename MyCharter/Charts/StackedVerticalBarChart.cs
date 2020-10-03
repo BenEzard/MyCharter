@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace MyCharter.Charts
 {
-    public class StackedVerticalBarChart<TXAxis, TYAxis> : AbstractChart<TXAxis, TYAxis>
+    public class StackedVerticalBarChart<TXAxisDataType, TYAxisDataType, TDataPointData> : AbstractChart<TXAxisDataType, TYAxisDataType, TDataPointData>
     {
         private int _barWidth;
         public int BarWidth { 
@@ -22,7 +22,7 @@ namespace MyCharter.Charts
 
         public bool DisplayVerticalBarTotals { get; set; } = true;
 
-        public StackedVerticalBarChart() : base(ChartType.STACKED_VERTICAL_BAR_CHART)
+        public StackedVerticalBarChart() : base()
         {
         }
 
@@ -38,11 +38,11 @@ namespace MyCharter.Charts
 
             var yAxis = GetYAxis();
 
-            foreach (DataSeries<TXAxis, TYAxis> dataSeries in ChartData)
+            foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> dataSeries in ChartData)
             {
                 if (dataSeries.DataSeriesLabelFormat != AxisLabelFormat.NONE)
                 {
-                    foreach (DataPoint<TXAxis, TYAxis> dataPoint in dataSeries.DataPoints)
+                    foreach (DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> dataPoint in dataSeries.DataPoints)
                     {
                         string label = yAxis.FormatLabelString(dataPoint.yAxisCoord);
                         dataPoint.DataPointLabel = new ImageText(label);
@@ -60,7 +60,7 @@ namespace MyCharter.Charts
         /// Calculate the position of the DataPoint labels.
         /// </summary>
         /// <param name="dataPoint"></param>
-        private void CalculateDataLabelPosition(DataPoint<TXAxis, TYAxis> dataPoint)
+        private void CalculateDataLabelPosition(DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> dataPoint)
         {
             int dataPointLabelHeight = (int)dataPoint.DataPointLabel.Dimensions.Value.Height;
             int dataPointLabelWidth = (int)dataPoint.DataPointLabel.Dimensions.Value.Width;
@@ -84,17 +84,17 @@ namespace MyCharter.Charts
             BarWidth = GetX1Axis().PixelsPerIncrement - 4;
             
             // TODO: Not sure if below is kosher, pre-supposing a ScaleAxis ?
-            int minorIncrement = ((AbstractScaleAxis<TYAxis>)GetYAxis()).MinorIncrement;
+            int minorIncrement = ((AbstractScaleAxis<TYAxisDataType>)GetYAxis()).MinorIncrement;
 
             // Loop through the x-axis for each data point
-            foreach (AxisEntry<TXAxis> xEntry in GetX1Axis().AxisEntries)
+            foreach (AxisEntry<TXAxisDataType> xEntry in GetX1Axis().AxisEntries)
             {
                 int totalBarValue = 0;
                 int initialY = GetYAxis().GetMinimumAxisEntry().Position.Y;
                 int pxPerIncrement = GetYAxis().PixelsPerIncrement;
                 Font dataPointFont = GetYAxis().DataPointLabelFont;
                 Rectangle dataPointRectangle = new Rectangle();
-                foreach (DataSeries<TXAxis, TYAxis> ds in ChartData)
+                foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> ds in ChartData)
                 {
                     // Get the DataPoint on the x-axis for for each DataSeries
                     var dataPoint = ds.GetDataPointOnX(xEntry.KeyValue);
@@ -104,7 +104,7 @@ namespace MyCharter.Charts
                         // The x-value at this point is the axis line
                         int x = GetX1Axis().GetAxisPosition(dataPoint.xAxisCoord);
                         int heightBasedOnValue = -1;
-                        if (typeof(TYAxis) == typeof(int)) // Will always be an int
+                        if (typeof(TYAxisDataType) == typeof(int)) // Will always be an int
                         {
                             heightBasedOnValue = (int)((CastMethods.To<double>(dataPoint.yAxisCoord, 0) / (double)minorIncrement) * pxPerIncrement);
                         }

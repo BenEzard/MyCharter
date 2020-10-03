@@ -1,16 +1,14 @@
 ﻿using MyCharter.ChartElements.DataSeries;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 
 namespace MyCharter.ChartElements.Axis
 {
-    public class DataSeriesAxis<TAxisDataType> : AbstractChartAxis<string>
+    public class LabelAxis : AbstractScaleAxis<string>
     {
-        public DataSeriesAxis() : base(AxisFormat.DATA_SERIES)
-        {
-        }
-
-        public DataSeriesAxis(List<DataSeries<DateTime, DateTime>> chartData) : base(AxisFormat.DATA_SERIES)
+        public LabelAxis(int pixelsPerIncrement) : base(AxisFormat.DATA_SERIES, pixelsPerIncrement)
         {
         }
 
@@ -26,7 +24,13 @@ namespace MyCharter.ChartElements.Axis
 
         public override int GetAxisPosition(string keyValue)
         {
-            throw new NotImplementedException();
+            int rValue;
+
+            AxisEntry<string> xValues = AxisEntries.Where(s => s.Label.Text == keyValue).Single();
+
+            rValue = (AxisXY == Axis.X) ? xValues.Position.X : xValues.Position.Y;
+
+            return rValue;
         }
 
         internal override void GenerateAxisEntries()

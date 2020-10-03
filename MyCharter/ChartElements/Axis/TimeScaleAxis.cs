@@ -23,7 +23,7 @@ namespace MyCharter
             }
         }
 
-        protected override bool AreAxisValuesValid(out string errorMessage)
+        /*protected override bool AreAxisValuesValid(out string errorMessage)
         {
             bool rValue = true;
             errorMessage = null;
@@ -36,7 +36,7 @@ namespace MyCharter
                 rValue = false;
 
             return rValue;            
-        }
+        }*/
 
         /// <summary>
         /// Generate all of the timescale axis values, using TimeSpan as the key.

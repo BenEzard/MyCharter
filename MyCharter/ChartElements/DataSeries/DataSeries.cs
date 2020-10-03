@@ -7,13 +7,14 @@ namespace MyCharter.ChartElements.DataSeries
     /// <summary>
     /// Define a Data Series.
     /// </summary>
-    /// <typeparam name="TXAxis">The data type of the x axis.</typeparam>
-    /// <typeparam name="TYAxis">The data type of the y axis.</typeparam>
-    public class DataSeries<TXAxis, TYAxis>
+    /// <typeparam name="TXAxisDataType">The data type of the x axis.</typeparam>
+    /// <typeparam name="TYAxisDataType">The data type of the y axis.</typeparam>
+    /// <typeparam name="TDataPointData"></typeparam>
+    public class DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>
     {
         public string Name { get; set; }
         public Color Color { get; set; }
-        public List<DataPoint<TXAxis,TYAxis>> DataPoints { get; set; } = new List<DataPoint<TXAxis, TYAxis>>();
+        public List<DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData>> DataPoints { get; set; } = new List<DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData>>();
 
         /// <summary>
         /// Should the label for this DataSeries be visible?
@@ -56,15 +57,15 @@ namespace MyCharter.ChartElements.DataSeries
         /// </summary>
         /// <param name="axisEntry1"></param>
         /// <param name="axisEntry2"></param>
-        public void AddDataPoint(TXAxis axisEntry1, TYAxis axisEntry2)
+        public void AddDataPoint(TXAxisDataType axisEntry1, TYAxisDataType axisEntry2)
         {
-            DataPoints.Add(new DataPoint<TXAxis, TYAxis>(axisEntry1, axisEntry2));
+            DataPoints.Add(new DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData>(axisEntry1, axisEntry2));
         }
 
-        public DataPoint<TXAxis, TYAxis> GetDataPointOnX(TXAxis x)
+        public DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> GetDataPointOnX(TXAxisDataType x)
         {
-            DataPoint<TXAxis, TYAxis> rValue = null;
-            foreach (DataPoint<TXAxis, TYAxis> dp in DataPoints)
+            DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> rValue = null;
+            foreach (DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> dp in DataPoints)
             {
                 if (object.Equals(dp.xAxisCoord, x))
                 {

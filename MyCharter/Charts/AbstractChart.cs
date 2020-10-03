@@ -5,16 +5,16 @@ using MyCharter.Charts;
 using MyCharter.Util;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 
 namespace MyCharter
 {
-    public abstract class AbstractChart<TXAxisDataType, TYAxisDataType>
+    public abstract class AbstractChart<TXAxisDataType, TYAxisDataType, TDataPointData>
     {
-        private ChartType ChartType { get; }
-
         public GraphicsLayout _layout;
 
         private Size _chartDimensions = new Size(-1, -1);
@@ -212,13 +212,12 @@ namespace MyCharter
         /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
-        public List<DataSeries<TXAxisDataType, TYAxisDataType>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType>>();
+        public List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>>();
 
         public DataSeriesLabelOption LabelOption { get; set; } = DataSeriesLabelOption.LABEL_ON_DATA_SERIES;
 
-        public AbstractChart(ChartType chartType)
+        public AbstractChart()
         {
-            ChartType = chartType;
         }
 
         /// <summary>
@@ -229,7 +228,7 @@ namespace MyCharter
         /// <param name="axis"></param>
         /// <param name="axisWidth"></param>
         /// <param name="axisLabelAngle"></param>
-        public void SetX1Axis(ElementPosition labelPosition, AbstractChartAxis<TXAxisDataType> axis, AxisWidth axisWidth, int axisLabelAngle = 0)
+        public void SetXAxis(ElementPosition labelPosition, AbstractScaleAxis<TXAxisDataType> axis, AxisWidth axisWidth, int axisLabelAngle = 0)
         {
             if ((axisLabelAngle != 0) && (axisLabelAngle != 90)) throw new ArgumentException("AxisLabelAngle can only be 0 or 90.");
 
@@ -243,6 +242,17 @@ namespace MyCharter
             axis.LabelAngle = axisLabelAngle;
             _xAxis1 = axis;
 
+            // If BOTH the Minimum or Maximum haven't been set, then auto-calculate values.
+            if (EqualityComparer<TXAxisDataType>.Default.Equals(axis.MinimumValue, default)
+                && EqualityComparer<TXAxisDataType>.Default.Equals(axis.MaximumValue, default))
+            {
+                (TXAxisDataType Min, TXAxisDataType Max) = GetXAxisBounds();
+                axis.MinimumValue = Min;
+                axis.MaximumValue = Max;
+                Console.WriteLine($"Abstract Chart: Minimum value for x-axis is: {Min}\n"
+                 + $"Abstract Chart: Maximum value for x-axis is: {Max}");
+            }
+
             axis.InitialAxisPreparation();
         }
 
@@ -253,7 +263,7 @@ namespace MyCharter
         /// <param name="labelPosition"></param>
         /// <param name="axis"></param>
         /// <param name="axisWidth"></param>
-        public void SetYAxis(ElementPosition labelPosition, AbstractChartAxis<TYAxisDataType> axis, AxisWidth axisWidth)
+        public void SetY1Axis(ElementPosition labelPosition, AbstractScaleAxis<TYAxisDataType> axis, AxisWidth axisWidth)
         {
             // Will throw an ArgumentException if it doesn't work.
             ValidateAxis(Axis.Y, labelPosition);
@@ -263,6 +273,17 @@ namespace MyCharter
             axis.AxisPosition = labelPosition;
             axis.AxisWidth = axisWidth;
             _yAxis = axis;
+
+            // If BOTH the Minimum or Maximum haven't been set, then auto-calculate values.
+            if (EqualityComparer<TYAxisDataType>.Default.Equals(axis.MinimumValue, default)
+                && EqualityComparer<TYAxisDataType>.Default.Equals(axis.MaximumValue, default))
+            {
+                (TYAxisDataType Min, TYAxisDataType Max) = GetYAxisBounds();
+                axis.MinimumValue = Min;
+                axis.MaximumValue = Max;
+                Console.WriteLine($"Abstract Chart: Minimum value for y-axis is: {Min}\n"
+                     + "Abstract Chart: Maximum value for y-axis is: {Max}");
+            }
 
             axis.InitialAxisPreparation();
         }
@@ -483,7 +504,7 @@ namespace MyCharter
             {
                 g.Clear(ImageBackgroundColor);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                foreach (DataSeries<TXAxisDataType, TYAxisDataType> dataSeries in ChartData)
+                foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> dataSeries in ChartData)
                 {
                     SizeF stringMeasurement = g.MeasureString(dataSeries.Name, legendFont);
                     if (stringMeasurement.Width > maxTextWidth)
@@ -636,7 +657,7 @@ namespace MyCharter
             return _chartDimensions;
         }
 
-        public void AddDataSeries(DataSeries<TXAxisDataType, TYAxisDataType> ds)
+        public void AddDataSeries(DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> ds)
         {
             ChartData.Add(ds);
         }
@@ -675,10 +696,10 @@ namespace MyCharter
 
         public void DebugOutput_DataSeries()
         {
-            foreach (DataSeries<TXAxisDataType, TYAxisDataType> ds in ChartData)
+            foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> ds in ChartData)
             {
                 Console.WriteLine($"{ds.Name}  -  {ds.Color}");
-                foreach (DataPoint<TXAxisDataType, TYAxisDataType> dp in ds.DataPoints)
+                foreach (DataPoint<TXAxisDataType, TYAxisDataType, TDataPointData> dp in ds.DataPoints)
                 {
                     Console.WriteLine($"   axis1: {dp.xAxisCoord}, axis2: {dp.yAxisCoord}");
                 }
@@ -693,6 +714,50 @@ namespace MyCharter
         public AbstractChartAxis<TYAxisDataType> GetYAxis()
         {
             return _yAxis;
+        }
+
+        /// <summary>
+        /// Get the Minimum and the Maximum values for the X Axis.
+        /// </summary>
+        /// <returns></returns>
+        public virtual (TXAxisDataType Min, TXAxisDataType Max) GetXAxisBounds()
+        {
+            TXAxisDataType Min = default;
+            TXAxisDataType Max = default;
+
+            if (ChartData.Count > 0)
+            {
+                //IEnumerable<TXAxisDataType> xValues = ChartData.SelectMany(ds => ds.DataPoints.Select(ds => ds.xAxisCoord));
+                IEnumerable<TXAxisDataType> xValues = ChartData.SelectMany(ds => ds.DataPoints.Select(dp => dp.xAxisCoord));
+                Min = xValues.Min();
+                Max = xValues.Max();
+            }
+            else
+                throw new DataException("No data available; cannot calculate the minimum and maximum values for X Axis.");
+
+            return (Min, Max);
+        }
+
+        /// <summary>
+        /// Get the Minimum and the Maximum values for the Y Axis.
+        /// </summary>
+        /// <returns></returns>
+        public virtual (TYAxisDataType Min, TYAxisDataType Max) GetYAxisBounds()
+        {
+            TYAxisDataType Min = default;
+            TYAxisDataType Max = default;
+
+            if (ChartData.Count > 0)
+            {
+                IEnumerable<TYAxisDataType> yValues = ChartData.SelectMany(ds => ds.DataPoints.Select(ds => ds.yAxisCoord));
+                Min = yValues.Min();
+                Max = yValues.Max();
+            }
+            else
+                throw new DataException("No data available; cannot calculate the minimum and maximum values for Y Axis.");
+
+
+            return (Min, Max);
         }
     }
 }

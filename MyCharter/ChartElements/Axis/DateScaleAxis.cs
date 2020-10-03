@@ -16,20 +16,20 @@ namespace MyCharter.ChartElements.Axis
         /// </summary>
         /// <param name="errorMessage"></param>
         /// <returns></returns>
-        protected override bool AreAxisValuesValid(out string errorMessage)
-        {
-            bool rValue = true;
-            errorMessage = null;
+        //protected override bool AreAxisValuesValid(out string errorMessage)
+        //{
+        //    bool rValue = true;
+        //    errorMessage = null;
 
-            if (MajorIncrement <= 0) errorMessage = $"Major Increment must be > 0 for DATE_SCALE. It is set to {MajorIncrement}";
-            if (MinorIncrement < 0) errorMessage = $"Minor Increment must be >= 0 for DATE_SCALE. It is set to {MinorIncrement}";
-            if (MajorIncrement < MinorIncrement) errorMessage = $"Major Increment must be > Minor Increment for DATE_SCALE. Major increment is {MajorIncrement}, Minor increment is {MinorIncrement}";
+        //    if (MajorIncrement <= 0) errorMessage = $"Major Increment must be > 0 for DATE_SCALE. It is set to {MajorIncrement}";
+        //    if (MinorIncrement < 0) errorMessage = $"Minor Increment must be >= 0 for DATE_SCALE. It is set to {MinorIncrement}";
+        //    if (MajorIncrement < MinorIncrement) errorMessage = $"Major Increment must be > Minor Increment for DATE_SCALE. Major increment is {MajorIncrement}, Minor increment is {MinorIncrement}";
 
-            if (errorMessage != null)
-                rValue = false;
+        //    if (errorMessage != null)
+        //        rValue = false;
 
-            return rValue;
-        }
+        //    return rValue;
+        //}
 
         /// <summary>
         /// Generate the axis values, between the minimum and maximum values, designating which ticks will be major or minor.

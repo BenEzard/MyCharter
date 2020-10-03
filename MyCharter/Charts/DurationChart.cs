@@ -3,13 +3,14 @@ using MyCharter.ChartElements.DataSeries;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 
 namespace MyCharter.Charts
 {
-    public class DurationChart<TXAxis, TYAxis> : AbstractChart<TXAxis, TYAxis>
+    public class DurationChart : AbstractChart<DateTime, string, Duration>
     {
-        public DurationChart() : base(ChartType.DURATION_CHART)
+        public DurationChart() : base()
         {
         }
 
@@ -21,11 +22,11 @@ namespace MyCharter.Charts
 
             var yAxis = GetYAxis();
 
-            foreach (DataSeries<TXAxis, TYAxis> dataSeries in ChartData)
+           /* foreach (DataSeries<DateTime, string, Duration> dataSeries in ChartData)
             {
                 if (dataSeries.DataSeriesLabelFormat != AxisLabelFormat.NONE)
                 {
-                    foreach (DataPoint<TXAxis, TYAxis> dataPoint in dataSeries.DataPoints)
+                    foreach (DataPoint<Duration, string> dataPoint in dataSeries.DataPoints)
                     {
                         string label = yAxis.FormatLabelString(dataPoint.yAxisCoord, false);
                         dataPoint.DataPointLabel = new ImageText(label);
@@ -34,7 +35,7 @@ namespace MyCharter.Charts
                         dataPoint.DataPointLabel.Dimensions = stringMeasurement;
                     }
                 }
-            }
+            }*/
 
             tempBMP.Dispose();
         }
@@ -42,6 +43,30 @@ namespace MyCharter.Charts
         public override void PlotData(Graphics g)
         {
             //throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Return the Minimum and Maximum values for the X Axis.
+        /// </summary>
+        /// <returns></returns>
+        public override (DateTime Min, DateTime Max) GetXAxisBounds()
+        {
+            DateTime Min = ChartData.SelectMany(ds => ds.DataPoints.Select(dp => dp.DataPointData.StartDateTime)).Min();
+            DateTime Max = ChartData.SelectMany(ds => ds.DataPoints.Select(dp => dp.DataPointData.EndDateTime)).Max();
+
+            return (Min, Max);
+        }
+
+        /// <summary>
+        /// Get the Minimum and the Maximum values for the Y Axis.
+        /// </summary>
+        /// <returns></returns>
+        public override (string Min, string Max) GetYAxisBounds()
+        {
+            string Min = ChartData.Select(ds => ds.Name).First();
+            string Max = ChartData.Select(ds => ds.Name).Last();
+
+            return (Min, Max);
         }
 
     }

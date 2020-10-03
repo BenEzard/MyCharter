@@ -376,11 +376,11 @@ namespace MyCharter
         public void DebugOutput_ListScale()
         {
             Console.WriteLine($"ID  " +
-                $"{"Key".PadRight(10, ' ')}" +
-                $"{"Label".PadRight(15, ' ')}" +
-                $"{"Major".PadRight(6, ' ')}" +
-                $"{"Dimensions".PadRight(18, ' ')}" +
-                $"{"Positions".PadRight(22, ' ')}");
+                $"{"Key",-10}" +
+                $"{"Label",-15}" +
+                $"{"Major",-6}" +
+                $"{"Dimensions",-18}" +
+                $"{"Positions",-22}");
             int counter = 0;
             foreach (object o in AxisEntries)
             {
@@ -397,7 +397,7 @@ namespace MyCharter
                         Console.WriteLine($"{counter,3} " +
                             $"{element.KeyValue,-10}" +
                             $"{labelText,-15}" +
-                            $"{majorLabel.PadRight(6, ' ')}" +
+                            $"{majorLabel,-6}" +
                             $"h={Math.Round(label.Dimensions.Value.Height, 1, MidpointRounding.ToEven)}, w={Math.Round(label.Dimensions.Value.Width, 1, MidpointRounding.ToEven)} ".PadRight(18, ' ') +
                             $"e X={element.Position.X},Y={element.Position.Y} l X={label.Position.X},Y={label.Position.Y}");
                     }
