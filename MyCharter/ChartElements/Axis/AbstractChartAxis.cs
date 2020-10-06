@@ -121,7 +121,11 @@ namespace MyCharter
         public int MajorTickLength = 5;
 
 
-        public Pen MajorGridLinePen = new Pen(Brushes.Gray, 1);
+        public Pen MajorGridLinePen1 = new Pen(Brushes.Gray, 1);
+
+        public Pen MajorGridLinePen2 = new Pen(Brushes.LightSkyBlue, 1);
+
+        public bool AlternatingMajorGridLines = false;
 
         /// <summary>
         /// Should the major grid lines be drawn?
@@ -166,8 +170,12 @@ namespace MyCharter
             }
 
             // Configure MajorGridLinePen
-            MajorGridLinePen.DashStyle = DashStyle.Dash;
-            MajorGridLinePen.DashPattern = new float[] { 3, 3 };
+            MajorGridLinePen1.DashStyle = DashStyle.Dash;
+            MajorGridLinePen1.DashPattern = new float[] { 3, 3 };
+
+            MajorGridLinePen2.DashStyle = DashStyle.DashDot;
+            MajorGridLinePen2.DashPattern = new float[] { 3, 3 };
+
         }
 
         /// <summary>
@@ -281,18 +289,25 @@ namespace MyCharter
         /// <param name="yAxisHeight"></param>
         public void DrawMajorGridLines(Graphics g, int xAxisWidth, int yAxisHeight)
         {
+            int counter = 1;
+            Pen penToUse = MajorGridLinePen1;
+
             if (AxisXY == Axis.X)
             {
                 foreach (AxisEntry<TDataType> e in AxisEntries)
                 {
                     if (e.IsMajorTick)
                     {
+                        if (AlternatingMajorGridLines)
+                            penToUse = (counter % 2 == 0) ? MajorGridLinePen1 : MajorGridLinePen2;
+
                         if (AxisPosition == ElementPosition.BOTTOM)
-                            g.DrawLine(MajorGridLinePen, e.Position, new Point(e.Position.X, e.Position.Y - yAxisHeight));
+                            g.DrawLine(penToUse, e.Position, new Point(e.Position.X, e.Position.Y - yAxisHeight));
                         else if (AxisPosition == ElementPosition.TOP)
-                            g.DrawLine(MajorGridLinePen, 
+                            g.DrawLine(penToUse, 
                                 new Point(e.Position.X, e.Position.Y + GetDimensions().Height), 
                                 new Point(e.Position.X, e.Position.Y + GetDimensions().Height + yAxisHeight));
+                        ++counter;
                     }
                 }
             }
@@ -302,14 +317,18 @@ namespace MyCharter
                 {
                     if (e.IsMajorTick)
                     {
+                        if (AlternatingMajorGridLines)
+                            penToUse = (counter % 2 == 0) ? MajorGridLinePen1 : MajorGridLinePen2;
+
                         if (AxisPosition == ElementPosition.LEFT)
-                            g.DrawLine(MajorGridLinePen, 
+                            g.DrawLine(penToUse, 
                                 new Point(e.Position.X + GetDimensions().Width, e.Position.Y), 
                                 new Point(e.Position.X + GetDimensions().Width + xAxisWidth, e.Position.Y));
                         else if (AxisPosition == ElementPosition.RIGHT)
-                            g.DrawLine(MajorGridLinePen,
+                            g.DrawLine(penToUse,
                                 new Point(e.Position.X, e.Position.Y),
                                 new Point(e.Position.X - xAxisWidth, e.Position.Y));
+                        ++counter;
                     }
                 }
             }

@@ -206,14 +206,14 @@ namespace MyCharter.ChartElements.Axis
                 }
 
                 tick = new AxisEntry<DateTime>(tickDateAndTime, null, label);
-
+                
                 if ((tickDateAndTime - MinimumValue).TotalMinutes % MajorIncrement == 0)
                     tick.IsMajorTick = true;
                 
                 AddEntry(tick);
                 tickDateAndTime = tickDateAndTime.AddMinutes(MinorIncrement);
             }
-
+            
         }
     }
 }

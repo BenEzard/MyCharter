@@ -1,6 +1,8 @@
 ﻿using MyCharter.ChartElements.DataSeries;
+using MyCharter.Util;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 namespace MyCharter.Charts
@@ -60,12 +62,20 @@ namespace MyCharter.Charts
                 {
                     Point startPoint = GetChartPosition(dataPoint.DataPointData.StartDateTime, dataSeries.Name);
                     Point endPoint = GetChartPosition(dataPoint.DataPointData.EndDateTime, dataSeries.Name);
-                    g.FillRectangle(new SolidBrush(dataSeries.Color), new Rectangle(startPoint.X, (startPoint.Y - (_barHeight)/2), (endPoint.X - startPoint.X), _barHeight));
+                    g.FillRectangle(new SolidBrush(dataPoint.DataPointData.Color), new Rectangle(startPoint.X, (startPoint.Y - (_barHeight)/2), (endPoint.X - startPoint.X), _barHeight));
                     TimeSpan durationLength = (dataPoint.DataPointData.EndDateTime - dataPoint.DataPointData.StartDateTime);
-                    g.DrawString(durationLength.Hours.ToString().PadLeft(2, '0')+":"+durationLength.Minutes.ToString().PadLeft(2, '0'),
-                        new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point), 
-                        Brushes.Black, 
-                        new Point(startPoint.X, startPoint.Y - (_barHeight/2)));
+                    string durationString = durationLength.Hours.ToString().PadLeft(2, '0') + ":" + durationLength.Minutes.ToString().PadLeft(2, '0');
+                    if (durationString == "00:00")
+                        g.DrawString(durationString,
+                            new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point), 
+                            Brushes.Red, 
+                            new Point(startPoint.X, startPoint.Y - (_barHeight/2)));
+                    else
+                        g.DrawString(durationString,
+                        new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point),
+                        Brushes.Black,
+                        new Point(startPoint.X, startPoint.Y - (_barHeight / 2)));
+
                 }
             }
         }
@@ -93,6 +103,50 @@ namespace MyCharter.Charts
             string Max = ChartData.Select(ds => ds.Name).Last();
 
             return (Min, Max);
+        }
+
+        public void AddDataPoint(string dataSeriesName, Duration duration)
+        {
+            // Check to see if that data series exists
+            var dataSeries = (DurationDataSeries)GetDataSeries(dataSeriesName);
+            if (dataSeries != null)
+            {
+                dataSeries.AddDataPoint(duration);
+            } else
+            {
+                dataSeries = new DurationDataSeries(dataSeriesName, Color.CornflowerBlue);
+                AddDataSeries(dataSeries);
+                dataSeries.AddDataPoint(duration);
+            }
+        }
+
+        public DataSeries<DateTime, string, Duration> GetDataSeries(string dataSeriesName)
+        {
+            DurationDataSeries rValue = null;
+            foreach (DurationDataSeries ds in ChartData)
+            {
+                if (ds.Name == dataSeriesName)
+                    rValue = ds;
+            }
+            return rValue;
+        }
+
+        public void LoadDataPointsFromCSV(string fileNameAndPath)
+        {
+            using (var reader = new StreamReader(fileNameAndPath))
+            {
+                while (reader.EndOfStream == false)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+                    DateTime startDT = CastMethods.StringToDateTime(values[1]);
+                    DateTime endDT = CastMethods.StringToDateTime(values[3]);
+                    Color durationColor = Color.CornflowerBlue;
+                    if (values[4].Length > 0)
+                        durationColor = Color.Red;
+                    AddDataPoint(values[0], new Duration(startDT, endDT, durationColor));
+                }
+            }
         }
 
     }
