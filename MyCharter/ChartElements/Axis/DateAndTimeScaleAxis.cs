@@ -4,14 +4,15 @@ namespace MyCharter.ChartElements.Axis
 {
     public class DateAndTimeScaleAxis : AbstractScaleAxis<DateTime>
     {
-        public DateAndTimeScaleAxis(int pixelsPerIncrement, AxisLabelFormat labelFormat) : base(AxisFormat.DATE_AND_TIME_SCALE, pixelsPerIncrement)
+        public DateAndTimeScaleAxis(int majorIncrementMinutes, int minorIncrementMinutes, int pixelsPerIncrement, AxisLabelFormat labelFormat) :
+    base(AxisFormat.DATE_AND_TIME_SCALE, majorIncrementMinutes, minorIncrementMinutes, pixelsPerIncrement)
         {
             LabelFormat = labelFormat;
         }
 
         public DateAndTimeScaleAxis(DateTime minimumValue, DateTime maximumValue, int majorIncrementMinutes, int minorIncrementMinutes, int pixelsPerIncrement,
     AxisLabelFormat labelFormat) :
-    base(AxisFormat.DATE_SCALE, minimumValue, maximumValue, majorIncrementMinutes, minorIncrementMinutes, pixelsPerIncrement)
+    base(AxisFormat.DATE_AND_TIME_SCALE, minimumValue, maximumValue, majorIncrementMinutes, minorIncrementMinutes, pixelsPerIncrement)
         {
             LabelFormat = labelFormat;
         }
@@ -136,12 +137,13 @@ namespace MyCharter.ChartElements.Axis
             // Second, (if required) calculate how far along it is between ticks
             if (equalAxisEntry == null)
             {
-                throw new NotImplementedException("This section not implemented.");
-                /*double abovePos;
+              //  throw new NotImplementedException("This section not implemented.");
+
+                double abovePos;
                 double belowPos;
                 double pixelGapBetween;
                 double PixelsPerValue;
-                int difference;
+                int difference=0;
 
                 switch (AxisXY)
                 {
@@ -149,19 +151,19 @@ namespace MyCharter.ChartElements.Axis
                         abovePos = aboveAxisEntry.Position.X; // 15
                         belowPos = belowAxisEntry.Position.X; // 10
                         pixelGapBetween = abovePos - belowPos; // 20px
-                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
-                        difference = keyValue - belowAxisEntry.KeyValue;
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue).TotalMinutes;
+                        difference = (int)(keyValue - belowAxisEntry.KeyValue).TotalMinutes;
                         rValue = (int)(belowPos + (difference * PixelsPerValue));
                         break;
                     case Axis.Y:
                         abovePos = aboveAxisEntry.Position.Y; // 15
                         belowPos = belowAxisEntry.Position.Y; // 10
                         pixelGapBetween = abovePos - belowPos; // 20px
-                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue);
-                        difference = keyValue - belowAxisEntry.KeyValue;
+                        PixelsPerValue = pixelGapBetween / (double)(aboveAxisEntry.KeyValue - belowAxisEntry.KeyValue).TotalMinutes;
+                        difference = (int)(keyValue - belowAxisEntry.KeyValue).TotalMinutes;
                         rValue = (int)(belowPos - (difference * PixelsPerValue));
                         break;
-                }*/
+                }
             }
             else
             {
@@ -181,17 +183,14 @@ namespace MyCharter.ChartElements.Axis
 
         internal override void GenerateAxisEntries()
         {
-            DateTime maxDateAndTime = MaximumValue;
-            DateTime minDateAndTime = MinimumValue;
-            DateTime tickDateAndTime = minDateAndTime;
-
-            DateTime previousDate = minDateAndTime.Date.AddDays(-1);
+            DateTime tickDateAndTime = MinimumValue;
+            DateTime previousDate = MinimumValue.Date.AddDays(-1);
             
             string label;
             AxisEntry<DateTime> tick;
             int tickCounter = 0;
 
-            while (tickDateAndTime <= maxDateAndTime)
+            while (tickDateAndTime <= MaximumValue)
             {
                 ++tickCounter;
 
@@ -208,12 +207,13 @@ namespace MyCharter.ChartElements.Axis
 
                 tick = new AxisEntry<DateTime>(tickDateAndTime, null, label);
 
-                if ((tickDateAndTime - minDateAndTime).TotalMinutes % MajorIncrement == 0)
+                if ((tickDateAndTime - MinimumValue).TotalMinutes % MajorIncrement == 0)
                     tick.IsMajorTick = true;
                 
                 AddEntry(tick);
                 tickDateAndTime = tickDateAndTime.AddMinutes(MinorIncrement);
             }
+
         }
     }
 }

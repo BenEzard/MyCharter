@@ -138,11 +138,6 @@ namespace MyCharter
         /// </summary>
         public int MinorTickLength = 3;
 
-        /// <summary>
-        /// 
-        /// </summary>
-//        public AbstractChart<TXAxis, TYAxis> ParentChart = null;
-
         public int PixelsPerIncrement { get; set; } = 10;
 
         public AxisWidth AxisWidth = AxisWidth.FIT_TO_LABELS; // Default value
@@ -333,7 +328,6 @@ namespace MyCharter
             // Create a temporary BMP for 'sketching'
             Bitmap tempBMP = new Bitmap(300, 300);
             Graphics tempGraphics = Graphics.FromImage(tempBMP);
-            //tempGraphics.Clear(ImageBackgroundColor);
             tempGraphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             float maxWidth = 0;
@@ -345,7 +339,6 @@ namespace MyCharter
                 if (label != null)
                 {
                     SizeF stringMeasurement = tempGraphics.MeasureString(label.Text, AxisFont);
-                    Console.WriteLine($"Measuring {label.Text} and results in {stringMeasurement}");
 
                     if (LabelAngle == 0)
                     {
@@ -355,13 +348,11 @@ namespace MyCharter
                     {
                         // Purposely swap the height and width around
                         stringMeasurement = new SizeF(stringMeasurement.Height, stringMeasurement.Width);
-                        Console.WriteLine($"After flipping {label.Text} it's {stringMeasurement}");
                         label.Dimensions = stringMeasurement;
                     }
                     // Update the max values.
                     maxWidth = (maxWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : maxWidth;
                     maxHeight = (maxHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : maxHeight;
-
                 }
             }
 
@@ -876,5 +867,6 @@ namespace MyCharter
         }
 
         public abstract double GetAxisPixelsPerValue();
+
     }
 }

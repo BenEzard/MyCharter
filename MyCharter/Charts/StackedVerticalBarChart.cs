@@ -3,7 +3,6 @@ using MyCharter.ChartElements.DataSeries;
 using MyCharter.Util;
 using System;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 
 namespace MyCharter.Charts
 {
@@ -13,7 +12,7 @@ namespace MyCharter.Charts
         public int BarWidth { 
             get => _barWidth;
             set {
-                if (value > GetX1Axis().PixelsPerIncrement)
+                if (value > GetXAxis().PixelsPerIncrement)
                     throw new ArgumentException("Bar Width must be less than or equal to PixelsPerIncrement.");
 
                 _barWidth = value;
@@ -81,13 +80,13 @@ namespace MyCharter.Charts
 
         public override void PlotData(Graphics g)
         {
-            BarWidth = GetX1Axis().PixelsPerIncrement - 4;
+            BarWidth = GetXAxis().PixelsPerIncrement - 4;
             
             // TODO: Not sure if below is kosher, pre-supposing a ScaleAxis ?
             int minorIncrement = ((AbstractScaleAxis<TYAxisDataType>)GetYAxis()).MinorIncrement;
 
             // Loop through the x-axis for each data point
-            foreach (AxisEntry<TXAxisDataType> xEntry in GetX1Axis().AxisEntries)
+            foreach (AxisEntry<TXAxisDataType> xEntry in GetXAxis().AxisEntries)
             {
                 int totalBarValue = 0;
                 int initialY = GetYAxis().GetMinimumAxisEntry().Position.Y;
@@ -102,7 +101,7 @@ namespace MyCharter.Charts
                     {
                         totalBarValue += (int)(CastMethods.To<double>(dataPoint.yAxisCoord, 0));
                         // The x-value at this point is the axis line
-                        int x = GetX1Axis().GetAxisPosition(dataPoint.xAxisCoord);
+                        int x = GetXAxis().GetAxisPosition(dataPoint.xAxisCoord);
                         int heightBasedOnValue = -1;
                         if (typeof(TYAxisDataType) == typeof(int)) // Will always be an int
                         {

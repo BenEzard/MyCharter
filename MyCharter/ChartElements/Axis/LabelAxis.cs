@@ -1,15 +1,16 @@
-﻿using MyCharter.ChartElements.DataSeries;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 namespace MyCharter.ChartElements.Axis
 {
     public class LabelAxis : AbstractScaleAxis<string>
     {
-        public LabelAxis(int pixelsPerIncrement) : base(AxisFormat.DATA_SERIES, pixelsPerIncrement)
+        public IEnumerable<string> DataSeriesNames = null;
+
+        public LabelAxis(int pixelsPerIncrement, IEnumerable<string> dataSeriesNames) : base(AxisFormat.DATA_SERIES, pixelsPerIncrement)
         {
+            DataSeriesNames = dataSeriesNames;
         }
 
         public override string FormatLabelString(object label, bool isSpecial = false)
@@ -35,8 +36,10 @@ namespace MyCharter.ChartElements.Axis
 
         internal override void GenerateAxisEntries()
         {
-            
-            throw new NotImplementedException();
+            foreach (string name in DataSeriesNames)
+            {
+                AddEntry(new AxisEntry<string>(name, null, FormatLabelString(name, false), true));
+            }
         }
     }
 }

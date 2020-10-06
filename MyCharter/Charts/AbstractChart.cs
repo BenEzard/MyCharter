@@ -210,6 +210,11 @@ namespace MyCharter
         public Color ImageBackgroundColor = Color.White;
 
         /// <summary>
+        /// Should the Legend be drawn?
+        /// </summary>
+        public bool IsLegendVisible { get; set; } = true;
+
+        /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
         public List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>>();
@@ -249,9 +254,8 @@ namespace MyCharter
                 (TXAxisDataType Min, TXAxisDataType Max) = GetXAxisBounds();
                 axis.MinimumValue = Min;
                 axis.MaximumValue = Max;
-                Console.WriteLine($"Abstract Chart: Minimum value for x-axis is: {Min}\n"
-                 + $"Abstract Chart: Maximum value for x-axis is: {Max}");
             }
+            Console.WriteLine($"For X axis min is {axis.MinimumValue} and max is {axis.MaximumValue}");
 
             axis.InitialAxisPreparation();
         }
@@ -273,7 +277,7 @@ namespace MyCharter
             axis.AxisPosition = labelPosition;
             axis.AxisWidth = axisWidth;
             _yAxis = axis;
-
+            
             // If BOTH the Minimum or Maximum haven't been set, then auto-calculate values.
             if (EqualityComparer<TYAxisDataType>.Default.Equals(axis.MinimumValue, default)
                 && EqualityComparer<TYAxisDataType>.Default.Equals(axis.MaximumValue, default))
@@ -281,8 +285,6 @@ namespace MyCharter
                 (TYAxisDataType Min, TYAxisDataType Max) = GetYAxisBounds();
                 axis.MinimumValue = Min;
                 axis.MaximumValue = Max;
-                Console.WriteLine($"Abstract Chart: Minimum value for y-axis is: {Min}\n"
-                     + "Abstract Chart: Maximum value for y-axis is: {Max}");
             }
 
             axis.InitialAxisPreparation();
@@ -466,24 +468,26 @@ namespace MyCharter
                 ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
 
                 PlotData(g);
-                Bitmap legendBMP = DrawLegend();
-                Console.WriteLine($"return value is {legendBMP.Width}, {legendBMP.Height}");
 
-                int xOffset = bmp.Width;
-                xOffset -= GetMargin(ElementPosition.RIGHT) + GetPadding(ElementPosition.RIGHT);
-                if (BorderPen != null)
-                    xOffset -= (int)BorderPen.Width;
-                xOffset -= legendBMP.Width;
+                if (IsLegendVisible)
+                {
+                    Bitmap legendBMP = DrawLegend();
 
-                int yOffset = GetMargin(ElementPosition.TOP) + GetPadding(ElementPosition.TOP);
-                if (BorderPen != null)
-                    yOffset += (int)BorderPen.Width;
+                    int xOffset = bmp.Width;
+                    xOffset -= GetMargin(ElementPosition.RIGHT) + GetPadding(ElementPosition.RIGHT);
+                    if (BorderPen != null)
+                        xOffset -= (int)BorderPen.Width;
+                    xOffset -= legendBMP.Width;
 
+                    int yOffset = GetMargin(ElementPosition.TOP) + GetPadding(ElementPosition.TOP);
+                    if (BorderPen != null)
+                        yOffset += (int)BorderPen.Width;
 
-                
-                ImageMethods.CopyRegionIntoImage(legendBMP, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
-                    ref bmp, new Rectangle(xOffset, 
-                    yOffset, legendBMP.Width, legendBMP.Height));
+                    ImageMethods.CopyRegionIntoImage(legendBMP, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
+                        ref bmp, new Rectangle(xOffset,
+                        yOffset, legendBMP.Width, legendBMP.Height));
+                }
+
             }
 
             bmp.Save(OutputFile, ImageFormat.Png);
@@ -706,7 +710,7 @@ namespace MyCharter
             }
         }
 
-        public AbstractChartAxis<TXAxisDataType> GetX1Axis()
+        public AbstractChartAxis<TXAxisDataType> GetXAxis()
         {
             return _xAxis1;
         }
@@ -758,6 +762,15 @@ namespace MyCharter
 
 
             return (Min, Max);
+        }
+
+        /// <summary>
+        /// Return all of the Data Series names.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetDataSeriesNames()
+        {
+            return ChartData.Select(ds => ds.Name);
         }
     }
 }

@@ -26,16 +26,6 @@ namespace MyCharter
         /// </summary>
         public Point Position;
 
-        public AxisEntry()
-        {
-        }
-
-        public AxisEntry(TKeyDataType key, object content)
-        {
-            KeyValue = key;
-            EntryContent = content;
-        }
-
         /// <summary>
         /// Create an AxisEntry with the specified key, content and label.
         /// </summary>
@@ -47,6 +37,21 @@ namespace MyCharter
             KeyValue = key;
             EntryContent = content;
             Label = new ImageText(label);
+        }
+
+        /// <summary>
+        /// Create an AxisEntry with the specified key, content and label.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="label"></param>
+        /// <param name="isMajorTick"></param>
+        public AxisEntry(TKeyDataType key, object content, string label, bool isMajorTick)
+        {
+            KeyValue = key;
+            EntryContent = content;
+            Label = new ImageText(label);
+            IsMajorTick = isMajorTick;
         }
     }
 }
