@@ -1,5 +1,6 @@
 ﻿using MyCharter.ChartElements.Axis;
 using MyCharter.ChartElements.DataSeries;
+using MyCharter.ChartElements.Legend;
 using MyCharter.Charts;
 using System;
 using System.Drawing;
@@ -10,7 +11,7 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            bool doStackedVertical = false;
+            bool doStackedVertical = true;
             bool doDuration = true;
 
             if (doStackedVertical)
@@ -93,8 +94,10 @@ namespace MyCharter
             yAxis.AlternatingMajorGridLines = true;
             dChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
             
-            dChart.IsLegendVisible = false;
-            
+            dChart.ChartLegend.IsLegendVisible = true;
+            dChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.CornflowerBlue, "Successful Run"));
+            dChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.Red, "Failed Run"));
+
             dChart.GenerateChart();
 
         }

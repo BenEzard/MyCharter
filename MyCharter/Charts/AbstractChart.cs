@@ -1,6 +1,7 @@
 ﻿using MyCharter.ChartElements;
 using MyCharter.ChartElements.Axis;
 using MyCharter.ChartElements.DataSeries;
+using MyCharter.ChartElements.Legend;
 using MyCharter.Charts;
 using MyCharter.Util;
 using System;
@@ -210,16 +211,16 @@ namespace MyCharter
         public Color ImageBackgroundColor = Color.White;
 
         /// <summary>
-        /// Should the Legend be drawn?
-        /// </summary>
-        public bool IsLegendVisible { get; set; } = true;
-
-        /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
         public List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>>();
 
         public DataSeriesLabelOption LabelOption { get; set; } = DataSeriesLabelOption.LABEL_ON_DATA_SERIES;
+
+        /// <summary>
+        /// Legend to display on the Chart.
+        /// </summary>
+        public Legend ChartLegend = new Legend();
 
         public AbstractChart()
         {
@@ -446,6 +447,12 @@ namespace MyCharter
             yAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
             CalculateDataPointLabelDimensions();
 
+            if ((ChartLegend.LegendEntries.Count == 0) && (ChartLegend.IsLegendVisible))
+            {
+                AutoGenerateLegendEntries();
+            }
+            CalculateLegendDimensions();
+
             SizeF chartDimension = GetChartDimensions();
 
             Bitmap bmp = new Bitmap((int)chartDimension.Width, (int)chartDimension.Height);
@@ -469,7 +476,7 @@ namespace MyCharter
 
                 PlotData(g);
 
-                if (IsLegendVisible)
+                if (ChartLegend.IsLegendVisible)
                 {
                     Bitmap legendBMP = DrawLegend();
 
@@ -493,56 +500,89 @@ namespace MyCharter
             bmp.Save(OutputFile, ImageFormat.Png);
         }
 
+        /// <summary>
+        /// Calculate dimensions of Legend text.
+        /// </summary>
+        public void CalculateLegendDimensions()
+        {
+            // Create a temporary BMP for 'sketching'
+            Bitmap tempBMP = new Bitmap(300, 300);
+            Graphics tempGraphics = Graphics.FromImage(tempBMP);
+            tempGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            float maxWidth = 0;
+            float maxHeight = 0;
+            SizeF stringMeasurement = new SizeF();
+
+            foreach (LegendEntry entry in ChartLegend.LegendEntries)
+            {
+                stringMeasurement = tempGraphics.MeasureString(entry.EntryLabel.Text, ChartLegend.LegendEntryFont);
+                entry.EntryLabel.Dimensions = stringMeasurement;
+
+                // Update the max values.
+                maxWidth = (maxWidth < (int)stringMeasurement.Width) ? (int)stringMeasurement.Width : maxWidth;
+                maxHeight = (maxHeight < (int)stringMeasurement.Height) ? (int)stringMeasurement.Height : maxHeight;
+            }
+
+            tempBMP.Dispose();
+        }
+
+        /// <summary>
+        /// Auto-generate Legend entries.
+        /// </summary>
+        public void AutoGenerateLegendEntries()
+        {
+            foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> dataSeries in ChartData)
+            {
+                ChartLegend.AddEntry(new LegendEntry(dataSeries.Name, dataSeries.LegendDisplay, dataSeries.Color, dataSeries.Name));
+            }
+        }
+
         public Bitmap DrawLegend()
         {
-            int sizeOfLegendIcon = 10;
             int lineWidth = 3;
-            int gapBetweenIconAndText = 5;
 
             int xOffset = 0;
             int yOffset = 0;
             int maxTextWidth = 0;
-            Font legendFont = GetYAxis().AxisFont;
             Bitmap bmp = new Bitmap(500, 500);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(ImageBackgroundColor);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> dataSeries in ChartData)
+                foreach (LegendEntry entry in ChartLegend.LegendEntries)
                 {
-                    SizeF stringMeasurement = g.MeasureString(dataSeries.Name, legendFont);
-                    if (stringMeasurement.Width > maxTextWidth)
-                        maxTextWidth = (int)stringMeasurement.Width;
+                    //SizeF stringMeasurement = g.MeasureString(dataSeries.Name, legendFont);
+                    if (entry.EntryLabel.Dimensions.Value.Width > maxTextWidth)
+                        maxTextWidth = (int)entry.EntryLabel.Dimensions.Value.Width;
 
-                    int textHeight = (int)stringMeasurement.Height;
+                    int textHeight = (int)entry.EntryLabel.Dimensions.Value.Height;
 
                     if (yOffset == 0)
-                        yOffset = (textHeight - sizeOfLegendIcon) / 2;
+                        yOffset = (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
 
-                    switch (dataSeries.LegendDisplay)
+                    switch (entry.LegendDisplayShape)
                     {
                         case LegendDisplayType.SQUARE:
-                            g.FillRectangle(new SolidBrush(dataSeries.Color), new Rectangle(xOffset, yOffset, sizeOfLegendIcon, sizeOfLegendIcon));
+                            g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
                             break;
                         case LegendDisplayType.LINE:
-                            g.DrawLine(new Pen(dataSeries.Color, lineWidth), 
-                                new Point(0, yOffset + (sizeOfLegendIcon - lineWidth) /2), 
-                                new Point(sizeOfLegendIcon, yOffset + (sizeOfLegendIcon - lineWidth) / 2));
+                            g.DrawLine(new Pen(entry.IconColor, lineWidth),
+                                new Point(0, yOffset + (textHeight / 2)),
+                                new Point(ChartLegend.SizeOfLegendIcon, yOffset + (textHeight / 2)));
                             break;
                     }
-                    
-                    xOffset += sizeOfLegendIcon + gapBetweenIconAndText;
-                    yOffset -= (textHeight - sizeOfLegendIcon) / 2;
-                    g.DrawString(dataSeries.Name, legendFont, Brushes.Black, new Point(xOffset, yOffset));
-                    yOffset += textHeight + gapBetweenIconAndText;
+
+                    xOffset += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
+                    yOffset -= (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
+                    g.DrawString(entry.EntryLabel.Text, ChartLegend.LegendEntryFont, Brushes.Black, new Point(xOffset, yOffset));
+                    yOffset += textHeight + ChartLegend.GapBetweenIconAndText;
                     xOffset = 0;
                 }
-                yOffset -= gapBetweenIconAndText;
-                maxTextWidth += sizeOfLegendIcon + gapBetweenIconAndText;
+                yOffset -= ChartLegend.GapBetweenIconAndText;
+                maxTextWidth += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
 
                 bmp = ImageMethods.CropImage(bmp, new Rectangle(new Point(0, 0), new Size(maxTextWidth, yOffset)));
-                bmp.Save(@"c:\new folder\legend.png", ImageFormat.Png);
-                //bmp.Dispose();
             }
 
             return bmp;
@@ -698,6 +738,9 @@ namespace MyCharter
             Console.WriteLine($"y-Axis (lp;tp;w;h): {_layout.yAxisLabels}; {_layout.yAxisTicks}; {(int)yAxisDimensions.Width}; {(int)yAxisDimensions.Height}");
         }
 
+        /// <summary>
+        /// A debug method to output the DataSeries that have been added.
+        /// </summary>
         public void DebugOutput_DataSeries()
         {
             foreach (DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData> ds in ChartData)
@@ -721,7 +764,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Get the Minimum and the Maximum values for the X Axis.
+        /// Get the Minimum and the Maximum values for the X-Axis.
         /// </summary>
         /// <returns></returns>
         public virtual (TXAxisDataType Min, TXAxisDataType Max) GetXAxisBounds()
@@ -743,7 +786,7 @@ namespace MyCharter
         }
 
         /// <summary>
-        /// Get the Minimum and the Maximum values for the Y Axis.
+        /// Get the Minimum and the Maximum values for the Y-Axis.
         /// </summary>
         /// <returns></returns>
         public virtual (TYAxisDataType Min, TYAxisDataType Max) GetYAxisBounds()

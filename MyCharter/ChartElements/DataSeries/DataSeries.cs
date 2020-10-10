@@ -26,6 +26,7 @@ namespace MyCharter.ChartElements.DataSeries
         /// The type of display which this DataSeries should have in the legend.
         /// </summary>
         public LegendDisplayType LegendDisplay { get; set; } = LegendDisplayType.SQUARE;
+
         /// <summary>
         /// Define a new Data Series with the given name and color.
         /// </summary>

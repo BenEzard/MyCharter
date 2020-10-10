@@ -34,13 +34,13 @@ namespace MyCharter.Charts
 
         public override void CalculateDataPointLabelDimensions()
         {
-            // Create a temporary BMP for 'sketching'
+         /*   // Create a temporary BMP for 'sketching'
             Bitmap tempBMP = new Bitmap(300, 300);
             Graphics tempGraphics = Graphics.FromImage(tempBMP);
 
             var yAxis = GetYAxis();
 
-           /* foreach (DataSeries<DateTime, string, Duration> dataSeries in ChartData)
+            foreach (DataSeries<DateTime, string, Duration> dataSeries in ChartData)
             {
                 if (dataSeries.DataSeriesLabelFormat != AxisLabelFormat.NONE)
                 {
@@ -53,9 +53,8 @@ namespace MyCharter.Charts
                         dataPoint.DataPointLabel.Dimensions = stringMeasurement;
                     }
                 }
-            }*/
 
-            tempBMP.Dispose();
+            tempBMP.Dispose();*/
         }
 
         public override void PlotData(Graphics g)
@@ -99,6 +98,12 @@ namespace MyCharter.Charts
             }
         }
 
+        /// <summary>
+        /// Calculate the GraphicsPath for a rounded rectangle with the specified bounds and radius.
+        /// </summary>
+        /// <param name="bounds"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
         public static GraphicsPath RoundedRect(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;
@@ -156,6 +161,12 @@ namespace MyCharter.Charts
             return (Min, Max);
         }
 
+        /// <summary>
+        /// Add a DataPoint.
+        /// If the DataSeries doesn't exist it will be created.
+        /// </summary>
+        /// <param name="dataSeriesName"></param>
+        /// <param name="duration"></param>
         public void AddDataPoint(string dataSeriesName, Duration duration)
         {
             // Check to see if that data series exists
@@ -165,12 +176,18 @@ namespace MyCharter.Charts
                 dataSeries.AddDataPoint(duration);
             } else
             {
+                // TODO Not sure how we should colour the default series.
                 dataSeries = new DurationDataSeries(dataSeriesName, Color.CornflowerBlue);
                 AddDataSeries(dataSeries);
                 dataSeries.AddDataPoint(duration);
             }
         }
 
+        /// <summary>
+        /// Return a DataSeries with the specified name.
+        /// </summary>
+        /// <param name="dataSeriesName"></param>
+        /// <returns></returns>
         public DataSeries<DateTime, string, Duration> GetDataSeries(string dataSeriesName)
         {
             DurationDataSeries rValue = null;
@@ -182,6 +199,10 @@ namespace MyCharter.Charts
             return rValue;
         }
 
+        /// <summary>
+        /// Load DataPoints from a CSV.
+        /// </summary>
+        /// <param name="fileNameAndPath"></param>
         public void LoadDataPointsFromCSV(string fileNameAndPath)
         {
             using (var reader = new StreamReader(fileNameAndPath))
