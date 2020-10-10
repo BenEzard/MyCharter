@@ -79,7 +79,7 @@ namespace MyCharter
             dChart.Title = "Production ETL Loads";
             dChart.SubTitle = "28/09 to 03/10 (midday)";
             dChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
-
+            dChart.BarShape = BarShape.ROUNDED_RECTANGLE;
             dChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv");
 
             var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 9, 28, 0, 00, 0), new DateTime(2020, 10, 5, 9, 20, 0),
