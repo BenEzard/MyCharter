@@ -42,6 +42,11 @@ namespace MyCharter.ChartElements.Legend
         /// </summary>
         public bool IsLegendVisible { get; set; } = true;
 
+        /// <summary>
+        /// How should the items be laid out in the Legend?
+        /// </summary>
+        public LegendLayout Layout { get; set; } = LegendLayout.VERTICAL;
+
         public Legend() { }
 
         /// <summary>

@@ -76,29 +76,30 @@ namespace MyCharter
 
         private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
-            DurationChart dChart = new DurationChart();
-            dChart.Title = "Production ETL Loads";
-            dChart.SubTitle = "28/09 to 03/10 (midday)";
-            dChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
-            dChart.BarShape = BarShape.ROUNDED_RECTANGLE;
-            dChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv");
+            DurationChart durationChart = new DurationChart();
+            durationChart.Title = "Production ETL Loads";
+            durationChart.SubTitle = "28/09 to 03/10 (midday)";
+            durationChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
+            durationChart.BarShape = BarShape.ROUNDED_RECTANGLE;
+            durationChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv");
 
             var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 9, 28, 0, 00, 0), new DateTime(2020, 10, 5, 9, 20, 0),
                 60, 10, 10, AxisLabelFormat.DATETIME_DDMMYYYY1_HHMM24);
             xAxis.MajorGridLine = true;
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
-            dChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
+            durationChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
             
-            var yAxis = new LabelAxis(30, dChart.GetDataSeriesNames());
+            var yAxis = new LabelAxis(30, durationChart.GetDataSeriesNames());
             yAxis.MajorGridLine = true;
             yAxis.AlternatingMajorGridLines = true;
-            dChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
+            durationChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
             
-            dChart.ChartLegend.IsLegendVisible = true;
-            dChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.CornflowerBlue, "Successful Run"));
-            dChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.Red, "Failed Run"));
+            durationChart.ChartLegend.IsLegendVisible = true;
+            durationChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
+            durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.CornflowerBlue, "Successful Run"));
+            durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.Red, "Failed Run"));
 
-            dChart.GenerateChart();
+            durationChart.GenerateChart();
 
         }
 

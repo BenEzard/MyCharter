@@ -550,37 +550,71 @@ namespace MyCharter
             {
                 g.Clear(ImageBackgroundColor);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                foreach (LegendEntry entry in ChartLegend.LegendEntries)
+
+                if (ChartLegend.Layout == LegendLayout.VERTICAL)
                 {
-                    //SizeF stringMeasurement = g.MeasureString(dataSeries.Name, legendFont);
-                    if (entry.EntryLabel.Dimensions.Value.Width > maxTextWidth)
-                        maxTextWidth = (int)entry.EntryLabel.Dimensions.Value.Width;
-
-                    int textHeight = (int)entry.EntryLabel.Dimensions.Value.Height;
-
-                    if (yOffset == 0)
-                        yOffset = (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
-
-                    switch (entry.LegendDisplayShape)
+                    foreach (LegendEntry entry in ChartLegend.LegendEntries)
                     {
-                        case LegendDisplayType.SQUARE:
-                            g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
-                            break;
-                        case LegendDisplayType.LINE:
-                            g.DrawLine(new Pen(entry.IconColor, lineWidth),
-                                new Point(0, yOffset + (textHeight / 2)),
-                                new Point(ChartLegend.SizeOfLegendIcon, yOffset + (textHeight / 2)));
-                            break;
+                        if (entry.EntryLabel.Dimensions.Value.Width > maxTextWidth)
+                            maxTextWidth = (int)entry.EntryLabel.Dimensions.Value.Width;
+
+                        int textHeight = (int)entry.EntryLabel.Dimensions.Value.Height;
+
+                        if (yOffset == 0)
+                            yOffset = (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
+
+                        switch (entry.LegendDisplayShape)
+                        {
+                            case LegendDisplayType.SQUARE:
+                                g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
+                                break;
+                            case LegendDisplayType.LINE:
+                                g.DrawLine(new Pen(entry.IconColor, lineWidth),
+                                    new Point(0, yOffset + (textHeight / 2)),
+                                    new Point(ChartLegend.SizeOfLegendIcon, yOffset + (textHeight / 2)));
+                                break;
+                        }
+
+                        xOffset += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
+                        yOffset -= (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
+                        g.DrawString(entry.EntryLabel.Text, ChartLegend.LegendEntryFont, Brushes.Black, new Point(xOffset, yOffset));
+                        yOffset += textHeight + ChartLegend.GapBetweenIconAndText;
+                        xOffset = 0;
+                    }
+                    yOffset -= ChartLegend.GapBetweenIconAndText;
+                    maxTextWidth += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
+                }
+
+                else if (ChartLegend.Layout == LegendLayout.HORIZONTAL)
+                {
+                    // In the HORIZONTAL layout the text is aligned in a single row. 
+                    // The gap between an icon and text is GapBetweenIconAndText.
+                    // The gap between the text of an entry and the NEXT entry's icon is 2 x GapBetweenIconAndText.
+                    int textHeight = 0;
+                    foreach (LegendEntry entry in ChartLegend.LegendEntries)
+                    {
+                        textHeight = (int)entry.EntryLabel.Dimensions.Value.Height;
+
+                        switch (entry.LegendDisplayShape)
+                        {
+                            case LegendDisplayType.SQUARE:
+                                g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
+                                break;
+                            case LegendDisplayType.LINE:
+                                g.DrawLine(new Pen(entry.IconColor, lineWidth),
+                                    new Point(0, yOffset + (textHeight / 2)),
+                                    new Point(ChartLegend.SizeOfLegendIcon, yOffset + (textHeight / 2)));
+                                break;
+                        }
+
+                        xOffset += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
+                        g.DrawString(entry.EntryLabel.Text, ChartLegend.LegendEntryFont, Brushes.Black, new Point(xOffset, yOffset));
+                        xOffset += (int)entry.EntryLabel.Dimensions.Value.Width + (2 * ChartLegend.GapBetweenIconAndText);
                     }
 
-                    xOffset += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
-                    yOffset -= (textHeight - ChartLegend.SizeOfLegendIcon) / 2;
-                    g.DrawString(entry.EntryLabel.Text, ChartLegend.LegendEntryFont, Brushes.Black, new Point(xOffset, yOffset));
-                    yOffset += textHeight + ChartLegend.GapBetweenIconAndText;
-                    xOffset = 0;
+                    maxTextWidth = xOffset;
+                    yOffset = textHeight;
                 }
-                yOffset -= ChartLegend.GapBetweenIconAndText;
-                maxTextWidth += ChartLegend.SizeOfLegendIcon + ChartLegend.GapBetweenIconAndText;
 
                 bmp = ImageMethods.CropImage(bmp, new Rectangle(new Point(0, 0), new Size(maxTextWidth, yOffset)));
             }
