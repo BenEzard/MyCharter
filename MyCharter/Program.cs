@@ -81,9 +81,9 @@ namespace MyCharter
             durationChart.SubTitle = "28/09 to 03/10 (midday)";
             durationChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
             durationChart.BarShape = BarShape.ROUNDED_RECTANGLE;
-            durationChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv");
+            durationChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv", new DateTime(2020, 10, 3, 0, 0, 0), new DateTime(2020, 10, 3, 11, 0, 0));
 
-            var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 9, 28, 0, 00, 0), new DateTime(2020, 10, 5, 9, 20, 0),
+            var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 10, 3, 0, 0, 0), new DateTime(2020, 10, 3, 11, 0, 0),
                 60, 10, 10, AxisLabelFormat.DATETIME_DDMMYYYY1_HHMM24);
             xAxis.MajorGridLine = true;
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;

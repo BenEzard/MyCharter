@@ -200,7 +200,7 @@ namespace MyCharter.Charts
         }
 
         /// <summary>
-        /// Load DataPoints from a CSV.
+        /// Load DataPoints from a CSV. 
         /// </summary>
         /// <param name="fileNameAndPath"></param>
         public void LoadDataPointsFromCSV(string fileNameAndPath)
@@ -217,6 +217,39 @@ namespace MyCharter.Charts
                     if (values[4].Length > 0)
                         durationColor = Color.Red;
                     AddDataPoint(values[0], new Duration(startDT, endDT, durationColor));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load DataPoints from a CSV, excluding any data that is outside of the minimum and maximum requirements. 
+        /// </summary>
+        /// <param name="fileNameAndPath"></param>
+        public void LoadDataPointsFromCSV(string fileNameAndPath, DateTime filterMinimumDateTime, DateTime filterMaximumDateTime)
+        {
+            using (var reader = new StreamReader(fileNameAndPath))
+            {
+                int lineCounter = 0;
+                while (reader.EndOfStream == false)
+                {
+                    ++lineCounter;
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+                    DateTime startDT = CastMethods.StringToDateTime(values[1]);
+                    DateTime endDT = CastMethods.StringToDateTime(values[3]);
+                    Color durationColor = Color.CornflowerBlue;
+                    if (values[4].Length > 0)
+                        durationColor = Color.Red;
+
+                    if ((startDT >= filterMinimumDateTime) && (endDT <= filterMaximumDateTime))
+                    {
+                        AddDataPoint(values[0], new Duration(startDT, endDT, durationColor));
+                    } 
+                    else
+                    {
+                        Console.WriteLine($"Discarding data on row {lineCounter} because it doesn't meet filter requirements.");
+                    }
+                    
                 }
             }
         }
