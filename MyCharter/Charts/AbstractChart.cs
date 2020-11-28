@@ -436,7 +436,7 @@ namespace MyCharter
         /// <summary>
         /// Draw the Chart.
         /// </summary>
-        public void GenerateChart()
+        public virtual void GenerateChart()
         {
             var xAxis = _xAxis1;
             var yAxis = _yAxis;

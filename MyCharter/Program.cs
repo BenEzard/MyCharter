@@ -36,6 +36,11 @@ namespace MyCharter
             }
         }
 
+        /// <summary>
+        /// Create a Stacked Chart Demo
+        /// </summary>
+        /// <param name="xAxisPositioning"></param>
+        /// <param name="yAxisPositioning"></param>
         private static void DoStackedChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
             StackedVerticalBarChart<DateTime, int, Point> svChart = new StackedVerticalBarChart<DateTime,int, Point>();
@@ -74,6 +79,7 @@ namespace MyCharter
             svChart.GenerateChart();
         }
 
+
         private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
             DurationChart durationChart = new DurationChart();
@@ -81,9 +87,9 @@ namespace MyCharter
             durationChart.SubTitle = "28/09 to 03/10 (midday)";
             durationChart.OutputFile = @"C:\New Folder\aDemo-duration-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
             durationChart.BarShape = BarShape.ROUNDED_RECTANGLE;
-            durationChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv", new DateTime(2020, 10, 3, 0, 0, 0), new DateTime(2020, 10, 3, 11, 0, 0));
+            durationChart.LoadDataPointsFromCSV(@"C:\New folder\etllog.csv", new DateTime(2020, 9, 30, 0, 0, 0), new DateTime(2020, 10, 1, 11, 0, 0));
 
-            var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 10, 3, 0, 0, 0), new DateTime(2020, 10, 3, 11, 0, 0),
+            var xAxis = new DateAndTimeScaleAxis(new DateTime(2020, 9, 30, 0, 0, 0), new DateTime(2020, 10, 1, 11, 0, 0),
                 60, 10, 10, AxisLabelFormat.DATETIME_DDMMYYYY1_HHMM24);
             xAxis.MajorGridLine = true;
             xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
@@ -98,6 +104,17 @@ namespace MyCharter
             durationChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
             durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.CornflowerBlue, "Successful Run"));
             durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.Red, "Failed Run"));
+
+            durationChart.ConfigureContractionsOnXAxis(2, true, true);
+            //durationChart.DetectContractions(2, xAxis);
+
+/*            Console.WriteLine($"Checking between 7 and 8 am: {durationChart.HasData(new DateTime(2020, 9, 30, 7, 0, 0), new DateTime(2020, 9, 30, 8, 0, 0))}");
+            Console.WriteLine($"Checking between 8 and 9 am: {durationChart.HasData(new DateTime(2020, 9, 30, 8, 0, 0), new DateTime(2020, 9, 30, 9, 0, 0))}");
+            Console.WriteLine($"Checking between 9 and 10 am: {durationChart.HasData(new DateTime(2020, 9, 30, 9, 0, 0), new DateTime(2020, 9, 30, 10, 0, 0))}");
+            Console.WriteLine($"Checking between 10 and 11 am: {durationChart.HasData(new DateTime(2020, 9, 30, 10, 0, 0), new DateTime(2020, 9, 30, 11, 0, 0))}");
+            Console.WriteLine($"Checking between 11 and 12: {durationChart.HasData(new DateTime(2020, 9, 30, 11, 0, 0), new DateTime(2020, 9, 30, 8, 12, 0))}");
+            Console.WriteLine($"Checking between 12 and 1 pm: {durationChart.HasData(new DateTime(2020, 9, 30, 12, 0, 0), new DateTime(2020, 9, 30, 13, 0, 0))}");
+            Console.WriteLine($"Checking between 1 and 2 pm: {durationChart.HasData(new DateTime(2020, 9, 30, 13, 0, 0), new DateTime(2020, 9, 30, 14, 0, 0))}");*/
 
             durationChart.GenerateChart();
 

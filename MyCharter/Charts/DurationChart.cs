@@ -1,8 +1,11 @@
-﻿using MyCharter.ChartElements.DataSeries;
+﻿using MyCharter.ChartElements.Axis;
+using MyCharter.ChartElements.DataSeries;
 using MyCharter.Util;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
@@ -28,8 +31,20 @@ namespace MyCharter.Charts
         /// </summary>
         public BarShape BarShape = BarShape.RECTANGLE;
 
+        private int _contractionMajorIncrements = -1;
+        private bool _leftTrimIfNoData = false;
+        private bool _rightTrimIfNoData = false;
+
+
         public DurationChart() : base()
         {
+        }
+
+        public void ConfigureContractionsOnXAxis(int majorIncrementCount, bool leftTrimIfNoData, bool rightTrimIfNoData)
+        {
+            _contractionMajorIncrements = majorIncrementCount;
+            _leftTrimIfNoData = leftTrimIfNoData;
+            _rightTrimIfNoData = rightTrimIfNoData;
         }
 
         public override void CalculateDataPointLabelDimensions()
@@ -57,6 +72,10 @@ namespace MyCharter.Charts
             tempBMP.Dispose();*/
         }
 
+        /// <summary>
+        /// Plot the data
+        /// </summary>
+        /// <param name="g"></param>
         public override void PlotData(Graphics g)
         {
             BarHeight = GetYAxis().PixelsPerIncrement - 10;
@@ -225,6 +244,8 @@ namespace MyCharter.Charts
         /// Load DataPoints from a CSV, excluding any data that is outside of the minimum and maximum requirements. 
         /// </summary>
         /// <param name="fileNameAndPath"></param>
+        /// <param name="filterMaximumDateTime"></param>
+        /// <param name="filterMinimumDateTime"></param>
         public void LoadDataPointsFromCSV(string fileNameAndPath, DateTime filterMinimumDateTime, DateTime filterMaximumDateTime)
         {
             using (var reader = new StreamReader(fileNameAndPath))
@@ -247,13 +268,215 @@ namespace MyCharter.Charts
                     } 
                     else
                     {
-                        Console.WriteLine($"Discarding data on row {lineCounter} because it doesn't meet filter requirements.");
+                        //Console.WriteLine($"Discarding data on row {lineCounter} because it doesn't meet filter requirements.");
                     }
                     
                 }
             }
         }
 
+        public override void GenerateChart()
+        {
+            base.GenerateChart();
+
+            // test contraction functionality
+            if (_contractionMajorIncrements > 0)
+            {
+                AnalyseAxisRegions(_contractionMajorIncrements, GetXAxis());
+
+                var src = (Bitmap)Image.FromFile(OutputFile);
+                Bitmap bmp2 = new Bitmap(src.Width, src.Height);
+
+                int yTopOfChart = GetYAxis().AxisEntries[0].Position.Y;
+                int yBottomOfChart = GetYAxis().AxisEntries[GetYAxis().AxisEntries.Count - 1].Position.Y;
+                int xStartPosition = 0;
+                int xOffset = 0;
+
+                using (Graphics g2 = Graphics.FromImage(src))
+                {
+                    g2.Clear(Color.White);
+                    g2.SmoothingMode = SmoothingMode.AntiAlias;
+
+                    foreach (AxisRegion<DateTime> plotRegion in GetXAxis().AxisPlottedRegion)
+                    {
+                        int srcXLeft = plotRegion.Start.Position.X;
+                        int srcXRight = plotRegion.End.Position.X + ((int)plotRegion.End.Label.Dimensions.Value.Width / 2);
+                        int srcWidth = srcXRight - srcXLeft;
+                        Console.WriteLine($"For plotRegion {plotRegion} copying {srcXLeft}, {yTopOfChart}, {srcWidth}, {yBottomOfChart}");
+                        Rectangle sourceRectangle = new Rectangle(srcXLeft, yTopOfChart, srcWidth, yBottomOfChart);
+                        ImageMethods.CopyRegionIntoImage(src, sourceRectangle, ref bmp2, 
+                            new Rectangle(xOffset, 0, srcWidth, yBottomOfChart));
+                        xOffset += srcWidth;
+                        bmp2.Save(@"c:\New Folder\manip.png", ImageFormat.Png);
+                        bmp2.Dispose();
+                        break;
+                    }
+                }
+
+                
+
+                    /*var src = (Bitmap)Image.FromFile(OutputFile);
+                    Bitmap bmp2 = new Bitmap(src.Width, src.Height);
+                    using (Graphics g2 = Graphics.FromImage(src))
+                    {
+                        g2.Clear(Color.White);
+                        g2.SmoothingMode = SmoothingMode.AntiAlias;
+                        int xStartPosition = 0;
+                        int xOffset = 0;
+
+                        int yTopOfChart = GetYAxis().AxisEntries[0].Position.Y;
+                        int yBottomOfChart = GetYAxis().AxisEntries[GetYAxis().AxisEntries.Count - 1].Position.Y;
+
+                        float[] dashValues = { 2, 2 };
+                        Pen linePen = new Pen(Brushes.LightGray, 1);
+                        linePen.DashPattern = dashValues;
+
+                        for (int i = 0; i < GetXAxis().AxisContractionRegion.Count - 1; i++)
+                        {
+                            var contractions = GetXAxis().AxisContractionRegion[i];
+                            Console.WriteLine($"Copying to {contractions.Start.Position.X}");
+                            // Add a little bit on to ensure that it gets the full label
+                            xOffset = contractions.Start.Position.X + ((int)contractions.Start.Label.Dimensions.Value.Width / 2);
+                            ImageMethods.CopyRegionIntoImage(src, new Rectangle(new Point(xStartPosition, 0), new Size(xOffset, src.Height)),
+                                ref bmp2, new Rectangle(new Point(xStartPosition, 0), new Size(xOffset + 50, src.Height)));
+
+                            if (i + 1 <= GetXAxis().AxisContractionRegion.Count - 1) // more
+                            {
+                                Console.WriteLine($"Top y axis item position is {GetYAxis().AxisEntries[0].Position.Y}");
+                                int yLineOffset = yTopOfChart;
+                                while (yLineOffset <= yBottomOfChart)
+                                {
+                                    yLineOffset += 5;
+                                    g2.DrawLine(linePen, new Point(xOffset, yLineOffset), new Point(xOffset + 10, yLineOffset));
+                                }
+
+                            }
+                            else // no more
+                            {
+
+                            }
+                            //break;
+                        }
+                        //g2.DrawString("hi there", TitleFont, Brushes.Black, new Point(900, 900));
+                    }
+
+                    bmp2.Save(@"c:\New Folder\manip.png", ImageFormat.Png);*/
+                }
+
+            }
+
+        private void AnalyseAxisRegions(int consecutiveMajorIncrements, AbstractChartAxis<DateTime> axis)
+        {
+            if (axis.AxisXY != Axis.X) throw new ArgumentException("AnalyseAxis can only be called on the X-Axis of the Duration Chart.");
+
+            int consecutiveMajIncsNoDataCounter = 0; // A counter of the number of consecutive major increments without any data.
+
+            var minimum = axis.GetMinimumAxisEntry();
+            var maximum = axis.GetMaximumAxisEntry();
+            
+            AxisEntry<DateTime> startOfContraction = null;
+            AxisEntry<DateTime> endOfContraction;
+            AxisEntry<DateTime> startOfPlottedRange = null;
+            AxisEntry<DateTime> endOfPlottedRange;
+
+            List<AxisEntry<DateTime>> majorIncrements = axis.GetMajorAxisEntries();
+
+            for (int i = 0; i < majorIncrements.Count - 1; i++)
+            {
+                // Is there data between this major increment and the next?
+                if (IsDataWithin(majorIncrements[i].KeyValue, majorIncrements[i + 1].KeyValue))
+                {
+                    consecutiveMajIncsNoDataCounter = 0;
+
+                    // If there's an open contraction range, then close it.
+                    if (startOfContraction != null)
+                    {
+                        endOfContraction = majorIncrements[i];
+                        CloseAndAddRegion(startOfContraction, endOfContraction, false);
+                        startOfContraction = null;
+
+                    }
+
+                    // If no plottable region is open
+                    if (startOfPlottedRange == null)
+                    {
+                        startOfPlottedRange = majorIncrements[i];
+                    }
+                }
+                else // No data in next segment
+                {
+                    ++consecutiveMajIncsNoDataCounter;
+
+                    // If left trim is allowed, then start trimming (even if it hasn't hit the consecutive count of blank increments yet)
+                    if (_leftTrimIfNoData && i == 0)
+                    {
+                        startOfContraction = majorIncrements[i];
+                    }
+
+                    if (consecutiveMajIncsNoDataCounter == consecutiveMajorIncrements)
+                    {
+                        // If there's an open plotted range, then close it.
+                        if (startOfPlottedRange != null)
+                        {
+                            endOfPlottedRange = majorIncrements[i];
+                            CloseAndAddRegion(startOfPlottedRange, endOfPlottedRange, true);
+                            startOfPlottedRange = null;
+                        }
+
+                        startOfContraction = majorIncrements[i];
+                    }
+                }
+            }
+            // Check to see if there's an open contraction or plottable region
+            if (startOfContraction != null)
+            {
+                endOfContraction = maximum;
+                CloseAndAddRegion(startOfContraction, endOfContraction, false);
+            }
+            if (startOfPlottedRange != null)
+            {
+                endOfPlottedRange = maximum;
+                CloseAndAddRegion(startOfPlottedRange, endOfPlottedRange, true);
+            }
+
+            void CloseAndAddRegion(AxisEntry<DateTime> start, AxisEntry< DateTime> end, bool isPlottable) {
+                var axisRegion = new AxisRegion<DateTime>(start, end);
+
+                if (isPlottable)
+                    axis.AddAxisPlottedRegion(axisRegion);
+                else
+                    axis.AddAxisContraction(axisRegion);
+            }
+
+        }
+
+        /// <summary>
+        /// Checks to see if there is data within the specified bounds.
+        /// </summary>
+        /// <param name="startDateTime"></param>
+        /// <param name="endDateTime"></param>
+        /// <returns></returns>
+        public bool IsDataWithin(DateTime startDateTime, DateTime endDateTime)
+        {
+            bool rValue = false;
+
+            foreach (DataSeries<DateTime, string, Duration> dataSeries in ChartData)
+            {
+                foreach (DataPoint<DateTime, string, Duration> dataPoint in dataSeries.DataPoints)
+                {
+                    if ((dataPoint.DataPointData.StartDateTime >= startDateTime) && (dataPoint.DataPointData.StartDateTime <= endDateTime) ||
+                        (dataPoint.DataPointData.EndDateTime >= startDateTime) && (dataPoint.DataPointData.EndDateTime <= endDateTime))
+                    {
+                        rValue = true;
+                        break;
+                    }
+                }
+                if (rValue)
+                    break;
+            }
+            
+            return rValue;
+        }
     }
 
     public enum BarShape

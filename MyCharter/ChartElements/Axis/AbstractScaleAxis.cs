@@ -1,5 +1,6 @@
 ﻿using MyCharter.ChartElements.Axis;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace MyCharter
@@ -22,6 +23,8 @@ namespace MyCharter
         public int MajorIncrement { get; set; }
 
         public int MinorIncrement { get; set; }
+
+        //public List<AxisContraction<TAxisDataType>> AxisContractions { get; } = new List<AxisContraction<TAxisDataType>>();
 
         public AbstractScaleAxis(AxisFormat format, int pixelsPerIncrement) : base(format)
         {
@@ -111,6 +114,14 @@ namespace MyCharter
             return rValue;
         }
 
-   
+        /// <summary>
+        /// Add an AxisContraction.
+        /// This should be made up of fully-formed AxisEntries.
+        /// </summary>
+        /// <param name="contraction"></param>
+        /*public void AddAxisContraction(AxisContraction<TAxisDataType> contraction)
+        {
+            AxisContractions.Add(contraction);
+        }*/
     }
 }

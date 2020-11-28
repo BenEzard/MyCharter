@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 namespace MyCharter
 {
@@ -150,6 +151,21 @@ namespace MyCharter
         /// The position at where the Axis starts.
         /// </summary>
         public Point AxisCoords { get; set; }
+
+        /// <summary>
+        /// Record if the Axis regions have been analysed for contraction points.
+        /// </summary>
+        public bool AxisRegionsAnalysedForContractions { get; set; } = false;
+
+        /// <summary>
+        /// A list of Axis regions which could be contracted (collapsed) because they contain no plotted points.
+        /// </summary>
+        public List<AxisRegion<TDataType>> AxisContractionRegion { get; } = new List<AxisRegion<TDataType>>();
+
+        /// <summary>
+        /// A list of Axis regions which CANNOT be contracted (collapsed) because they contain no plotted points.
+        /// </summary>
+        public List<AxisRegion<TDataType>> AxisPlottedRegion { get; } = new List<AxisRegion<TDataType>>();
 
         /// <summary>
         /// Instantiate an Axis.
@@ -885,7 +901,47 @@ namespace MyCharter
             return rValue;
         }
 
+        /// <summary>
+        /// Return all of the Major Axis entries.
+        /// </summary>
+        /// <returns></returns>
+        public List<AxisEntry<TDataType>> GetMajorAxisEntries()
+        {
+            List<AxisEntry<TDataType>> rValue = new List<AxisEntry<TDataType>>();
+
+            foreach (AxisEntry<TDataType> entry in AxisEntries)
+            {
+                if (entry.IsMajorTick)
+                {
+                    rValue.Add(entry);
+                }
+            }
+            
+
+            return rValue;
+        }
+
         public abstract double GetAxisPixelsPerValue();
+
+        /// <summary>
+        /// Add an AxisContraction.
+        /// This should be made up of fully-formed AxisEntries.
+        /// </summary>
+        /// <param name="contraction"></param>
+        public void AddAxisContraction(AxisRegion<TDataType> contraction)
+        {
+            AxisContractionRegion.Add(contraction);
+        }
+        
+        /// <summary>
+        /// Add an AxisRegion which contains plotted data.
+        /// This should be made up of fully-formed AxisEntries.
+        /// </summary>
+        /// <param name="plottedRegion"></param>
+        public void AddAxisPlottedRegion(AxisRegion<TDataType> plottedRegion)
+        {
+            AxisPlottedRegion.Add(plottedRegion);
+        }
 
     }
 }
