@@ -4,15 +4,24 @@ using MyCharter.ChartElements.Legend;
 using MyCharter.Charts;
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace MyCharter
 {
+    /// <summary>
+    /// 
+    /// 
+    /// 
+    /// TODO: LoadFromCSV should be an interface
+    /// 
+    /// </summary>
     class Program
     {
         static void Main(string[] args)
         {
             bool doStackedVertical = true;
             bool doDuration = true;
+            bool doDeployment = true;
 
             if (doStackedVertical)
             {
@@ -33,6 +42,12 @@ namespace MyCharter
             {
                 Console.WriteLine("========== Duration chart");
                 DoDurationChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
+            } 
+            
+            if (doDeployment)
+            {
+                Console.WriteLine("\n========== Deployment chart");
+                DoDeploymentChartDemo(ElementPosition.BOTTOM, ElementPosition.LEFT);
             }
         }
 
@@ -80,6 +95,38 @@ namespace MyCharter
         }
 
 
+        private static void DoDeploymentChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
+        {
+            DateTime minimumDate = new DateTime(2019, 5, 16);
+            DateTime maximumDate = new DateTime(2020, 11, 25);
+
+            DeploymentChart deploymentChart = new DeploymentChart();
+            deploymentChart.Title = "Deployment Chart";
+            deploymentChart.SubTitle = $"{minimumDate.ToShortDateString()} to {maximumDate.ToShortDateString()}";
+            deploymentChart.OutputFile = @"C:\New Folder\aDemo-deployment-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
+
+            deploymentChart.Color1 = Color.RoyalBlue;
+            deploymentChart.Color2 = Color.MediumVioletRed;
+            deploymentChart.LoadDataPointsFromCSV(@"C:\New folder\deployment_data.csv", minimumDate, maximumDate);
+
+            var xAxis = new DateScaleAxis(minimumDate, maximumDate, 14, 1, 3, AxisLabelFormat.DATE_DDMMYYYY2);
+            xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
+            deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
+
+            var yAxis = new LabelAxis(30, deploymentChart.GetDataSeriesNames());
+            yAxis.MajorGridLine = true;
+            yAxis.AlternatingMajorGridLines = true;
+            yAxis.MajorGridLinePen1.DashStyle = DashStyle.Dot;
+            yAxis.MajorGridLinePen1.DashPattern = new float[] { 1, 10 };
+            yAxis.MajorGridLinePen2.DashStyle = DashStyle.Dash;
+            yAxis.MajorGridLinePen2.DashPattern = new float[] { 1, 20 };
+            deploymentChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
+
+            
+
+            deploymentChart.GenerateChart();
+        }
+
         private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
             DurationChart durationChart = new DurationChart();
@@ -105,7 +152,7 @@ namespace MyCharter
             durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.CornflowerBlue, "Successful Run"));
             durationChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.SQUARE, Color.Red, "Failed Run"));
 
-            durationChart.ConfigureContractionsOnXAxis(2, true, true);
+            //durationChart.ConfigureContractionsOnXAxis(2, true, true);
             //durationChart.DetectContractions(2, xAxis);
 
 /*            Console.WriteLine($"Checking between 7 and 8 am: {durationChart.HasData(new DateTime(2020, 9, 30, 7, 0, 0), new DateTime(2020, 9, 30, 8, 0, 0))}");
