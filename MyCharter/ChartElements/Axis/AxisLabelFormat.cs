@@ -6,6 +6,8 @@
     public enum AxisLabelFormat
     {
         NONE,
+        DATE_DDMMYY1,           // DD/MM/YY
+        DATE_DDMMYY2,           // DD-MM-YY
         DATE_DDMMYYYY1,         // DD/MM/YYYY
         DATE_DDMMYYYY2,         // DD-MM-YYYY
         DATE_DDMM1,             // DD/MM

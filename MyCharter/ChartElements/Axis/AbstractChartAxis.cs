@@ -134,7 +134,8 @@ namespace MyCharter
         public bool MajorGridLine { get; set; } = false;
 
         /// <summary>
-        /// The Pen used to draw the major ticks.
+        /// The Pen used to draw the minor ticks.
+        /// Set to null if minor ticks aren't to be drawn.
         /// </summary>
         public Pen MinorTickPen = new Pen(Brushes.Black, 1);
 
@@ -709,7 +710,10 @@ namespace MyCharter
                     }
                     else
                     {
-                        g.DrawLine(MajorTickPen, e.Position, new Point(e.Position.X, e.Position.Y + MinorTickLength));
+                        if (MinorTickPen != null)
+                        {
+                            g.DrawLine(MinorTickPen, e.Position, new Point(e.Position.X, e.Position.Y + MinorTickLength));
+                        }
                     }
 
                 }
@@ -728,8 +732,11 @@ namespace MyCharter
                         }
                         else
                         {
-                            Point startPosition = new Point(e.Position.X + (int)GetMaxLabelDimensions().Width + AxisPadding + (MajorTickLength - MinorTickLength), e.Position.Y);
-                            g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
+                            if (MinorTickPen != null)
+                            {
+                                Point startPosition = new Point(e.Position.X + (int)GetMaxLabelDimensions().Width + AxisPadding + (MajorTickLength - MinorTickLength), e.Position.Y);
+                                g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
+                            }
                         }
                     }
                     else if (AxisPosition == ElementPosition.RIGHT)
@@ -741,8 +748,11 @@ namespace MyCharter
                         }
                         else
                         {
-                            Point startPosition = new Point(e.Position.X, e.Position.Y);
-                            g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
+                            if (MinorTickPen != null)
+                            {
+                                Point startPosition = new Point(e.Position.X, e.Position.Y);
+                                g.DrawLine(MinorTickPen, startPosition, new Point(startPosition.X + MinorTickLength, e.Position.Y));
+                            }
                         }
                     }
 

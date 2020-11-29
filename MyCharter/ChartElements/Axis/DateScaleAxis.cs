@@ -72,6 +72,19 @@ namespace MyCharter.ChartElements.Axis
                 string dateValue = "";
                 switch (LabelFormat)
                 {
+                    case AxisLabelFormat.DATE_DDMMYY1:
+                        rValue = date.Date.ToShortDateString();
+                        rValue = rValue.Substring(0, rValue.Length - 2);
+                        if (rValue.IndexOf('/') == 1)
+                            rValue = '0' + rValue;
+                        break;
+                    case AxisLabelFormat.DATE_DDMMYY2:
+                        rValue = date.Date.ToShortDateString();
+                        rValue = rValue.Substring(0, rValue.Length - 2);
+                        if (rValue.IndexOf('/') == 1)
+                            rValue = '0' + rValue;
+                        rValue = rValue.Replace('/', '-');
+                        break;
                     case AxisLabelFormat.DATE_DDMMYYYY1:
                         rValue = date.Date.ToShortDateString();
                         if (rValue.IndexOf('/') == 1)

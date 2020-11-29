@@ -118,7 +118,7 @@ namespace MyCharter
                 deploymentChart.Color2 = Color.MediumVioletRed;
                 deploymentChart.LoadDataPointsFromCSV(@"C:\New folder\deployment_data.csv", minimumDate, maximumDate);
 
-                var xAxis = new DateScaleAxis(minimumDate, maximumDate, 14, 1, 3, AxisLabelFormat.DATE_DDMMYYYY2);
+                var xAxis = new DateScaleAxis(minimumDate, maximumDate, 14, 1, 3, AxisLabelFormat.DATE_DDMMYY2);
                 xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
                 deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
 
@@ -130,16 +130,17 @@ namespace MyCharter
                 yAxis.MajorGridLinePen1.DashPattern = new float[] { 1, 10 };
                 yAxis.MajorGridLinePen2.DashStyle = DashStyle.Dash;
                 yAxis.MajorGridLinePen2.DashPattern = new float[] { 1, 20 };
+                xAxis.MinorTickPen = null;
                 deploymentChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
 
                 deploymentChart.RemoveData(chartGroup, false);
 
-            deploymentChart.ChartLegend.IsLegendVisible = true;
-            deploymentChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
-            deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color1, "Major Version"));
-            deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color2, "Minor Version"));
+                deploymentChart.ChartLegend.IsLegendVisible = true;
+                deploymentChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
+                deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color1, "Major Version"));
+                deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color2, "Minor Version"));
 
-            deploymentChart.GenerateChart();
+                deploymentChart.GenerateChart();
             }
 
             

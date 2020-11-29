@@ -459,6 +459,12 @@ namespace MyCharter
             }
         }
 
+        /// <summary>
+        /// Remove the DATA from the Chart matching the Series Name.
+        /// This method can either specify the list to remove or keep.
+        /// </summary>
+        /// <param name="seriesNameStartsWith">Start of Series Name</param>
+        /// <param name="removeThoseInList">If true, those with a Series name in the list will be removed. If false, any that are not in the list will be removed</param>
         public virtual void RemoveData(string seriesNameStartsWith, bool removeMatching)
         {
             var index = 0;

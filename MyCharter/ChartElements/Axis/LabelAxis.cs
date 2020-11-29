@@ -74,6 +74,9 @@ namespace MyCharter.ChartElements.Axis
                     index++;
                 }
             }
+            
+            // Call this method again to get it to recalculate based on new values.
+            //CalculateInitialAxisValuePositions();
         }
     }
 }
