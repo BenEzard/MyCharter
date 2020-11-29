@@ -3,6 +3,7 @@ using MyCharter.ChartElements.DataSeries;
 using MyCharter.ChartElements.Legend;
 using MyCharter.Charts;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -97,34 +98,51 @@ namespace MyCharter
 
         private static void DoDeploymentChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
-            DateTime minimumDate = new DateTime(2019, 5, 16);
-            DateTime maximumDate = new DateTime(2020, 11, 25);
+            List<string> loop = new List<string>{ "RPT_AHATS","RPT_ALL", "RPT_ASB", "RPT_BA", "RPT_CPR", "RPT_CUS","RPT_DEBT", 
+                "RPT_ECIS", "RPT_H2HADM", "RPT_HV_001", "RPT_MFA", "RPT_MICA", "RPT_MNT", "RPT_PLC", "RPT_PRC", "RPT_PROP",
+                "RPT_QM", "RPT_RENT", "RPT_SC", "RPT_SS", "RPT_TEN", "RPT_TM", "RPT_TT", "RPT_VMIA", "RPT_VOID" };
 
-            DeploymentChart deploymentChart = new DeploymentChart();
-            deploymentChart.Title = "Deployment Chart";
-            deploymentChart.SubTitle = $"{minimumDate.ToShortDateString()} to {maximumDate.ToShortDateString()}";
-            deploymentChart.OutputFile = @"C:\New Folder\aDemo-deployment-chart-" + xAxisPositioning.ToString() + "-" + yAxisPositioning.ToString() + ".png";
+            foreach (string chartGroup in loop)
+            {
+                DateTime minimumDate = new DateTime(2019, 5, 16);
+                DateTime maximumDate = new DateTime(2020, 11, 25);
 
-            deploymentChart.Color1 = Color.RoyalBlue;
-            deploymentChart.Color2 = Color.MediumVioletRed;
-            deploymentChart.LoadDataPointsFromCSV(@"C:\New folder\deployment_data.csv", minimumDate, maximumDate);
+                DeploymentChart deploymentChart = new DeploymentChart();
+                deploymentChart.Title = $"Deployment Chart for {chartGroup} Reports";
+                //deploymentChart.Title = $"Deployment Chart";
+                deploymentChart.SubTitle = $"{minimumDate.ToShortDateString()} to {maximumDate.ToShortDateString()}";
+                deploymentChart.OutputFile = @"C:\New Folder\Deployment Chart\" + chartGroup + ".png";
+                //deploymentChart.OutputFile = @"C:\New Folder\Deployment Chart.png";
 
-            var xAxis = new DateScaleAxis(minimumDate, maximumDate, 14, 1, 3, AxisLabelFormat.DATE_DDMMYYYY2);
-            xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
-            deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
+                deploymentChart.Color1 = Color.RoyalBlue;
+                deploymentChart.Color2 = Color.MediumVioletRed;
+                deploymentChart.LoadDataPointsFromCSV(@"C:\New folder\deployment_data.csv", minimumDate, maximumDate);
 
-            var yAxis = new LabelAxis(30, deploymentChart.GetDataSeriesNames());
-            yAxis.MajorGridLine = true;
-            yAxis.AlternatingMajorGridLines = true;
-            yAxis.MajorGridLinePen1.DashStyle = DashStyle.Dot;
-            yAxis.MajorGridLinePen1.DashPattern = new float[] { 1, 10 };
-            yAxis.MajorGridLinePen2.DashStyle = DashStyle.Dash;
-            yAxis.MajorGridLinePen2.DashPattern = new float[] { 1, 20 };
-            deploymentChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
+                var xAxis = new DateScaleAxis(minimumDate, maximumDate, 14, 1, 3, AxisLabelFormat.DATE_DDMMYYYY2);
+                xAxis.LabelHorizontalPosition = AxisLabelHorizontalPosition.CENTER;
+                deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
 
-            
+                var yAxis = new LabelAxis(30, deploymentChart.GetDataSeriesNames());
+                yAxis.RemoveSeries(chartGroup, false);
+                yAxis.MajorGridLine = true;
+                yAxis.AlternatingMajorGridLines = true;
+                yAxis.MajorGridLinePen1.DashStyle = DashStyle.Dot;
+                yAxis.MajorGridLinePen1.DashPattern = new float[] { 1, 10 };
+                yAxis.MajorGridLinePen2.DashStyle = DashStyle.Dash;
+                yAxis.MajorGridLinePen2.DashPattern = new float[] { 1, 20 };
+                deploymentChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
+
+                deploymentChart.RemoveData(chartGroup, false);
+
+            deploymentChart.ChartLegend.IsLegendVisible = true;
+            deploymentChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
+            deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color1, "Major Version"));
+            deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color2, "Minor Version"));
 
             deploymentChart.GenerateChart();
+            }
+
+            
         }
 
         private static void DoDurationChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)

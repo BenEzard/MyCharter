@@ -2,6 +2,7 @@
 {
     public enum LegendDisplayType
     {
+        CIRCLE,
         LINE,
         SQUARE,
         NONE,

@@ -213,7 +213,7 @@ namespace MyCharter
         /// <summary>
         /// TODO should be generic at this point?
         /// </summary>
-        public List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>> ChartData {get; set;} = new List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>>();
+        public List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>> ChartData { get; set; } = new List<DataSeries<TXAxisDataType, TYAxisDataType, TDataPointData>>();
 
         public DataSeriesLabelOption LabelOption { get; set; } = DataSeriesLabelOption.LABEL_ON_DATA_SERIES;
 
@@ -278,7 +278,7 @@ namespace MyCharter
             axis.AxisPosition = labelPosition;
             axis.AxisWidth = axisWidth;
             _yAxis = axis;
-            
+
             // If BOTH the Minimum or Maximum haven't been set, then auto-calculate values.
             if (EqualityComparer<TYAxisDataType>.Default.Equals(axis.MinimumValue, default)
                 && EqualityComparer<TYAxisDataType>.Default.Equals(axis.MaximumValue, default))
@@ -349,10 +349,10 @@ namespace MyCharter
                 else if (yAxis.AxisPosition == ElementPosition.RIGHT)
                 {
                     // If the Y-Axis is on the right, we want to offset the X-Axis a bit to make room for the left-most label on the x-axis
-                   // tempXAxis.X += (int)xAxis.GetMaxLabelDimensions().Width;
+                    // tempXAxis.X += (int)xAxis.GetMaxLabelDimensions().Width;
                     tempYAxis.X = tempXAxis.X + xAxis.GetDimensions().Width;
                 }
-                        
+
             }
             else if (xAxis.AxisPosition == ElementPosition.BOTTOM)
             {
@@ -372,6 +372,9 @@ namespace MyCharter
             _yAxis.AxisCoords = tempYAxis;
         }
 
+        /// <summary>
+        /// Output the layout information to the Console.
+        /// </summary>
         public void Debug_GetLayout()
         {
             Console.WriteLine("Layout\n");
@@ -396,17 +399,17 @@ namespace MyCharter
         public void ValidateAxis(Axis type, ElementPosition labelPosition)
         {
             // TODO redo
-           /* int index = (int)type;
+            /* int index = (int)type;
 
-            if (axes[index] != null)
-                throw new ArgumentException($"Axis {type} has already been set.");
+             if (axes[index] != null)
+                 throw new ArgumentException($"Axis {type} has already been set.");
 
-            if ((axes[0] != null) && (axes[0].Format == AxisFormat.TIME_SCALE) && (axes[1] != null) && (axes[1].Format != AxisFormat.DATA_SERIES))
-                throw new ArgumentException($"Axis types are conflicting. {axes[0].AxisXY} is {axes[0].Format} and {axes[1].AxisXY} is {axes[1].Format}.");
+             if ((axes[0] != null) && (axes[0].Format == AxisFormat.TIME_SCALE) && (axes[1] != null) && (axes[1].Format != AxisFormat.DATA_SERIES))
+                 throw new ArgumentException($"Axis types are conflicting. {axes[0].AxisXY} is {axes[0].Format} and {axes[1].AxisXY} is {axes[1].Format}.");
 
-            if ((type == Axis.X) && ((labelPosition == ElementPosition.LEFT) || (labelPosition == ElementPosition.RIGHT))
-                || (type == Axis.Y) && ((labelPosition == ElementPosition.TOP) || (labelPosition == ElementPosition.BOTTOM)))
-                throw new ArgumentException($"Axis label positions are not valid.");*/
+             if ((type == Axis.X) && ((labelPosition == ElementPosition.LEFT) || (labelPosition == ElementPosition.RIGHT))
+                 || (type == Axis.Y) && ((labelPosition == ElementPosition.TOP) || (labelPosition == ElementPosition.BOTTOM)))
+                 throw new ArgumentException($"Axis label positions are not valid.");*/
         }
 
         /// <summary>
@@ -434,6 +437,46 @@ namespace MyCharter
         }
 
         /// <summary>
+        /// Remove the DATA from the Chart based on series Name.
+        /// This method can either specify the list to remove or keep.
+        /// </summary>
+        /// <param name="seriesList">List of Series Names'</param>
+        /// <param name="removeThoseInList">If true, those with a Series name in the list will be removed. If false, any that are not in the list will be removed</param>
+        public virtual void RemoveData(List<string> seriesList, bool removeThoseInList) 
+        {
+            var index = 0;
+            while (index < ChartData.Count)
+            {
+                if (((removeThoseInList == false) && (seriesList.Contains(ChartData[index].Name) == false)) ||
+                    ((removeThoseInList) && (seriesList.Contains(ChartData[index].Name))))
+                {
+                    ChartData.Remove(ChartData[index]);
+                }
+                else
+                {
+                    index++;
+                }
+            }
+        }
+
+        public virtual void RemoveData(string seriesNameStartsWith, bool removeMatching)
+        {
+            var index = 0;
+            while (index < ChartData.Count)
+            {
+                if (((removeMatching) && (ChartData[index].Name.StartsWith(seriesNameStartsWith)))
+                    || ((removeMatching == false) && (ChartData[index].Name.StartsWith(seriesNameStartsWith) == false)))
+                {
+                    ChartData.Remove(ChartData[index]);
+                }
+                else
+                {
+                    index++;
+                }
+            }
+        }
+
+        /// <summary>
         /// Draw the Chart.
         /// </summary>
         public virtual void GenerateChart()
@@ -447,10 +490,12 @@ namespace MyCharter
             yAxis.FinaliseAxisLayout(xAxis.AxisCoords, yAxis.AxisCoords);
             CalculateDataPointLabelDimensions();
 
+            // If Legend = show and there are no legend entries, then auto-create them
             if ((ChartLegend.LegendEntries.Count == 0) && (ChartLegend.IsLegendVisible))
             {
                 AutoGenerateLegendEntries();
             }
+
             CalculateLegendDimensions();
 
             SizeF chartDimension = GetChartDimensions();
@@ -469,11 +514,6 @@ namespace MyCharter
                 xAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
                 yAxis.DrawAxis(g, bmp, xAxis.AxisPosition, xAxis.GetDimensions().Width, yAxis.GetDimensions().Height);
 
-                /*Pen rectPen = new Pen(Brushes.Red, 1);
-                rectPen.DashPattern = new float[] { 10, 10 };
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(xAxis.AxisCoords, xAxis.GetDimensions()), rectPen);
-                ImageMethods.Debug_DrawRectangle(g, new Rectangle(yAxis.AxisCoords, yAxis.GetDimensions()), rectPen);*/
-
                 PlotData(g);
 
                 if (ChartLegend.IsLegendVisible)
@@ -491,8 +531,9 @@ namespace MyCharter
                         yOffset += (int)BorderPen.Width;
 
                     ImageMethods.CopyRegionIntoImage(legendBMP, new Rectangle(0, 0, legendBMP.Width, legendBMP.Height),
-                        ref bmp, new Rectangle(xOffset,
-                        yOffset, legendBMP.Width, legendBMP.Height));
+                        ref bmp, new Rectangle(xOffset, yOffset, legendBMP.Width, legendBMP.Height));
+
+                    //legendBMP.Save(@"C:\New folder\legend.png", ImageFormat.Png);
                 }
 
             }
@@ -502,6 +543,7 @@ namespace MyCharter
 
         /// <summary>
         /// Calculate dimensions of Legend text.
+        /// This method populates the Dimensions obejct of EntryLabels.
         /// </summary>
         public void CalculateLegendDimensions()
         {
@@ -512,7 +554,7 @@ namespace MyCharter
 
             float maxWidth = 0;
             float maxHeight = 0;
-            SizeF stringMeasurement = new SizeF();
+            SizeF stringMeasurement;
 
             foreach (LegendEntry entry in ChartLegend.LegendEntries)
             {
@@ -538,6 +580,10 @@ namespace MyCharter
             }
         }
 
+        /// <summary>
+        /// Draws the Legend on the diagram.
+        /// </summary>
+        /// <returns></returns>
         public Bitmap DrawLegend()
         {
             int lineWidth = 3;
@@ -545,7 +591,7 @@ namespace MyCharter
             int xOffset = 0;
             int yOffset = 0;
             int maxTextWidth = 0;
-            Bitmap bmp = new Bitmap(500, 500);
+            Bitmap bmp = new Bitmap(1000, 1000);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(ImageBackgroundColor);
@@ -565,6 +611,13 @@ namespace MyCharter
 
                         switch (entry.LegendDisplayShape)
                         {
+                            case LegendDisplayType.CIRCLE:
+                                g.FillEllipse(
+                                    new SolidBrush(entry.IconColor), 
+                                    new Rectangle(xOffset, yOffset, 
+                                    ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon)
+                                );
+                                break;
                             case LegendDisplayType.SQUARE:
                                 g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
                                 break;
@@ -597,6 +650,12 @@ namespace MyCharter
 
                         switch (entry.LegendDisplayShape)
                         {
+                            case LegendDisplayType.CIRCLE:
+                                g.FillEllipse(
+                                    new SolidBrush(entry.IconColor),
+                                    new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon)
+                                );
+                                break;
                             case LegendDisplayType.SQUARE:
                                 g.FillRectangle(new SolidBrush(entry.IconColor), new Rectangle(xOffset, yOffset, ChartLegend.SizeOfLegendIcon, ChartLegend.SizeOfLegendIcon));
                                 break;
@@ -845,9 +904,9 @@ namespace MyCharter
         /// Return all of the Data Series names.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetDataSeriesNames()
+        public List<string> GetDataSeriesNames()
         {
-            return ChartData.Select(ds => ds.Name);
+            return ChartData.Select(ds => ds.Name).ToList();
         }
     }
 }

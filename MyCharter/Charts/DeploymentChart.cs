@@ -27,33 +27,6 @@ namespace MyCharter.Charts
                 {
                     int x = GetXAxis().GetAxisPosition(dataPoint.xAxisCoord);
                     g.FillEllipse(new SolidBrush(dataPoint.DataPointData.Color), new Rectangle(new Point(x, y - (ShapeSize / 2)), new Size(ShapeSize, ShapeSize)));
-                    
-                    /*Rectangle rec = new Rectangle(startPoint.X, (startPoint.Y - (_barHeight) / 2), (endPoint.X - startPoint.X), _barHeight);
-                    if ((BarShape == BarShape.RECTANGLE) || (rec.Width <= 10))
-                    {
-                        g.FillRectangle(new SolidBrush(dataPoint.DataPointData.Color), rec);
-                    }
-                    else if ((BarShape == BarShape.ROUNDED_RECTANGLE) || (rec.Width > 10))
-                    {
-                        using (GraphicsPath path = RoundedRect(rec, 5))
-                        {
-                            g.FillPath(new SolidBrush(dataPoint.DataPointData.Color), path);
-                        }
-                    }
-
-                    TimeSpan durationLength = (dataPoint.DataPointData.EndDateTime - dataPoint.DataPointData.StartDateTime);
-                    string durationString = durationLength.Hours.ToString().PadLeft(2, '0') + ":" + durationLength.Minutes.ToString().PadLeft(2, '0');
-                    if (durationString == "00:00")
-                        g.DrawString(durationString,
-                            new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point),
-                            Brushes.Red,
-                            new Point(startPoint.X, startPoint.Y - (_barHeight / 2)));
-                    else
-                        g.DrawString(durationString,
-                        new Font("Arial", 8 * 1.33f, FontStyle.Regular, GraphicsUnit.Point),
-                        Brushes.Black,
-                        new Point(startPoint.X, startPoint.Y - (_barHeight / 2)));*/
-
                 }
             }
         }
@@ -99,7 +72,7 @@ namespace MyCharter.Charts
                     Color color = Color2;
 
                     // if new development
-                    if ((majorVersionNumber == 1) && (minorVersionNumber == 0))
+                    if (minorVersionNumber == 0)
                         color = Color1;
 
                     if ((releaseDate >= filterMinimumDateTime) && (releaseDate <= filterMaximumDateTime))
