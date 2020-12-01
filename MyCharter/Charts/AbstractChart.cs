@@ -193,7 +193,7 @@ namespace MyCharter
         /// <summary>
         /// The 1st x-axis.
         /// </summary>
-        private AbstractChartAxis<TXAxisDataType> _xAxis1 = null;
+        private AbstractChartAxis<TXAxisDataType> _xAxis = null;
 
         /// <summary>
         /// The y-axis.
@@ -246,7 +246,7 @@ namespace MyCharter
             axis.AxisPosition = labelPosition;
             axis.AxisWidth = axisWidth;
             axis.LabelAngle = axisLabelAngle;
-            _xAxis1 = axis;
+            _xAxis = axis;
 
             // If BOTH the Minimum or Maximum haven't been set, then auto-calculate values.
             if (EqualityComparer<TXAxisDataType>.Default.Equals(axis.MinimumValue, default)
@@ -330,7 +330,7 @@ namespace MyCharter
                 y += 10; // Add some additional space under the heading.
             }
 
-            var xAxis = _xAxis1;
+            var xAxis = _xAxis;
             var yAxis = _yAxis;
 
             Point tempXAxis = new Point(x, y);
@@ -368,7 +368,7 @@ namespace MyCharter
 
             }
 
-            _xAxis1.AxisCoords = tempXAxis;
+            _xAxis.AxisCoords = tempXAxis;
             _yAxis.AxisCoords = tempYAxis;
         }
 
@@ -387,7 +387,7 @@ namespace MyCharter
                 $"x-Axis Ticks = { _layout.xAxisTicks}");
 
             Console.WriteLine($"y-Axis (x,y,h,w) = {_yAxis.AxisCoords.X}, {_yAxis.AxisCoords.Y}, {_yAxis.GetDimensions().Height}, {_yAxis.GetDimensions().Width}");
-            Console.WriteLine($"x-Axis (x,y,h,w) = {_xAxis1.AxisCoords.X}, {_xAxis1.AxisCoords.Y}, {_xAxis1.GetDimensions().Height}, {_xAxis1.GetDimensions().Width}");
+            Console.WriteLine($"x-Axis (x,y,h,w) = {_xAxis.AxisCoords.X}, {_xAxis.AxisCoords.Y}, {_xAxis.GetDimensions().Height}, {_xAxis.GetDimensions().Width}");
 
         }
 
@@ -442,6 +442,7 @@ namespace MyCharter
         /// </summary>
         /// <param name="seriesList">List of Series Names'</param>
         /// <param name="removeThoseInList">If true, those with a Series name in the list will be removed. If false, any that are not in the list will be removed</param>
+        [Obsolete("Hopefully to be replaced by RemoveData(List<AxisEntry>...")]
         public virtual void RemoveData(List<string> seriesList, bool removeThoseInList) 
         {
             var index = 0;
@@ -465,6 +466,7 @@ namespace MyCharter
         /// </summary>
         /// <param name="seriesNameStartsWith">Start of Series Name</param>
         /// <param name="removeThoseInList">If true, those with a Series name in the list will be removed. If false, any that are not in the list will be removed</param>
+        [Obsolete("Hopefully to be replaced by RemoveData(List<AxisEntry>...")]
         public virtual void RemoveData(string seriesNameStartsWith, bool removeMatching)
         {
             var index = 0;
@@ -482,12 +484,23 @@ namespace MyCharter
             }
         }
 
+        public void RemoveData(List<AxisEntry<TXAxisDataType>> entriesToRemove)
+        {
+            ChartData.RemoveAll(x => entriesToRemove.Any(y => y.Label.Text == x.Name));
+        }
+
+        public void RemoveData(List<AxisEntry<TYAxisDataType>> entriesToRemove)
+        {
+            ChartData.RemoveAll(x => entriesToRemove.Any(y => y.Label.Text == x.Name));
+        }
+
+
         /// <summary>
         /// Draw the Chart.
         /// </summary>
         public virtual void GenerateChart()
         {
-            var xAxis = _xAxis1;
+            var xAxis = _xAxis;
             var yAxis = _yAxis;
 
             CalculateInitialLayout();
@@ -597,7 +610,7 @@ namespace MyCharter
             int xOffset = 0;
             int yOffset = 0;
             int maxTextWidth = 0;
-            Bitmap bmp = new Bitmap(1000, 1000);
+            Bitmap bmp = new Bitmap(300, 300);
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(ImageBackgroundColor);
@@ -764,7 +777,7 @@ namespace MyCharter
             {
                 int chartWidth = 0;
                 int chartHeight = 0;
-                var xAxis = _xAxis1;
+                var xAxis = _xAxis;
                 var yAxis = _yAxis;
 
                 // Margins - appear at the outer-most of the image
@@ -815,7 +828,7 @@ namespace MyCharter
         /// <returns></returns>
         public Point GetChartPosition(TXAxisDataType xValue, TYAxisDataType yValue)
         {
-            return new Point(_xAxis1.GetAxisPosition(xValue), _yAxis.GetAxisPosition(yValue));
+            return new Point(_xAxis.GetAxisPosition(xValue), _yAxis.GetAxisPosition(yValue));
         }
 
         /// <summary>
@@ -823,7 +836,7 @@ namespace MyCharter
         /// </summary>
         public void DebugOutput_ChartDimensions()
         {
-            SizeF xAxisDimensions = _xAxis1.GetDimensions();
+            SizeF xAxisDimensions = _xAxis.GetDimensions();
             SizeF yAxisDimensions = _yAxis.GetDimensions();
             SizeF titleDimensions = GetTitleDimensions();
 
@@ -852,9 +865,32 @@ namespace MyCharter
             }
         }
 
+        public void RemoveXAxisEntries(string matchText, MatchMethod matchMethod, bool caseSensitive)
+        {
+            var xAxisEntries = GetXAxis().GetAxisEntries(matchText, matchMethod, caseSensitive);
+            if (xAxisEntries != null)
+            {
+                GetXAxis().RemoveAxisEntries(xAxisEntries);
+                GetXAxis().CalculateInitialAxisValuePositions();
+                RemoveData(xAxisEntries);
+            }
+        }
+
+        public void RemoveYAxisEntries(string matchText, MatchMethod matchMethod, bool caseSensitive)
+        {
+            var yAxisEntries = GetYAxis().GetAxisEntries(matchText, matchMethod, caseSensitive);
+            if (yAxisEntries != null)
+            {
+                GetYAxis().RemoveAxisEntries(yAxisEntries);
+                GetYAxis().CalculateInitialAxisValuePositions();
+                RemoveData(yAxisEntries);
+            }
+        }
+
+
         public AbstractChartAxis<TXAxisDataType> GetXAxis()
         {
-            return _xAxis1;
+            return _xAxis;
         }
 
         public AbstractChartAxis<TYAxisDataType> GetYAxis()
@@ -913,6 +949,21 @@ namespace MyCharter
         public List<string> GetDataSeriesNames()
         {
             return ChartData.Select(ds => ds.Name).ToList();
+        }
+
+        public void ExplodeChartOnYAxis(List<string> matchText, MatchMethod matchMethod, bool caseSensitive)
+        {
+            var data = ChartData;
+            var yAxis = GetYAxis();
+            foreach (string s in matchText)
+            {
+                OutputFile.Replace(".png", "-" + s + ".png");
+                RemoveYAxisEntries(s, matchMethod, caseSensitive);
+                GenerateChart();
+
+                ChartData = data;
+                SetY1Axis(yAxis.AxisPosition, (AbstractScaleAxis<TYAxisDataType>)yAxis, yAxis.AxisWidth);
+            }
         }
     }
 }

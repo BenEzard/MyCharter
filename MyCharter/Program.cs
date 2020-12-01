@@ -20,8 +20,8 @@ namespace MyCharter
     {
         static void Main(string[] args)
         {
-            bool doStackedVertical = true;
-            bool doDuration = true;
+            bool doStackedVertical = false;
+            bool doDuration = false;
             bool doDeployment = true;
 
             if (doStackedVertical)
@@ -98,9 +98,10 @@ namespace MyCharter
 
         private static void DoDeploymentChartDemo(ElementPosition xAxisPositioning, ElementPosition yAxisPositioning)
         {
-            List<string> loop = new List<string>{ "RPT_AHATS","RPT_ALL", "RPT_ASB", "RPT_BA", "RPT_CPR", "RPT_CUS","RPT_DEBT", 
+            /*List<string> loop = new List<string>{ "RPT_AHATS","RPT_ALL", "RPT_ASB", "RPT_BA", "RPT_CPR", "RPT_CUS","RPT_DEBT", 
                 "RPT_ECIS", "RPT_H2HADM", "RPT_HV_001", "RPT_MFA", "RPT_MICA", "RPT_MNT", "RPT_PLC", "RPT_PRC", "RPT_PROP",
-                "RPT_QM", "RPT_RENT", "RPT_SC", "RPT_SS", "RPT_TEN", "RPT_TM", "RPT_TT", "RPT_VMIA", "RPT_VOID" };
+                "RPT_QM", "RPT_RENT", "RPT_SC", "RPT_SS", "RPT_TEN", "RPT_TM", "RPT_TT", "RPT_VMIA", "RPT_VOID" };*/
+            List<string> loop = new List<string>{ "RPT_MNT" };
 
             foreach (string chartGroup in loop)
             {
@@ -112,7 +113,7 @@ namespace MyCharter
                 //deploymentChart.Title = $"Deployment Chart";
                 deploymentChart.SubTitle = $"{minimumDate.ToShortDateString()} to {maximumDate.ToShortDateString()}";
                 deploymentChart.OutputFile = @"C:\New Folder\Deployment Chart\" + chartGroup + ".png";
-                //deploymentChart.OutputFile = @"C:\New Folder\Deployment Chart.png";
+                //deploymentChart.OutputFile = @"C:\New Folder\Deployment Chart\Deployment Chart Full.png";
 
                 deploymentChart.Color1 = Color.RoyalBlue;
                 deploymentChart.Color2 = Color.MediumVioletRed;
@@ -123,7 +124,8 @@ namespace MyCharter
                 deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
 
                 var yAxis = new LabelAxis(30, deploymentChart.GetDataSeriesNames());
-                yAxis.RemoveSeries(chartGroup, false);
+                //yAxis.RemoveSeriesStartingWith(chartGroup, false);
+
                 yAxis.MajorGridLine = true;
                 yAxis.AlternatingMajorGridLines = true;
                 yAxis.MajorGridLinePen1.DashStyle = DashStyle.Dot;
@@ -133,13 +135,17 @@ namespace MyCharter
                 xAxis.MinorTickPen = null;
                 deploymentChart.SetY1Axis(yAxisPositioning, yAxis, AxisWidth.FIT_TO_INCREMENT);
 
-                deploymentChart.RemoveData(chartGroup, false);
+                //yAxis.RemoveSeriesStartingWith(chartGroup, false);
+                //deploymentChart.RemoveData(chartGroup, false);
 
                 deploymentChart.ChartLegend.IsLegendVisible = true;
                 deploymentChart.ChartLegend.Layout = LegendLayout.HORIZONTAL;
                 deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color1, "Major Version"));
                 deploymentChart.ChartLegend.AddEntry(new LegendEntry(LegendDisplayType.CIRCLE, deploymentChart.Color2, "Minor Version"));
 
+            deploymentChart.RemoveYAxisEntries(chartGroup, Util.MatchMethod.DOES_NOT_CONTAIN, false);
+
+            //deploymentChart.ExplodeChartOnYAxis(loop, Util.MatchMethod.DOES_NOT_CONTAIN, false);
                 deploymentChart.GenerateChart();
             }
 

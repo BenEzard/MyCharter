@@ -59,7 +59,7 @@ namespace MyCharter.ChartElements.Axis
             }
         }
 
-        public void RemoveSeries(string seriesNameStartsWith, bool removeMatching)
+        public void RemoveSeriesStartingWith(string seriesNameStartsWith, bool removeMatching)
         {
             var index = 0;
             while (index < DataSeriesNames.Count())
@@ -74,7 +74,7 @@ namespace MyCharter.ChartElements.Axis
                     index++;
                 }
             }
-            
+
             // Call this method again to get it to recalculate based on new values.
             //CalculateInitialAxisValuePositions();
         }

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 
 namespace MyCharter
 {
@@ -437,7 +436,7 @@ namespace MyCharter
         /// Calculates the intial axis positions; these will need later adjustment.
         /// This will be positions based on the position and size of the label (and NOT be relative to other items).
         /// </summary>
-        protected void CalculateInitialAxisValuePositions()
+        internal void CalculateInitialAxisValuePositions()
         {
             /// LabelPadding - The amount of padding (in pixels) which is placed above and below axis items.
             /// AxisPadding - The amount of padding (in pixels) which is placed between the label and the axis.
@@ -619,6 +618,85 @@ namespace MyCharter
             return rValue;
         }
 
+        /// <summary>
+        /// Return the AxisEntry with the given label.
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        public AxisEntry<TDataType> GetAxisEntry(string label)
+        {
+            AxisEntry<TDataType> rValue = null;
+            foreach (AxisEntry<TDataType> e in AxisEntries)
+            {
+                if (e.Label.Text.Equals(label))
+                {
+                    rValue = e;
+                    break;
+                }
+            }
+            return rValue;
+        }
+
+        /// <summary>
+        /// Returns AxisEntries that match the specified label by the specified method.
+        /// </summary>
+        /// <param name="axisEntryLabel">Axis Entry Label, or portion of label, to match on.</param>
+        /// <param name="matchMethod">Type of match to perform</param>
+        /// <param name="caseSensitive">Should the matching be case-sensitive? Default = false</param>
+        /// <returns>Returns a list of AxisEntries that match the specifications, or null if none are found.</returns>
+        public List<AxisEntry<TDataType>> GetAxisEntries(string axisEntryLabel, MatchMethod matchMethod, bool caseSensitive = false)
+        {
+            List<AxisEntry<TDataType>> rValue = null;
+
+            if (caseSensitive == false)
+            {
+                axisEntryLabel = axisEntryLabel.ToUpper();
+            }
+
+            foreach (AxisEntry<TDataType> e in AxisEntries)
+            {
+                bool addToList = false;
+                string labelText = caseSensitive ? e.Label.Text : e.Label.Text.ToUpper();
+
+                switch (matchMethod)
+                {
+                    case MatchMethod.CONTAINS:
+                        addToList = (labelText.Contains(axisEntryLabel));
+                        break;
+                    case MatchMethod.DOES_NOT_CONTAIN:
+                        addToList = !(labelText.Contains(axisEntryLabel));
+                        break;
+                    case MatchMethod.ENDS_WITH:
+                        addToList = (labelText.EndsWith(axisEntryLabel));
+                        break;
+                    case MatchMethod.EQUALS:
+                        addToList = (labelText.Equals(axisEntryLabel));
+                        break;
+                    case MatchMethod.DOES_NOT_END_WITH:
+                        addToList = !(labelText.EndsWith(axisEntryLabel));
+                        break;
+                    case MatchMethod.DOES_NOT_EQUAL:
+                        addToList = !(labelText.Equals(axisEntryLabel));
+                        break;
+                    case MatchMethod.DOES_NOT_START_WITH:
+                        addToList = !(labelText.StartsWith(axisEntryLabel));
+                        break;
+                    case MatchMethod.STARTS_WITH:
+                        addToList = (labelText.StartsWith(axisEntryLabel));
+                        break;
+                }
+
+                if (addToList)
+                {
+                    if (rValue == null)
+                        rValue = new List<AxisEntry<TDataType>>();
+
+                    rValue.Add(e);
+                }
+            }
+
+            return rValue;
+        }
 
         /// <summary>
         /// Draw the Axis label.
@@ -951,6 +1029,11 @@ namespace MyCharter
         public void AddAxisPlottedRegion(AxisRegion<TDataType> plottedRegion)
         {
             AxisPlottedRegion.Add(plottedRegion);
+        }
+
+        public void RemoveAxisEntries(List<AxisEntry<TDataType>> entriesToRemove)
+        {
+            AxisEntries.RemoveAll(e => entriesToRemove.Contains(e));
         }
 
     }
