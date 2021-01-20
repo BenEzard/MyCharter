@@ -1041,5 +1041,16 @@ namespace MyCharter
             AxisEntries.RemoveAll(e => entriesToRemove.Contains(e));
         }
 
+        public void ApplyFocus(List<AxisEntry<TDataType>> entriesToFocus, Color focusColor, Color fadeColor)
+        {
+            foreach (AxisEntry<TDataType> e in AxisEntries)
+            {
+                if (entriesToFocus.Contains(e))
+                    e.FontColor = focusColor;
+                else
+                    e.FontColor = fadeColor;
+            }
+        }
+
     }
 }
