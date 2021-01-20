@@ -4,6 +4,8 @@ namespace MyCharter
 {
     public class AxisEntry<TKeyDataType>
     {
+        public Color FontColor { get; set; }
+
         private ImageText _label;
         public ImageText Label 
         {
@@ -53,5 +55,6 @@ namespace MyCharter
             Label = new ImageText(label);
             IsMajorTick = isMajorTick;
         }
+
     }
 }

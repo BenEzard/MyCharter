@@ -54,6 +54,8 @@ namespace MyCharter
 
         public Font DataPointLabelFont { get; set; } = new Font("Arial", 6 * 1.33f, FontStyle.Regular, GraphicsUnit.Point);
 
+        public Color AxisFontColor { get; set; } = Color.Black;
+
         /// <summary>
         /// The amount of padding (in pixels) which is placed above and below axis items.
         /// </summary>
@@ -289,6 +291,7 @@ namespace MyCharter
         protected void AddEntry(AxisEntry<TDataType> entry)
         {
             AxisEntries.Add(entry);
+            entry.FontColor = AxisFontColor;
         }
 
         /// <summary>
@@ -711,16 +714,18 @@ namespace MyCharter
                 if (e.IsMajorTick)
                 {
                     // Check to see if space is free for the label.
-                    List<int> ignoreColors = new List<int> { Color.White.ToArgb(), Color.Yellow.ToArgb()}; // TODO remove yellow
+                    List<int> ignoreColors = new List<int> { Color.White.ToArgb() };
                     bool spaceEmpty = ImageMethods.IsSpaceEmpty(g, bmp,
                             new Rectangle(e.Label.Position.X, e.Label.Position.Y, (int)e.Label.Dimensions.Value.Width, (int)e.Label.Dimensions.Value.Height),
                             ignoreColors, null /* @"C:\New Folder\zsnip-" + e.Label.Text + ".png"*/);
+
+                    Brush fontBrush = new SolidBrush(e.FontColor);
 
                     if (spaceEmpty) 
                     {
                         if (LabelAngle == 0)
                         {
-                            g.DrawString(e.Label.Text, AxisFont, Brushes.Black, e.Label.Position);
+                            g.DrawString(e.Label.Text, AxisFont, fontBrush, e.Label.Position);
                         }
                         else if (LabelAngle == 90)
                         {
@@ -729,7 +734,7 @@ namespace MyCharter
                             {
                                 gTemp.SmoothingMode = SmoothingMode.AntiAlias;
                                 gTemp.Clear(Color.White);
-                                gTemp.DrawString(e.Label.Text, AxisFont, Brushes.Black, new Point(0,0));
+                                gTemp.DrawString(e.Label.Text, AxisFont, fontBrush, new Point(0,0));
                                 var flippedBMP = ImageMethods.FlipImage(tempBMP, 90);
                                 ImageMethods.CopyRegionIntoImage(flippedBMP, new Rectangle(0, 0, flippedBMP.Width, flippedBMP.Height),
                                     ref bmp, new Rectangle(e.Label.Position.X, e.Label.Position.Y, flippedBMP.Width, flippedBMP.Height));

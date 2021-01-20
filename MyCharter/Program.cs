@@ -124,8 +124,7 @@ namespace MyCharter
                 deploymentChart.SetXAxis(xAxisPositioning, xAxis, AxisWidth.FIT_TO_INCREMENT, 90);
 
                 var yAxis = new LabelAxis(30, deploymentChart.GetDataSeriesNames());
-                //yAxis.RemoveSeriesStartingWith(chartGroup, false);
-
+                yAxis.RemoveSeries(chartGroup, false);
                 yAxis.MajorGridLine = true;
                 yAxis.AlternatingMajorGridLines = true;
                 yAxis.MajorGridLinePen1.DashStyle = DashStyle.Dot;
